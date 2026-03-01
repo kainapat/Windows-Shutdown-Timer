@@ -9,10 +9,10 @@ from datetime import datetime, timedelta
 # PySide6 Imports
 from PySide6.QtWidgets import (
     QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
-    QLabel, QPushButton, QComboBox, QDateTimeEdit, QSpinBox, QMessageBox,
-    QRadioButton, QButtonGroup
+    QLabel, QPushButton, QComboBox, QDateTimeEdit, QTimeEdit, QSpinBox, QMessageBox,
+    QRadioButton, QButtonGroup, QProgressBar, QGroupBox, QGridLayout
 )
-from PySide6.QtCore import QTimer, QDateTime, Qt, QLocale, QDate
+from PySide6.QtCore import QTimer, QDateTime, Qt, QLocale, QDate, QPropertyAnimation, QEasingCurve, QSize
 from PySide6.QtGui import QFont, QIcon
 
 # --- คำสั่งสำหรับการแพ็กเป็น .exe ด้วย PyInstaller ---
@@ -26,13 +26,19 @@ class ShutdownTimerApp(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Windows Shutdown/Restart Timer")
-        self.setFixedSize(450, 440)
+        self.setMinimumSize(500, 550)
+        self.resize(500, 600)
 
         # ตัวแปรสำหรับจัดการสถานะ
         self.countdown_timer = QTimer()
         self.countdown_timer.timeout.connect(self.update_countdown)
         self.target_shutdown_time = None
         self.is_timer_active = False
+        self.total_seconds = 0
+        self.remaining_seconds = 0
+
+        # Animation for countdown
+        self.countdown_animation = None
 
         self.init_ui()
         self.load_settings()
@@ -46,13 +52,36 @@ class ShutdownTimerApp(QMainWindow):
         main_layout.setSpacing(15)
         main_layout.setContentsMargins(20, 20, 20, 20)
 
+        # --- Quick Presets Section ---
+        presets_group = QGroupBox("⚡ Quick Presets (กดเร็ว)")
+        presets_layout = QGridLayout(presets_group)
+
+        self.preset_15min = QPushButton("15 นาที")
+        self.preset_30min = QPushButton("30 นาที")
+        self.preset_1hour = QPushButton("1 ชั่วโมง")
+        self.preset_2hour = QPushButton("2 ชั่วโมง")
+
+        self.preset_15min.clicked.connect(lambda: self.start_preset_timer(15, 'minutes'))
+        self.preset_30min.clicked.connect(lambda: self.start_preset_timer(30, 'minutes'))
+        self.preset_1hour.clicked.connect(lambda: self.start_preset_timer(1, 'hours'))
+        self.preset_2hour.clicked.connect(lambda: self.start_preset_timer(2, 'hours'))
+
+        presets_layout.addWidget(self.preset_15min, 0, 0)
+        presets_layout.addWidget(self.preset_30min, 0, 1)
+        presets_layout.addWidget(self.preset_1hour, 0, 2)
+        presets_layout.addWidget(self.preset_2hour, 0, 3)
+
+        main_layout.addWidget(presets_group)
+
         # --- ส่วนเลือกการกระทำ ---
         action_layout = QHBoxLayout()
         self.action_label = QLabel("เลือกการกระทำ:")
         self.action_combo = QComboBox()
         self.action_combo.addItems([
             "ปิดเครื่อง (Shutdown)",
-            "รีสตาร์ท (Restart)"
+            "รีสตาร์ท (Restart)",
+            "พักเครื่อง (Sleep)",
+            "จำศีล (Hibernate)"
         ])
         action_layout.addWidget(self.action_label)
         action_layout.addWidget(self.action_combo)
@@ -64,7 +93,7 @@ class ShutdownTimerApp(QMainWindow):
         mode_group_layout.addWidget(self.mode_label)
 
         self.mode_button_group = QButtonGroup(self)
-        
+
         self.radio_datetime = QRadioButton("ตั้งเวลาแบบระบุวันที่/เวลา")
         self.radio_hours = QRadioButton("ตั้งเวลาแบบนับถอยหลัง (ชั่วโมง)")
         self.radio_minutes = QRadioButton("ตั้งเวลาแบบนับถอยหลัง (นาที)")
@@ -74,14 +103,14 @@ class ShutdownTimerApp(QMainWindow):
         self.mode_button_group.addButton(self.radio_hours, 1)
         self.mode_button_group.addButton(self.radio_minutes, 2)
         self.mode_button_group.addButton(self.radio_seconds, 3)
-        
+
         self.mode_button_group.idToggled.connect(self.on_mode_toggled)
 
         mode_group_layout.addWidget(self.radio_datetime)
         mode_group_layout.addWidget(self.radio_hours)
         mode_group_layout.addWidget(self.radio_minutes)
         mode_group_layout.addWidget(self.radio_seconds)
-        
+
         main_layout.addLayout(mode_group_layout)
 
         # --- ส่วนกรอกข้อมูลเวลา ---
@@ -95,22 +124,15 @@ class ShutdownTimerApp(QMainWindow):
         self.date_edit.setDisplayFormat("ddd d MMM yyyy")
         self.date_edit.setCalendarPopup(True)
 
-        # Dropdown เลือกชั่วโมง
-        self.time_hours_combo = QComboBox()
-        self.time_hours_combo.addItems([f"{i:02d}" for i in range(0, 24)])  # 00-23
-        self.time_hours_combo.setCurrentText(f"{QDateTime.currentDateTime().addSecs(3600).toString('HH')}")
-
-        # Dropdown เลือกนาที
-        self.time_minutes_combo = QComboBox()
-        self.time_minutes_combo.addItems([f"{i:02d}" for i in range(0, 60)])  # 00-59
-        self.time_minutes_combo.setCurrentText(f"{QDateTime.currentDateTime().addSecs(3600).toString('mm')}")
+        # ใช้ QTimeEdit แทน Dropdown
+        self.time_edit = QTimeEdit()
+        self.time_edit.setTime(QDateTime.currentDateTime().addSecs(3600).time())
+        self.time_edit.setDisplayFormat("HH:mm")
 
         self.datetime_layout.addWidget(QLabel("วันที่:"))
         self.datetime_layout.addWidget(self.date_edit)
         self.datetime_layout.addWidget(QLabel("เวลา:"))
-        self.datetime_layout.addWidget(self.time_hours_combo)
-        self.datetime_layout.addWidget(QLabel(":"))
-        self.datetime_layout.addWidget(self.time_minutes_combo)
+        self.datetime_layout.addWidget(self.time_edit)
 
         # สร้าง Dropdown สำหรับเลือกเวลาแทน Spinbox
         self.hours_combo = QComboBox()
@@ -131,14 +153,28 @@ class ShutdownTimerApp(QMainWindow):
         main_layout.addWidget(self.seconds_combo)
 
         # --- ส่วนแสดงสถานะและเวลาที่เหลือ ---
+        status_group = QGroupBox("สถานะ")
+        status_layout = QVBoxLayout(status_group)
+
         self.status_label = QLabel("สถานะ: ยังไม่มีการตั้งเวลา")
         self.status_label.setAlignment(Qt.AlignCenter)
+
         self.countdown_label = QLabel("--:--:--")
         self.countdown_label.setAlignment(Qt.AlignCenter)
-        self.countdown_label.setFont(QFont("Arial", 24, QFont.Bold))
-        
-        main_layout.addWidget(self.status_label)
-        main_layout.addWidget(self.countdown_label)
+        self.countdown_label.setFont(QFont("Arial", 32, QFont.Bold))
+
+        # Progress Bar
+        self.progress_bar = QProgressBar()
+        self.progress_bar.setMaximum(100)
+        self.progress_bar.setValue(0)
+        self.progress_bar.setTextVisible(True)
+        self.progress_bar.setFormat("%p%")
+
+        status_layout.addWidget(self.status_label)
+        status_layout.addWidget(self.countdown_label)
+        status_layout.addWidget(self.progress_bar)
+
+        main_layout.addWidget(status_group)
 
         # --- ส่วนปุ่มควบคุม ---
         button_layout = QHBoxLayout()
@@ -173,22 +209,36 @@ class ShutdownTimerApp(QMainWindow):
                 font-family: 'Segoe UI', 'Microsoft Sans Serif', sans-serif;
                 font-size: 12pt;
             }
+            QGroupBox {
+                border: 2px solid #45475a;
+                border-radius: 8px;
+                margin-top: 10px;
+                padding-top: 10px;
+                font-weight: bold;
+            }
+            QGroupBox::title {
+                subcontrol-origin: margin;
+                left: 10px;
+                padding: 0 5px;
+                color: #89b4fa;
+            }
             QLabel {
                 color: #cdd6f4;
                 background-color: transparent;
             }
-            QComboBox, QDateTimeEdit {
+            QComboBox, QDateTimeEdit, QTimeEdit {
                 background-color: #313244;
                 border: 1px solid #45475a;
                 border-radius: 8px;
                 padding: 5px 10px;
                 color: #cdd6f4;
+                min-width: 80px;
             }
-            QComboBox::drop-down, QDateTimeEdit::drop-down {
+            QComboBox::drop-down, QDateTimeEdit::drop-down, QTimeEdit::drop-down {
                 border: none;
                 width: 20px;
             }
-            QComboBox::down-arrow, QDateTimeEdit::down-arrow {
+            QComboBox::down-arrow, QDateTimeEdit::down-arrow, QTimeEdit::down-arrow {
                 image: none;
                 border-left: 5px solid transparent;
                 border-right: 5px solid transparent;
@@ -252,6 +302,17 @@ class ShutdownTimerApp(QMainWindow):
             QPushButton#clearButton:hover {
                 background-color: #cdd6f4;
             }
+            QProgressBar {
+                border: 2px solid #45475a;
+                border-radius: 8px;
+                text-align: center;
+                background-color: #313244;
+                height: 25px;
+            }
+            QProgressBar::chunk {
+                background-color: #89b4fa;
+                border-radius: 6px;
+            }
         """)
         self.start_button.setObjectName("startButton")
         self.cancel_button.setObjectName("cancelButton")
@@ -276,17 +337,77 @@ class ShutdownTimerApp(QMainWindow):
         else: # id == 3
             self.seconds_combo.show()
 
+    def start_preset_timer(self, value, unit):
+        """เริ่มตั้งเวลาแบบ Preset ทันที"""
+        if self.is_timer_active:
+            QMessageBox.warning(self, "คำเตือน", "มีการตั้งเวลาอยู่แล้ว กรุณายกเลิกก่อนตั้งค่าใหม่")
+            return
+
+        # ดึงการกระทำที่เลือก (shutdown หรือ restart เท่านั้นสำหรับ preset)
+        action_index = self.action_combo.currentIndex()
+        if action_index >= 2:  # Sleep หรือ Hibernate
+            QMessageBox.warning(self, "คำเตือน", "Quick Presets รองรับเฉพาะ Shutdown และ Restart")
+            self.action_combo.setCurrentIndex(0)
+            return
+
+        is_restart = action_index == 1
+        action_text = "รีสตาร์ท" if is_restart else "ปิดเครื่อง"
+
+        # คำนวณเวลา
+        if unit == 'minutes':
+            self.target_shutdown_time = datetime.now() + timedelta(minutes=value)
+            time_str = f"{value} นาที"
+        else:  # hours
+            self.target_shutdown_time = datetime.now() + timedelta(hours=value)
+            time_str = f"{value} ชั่วโมง"
+
+        reply = QMessageBox.question(
+            self,
+            f"ยืนยันการตั้งเวลา",
+            f"ต้องการตั้งเวลา{action_text}ในอีก {time_str} หรือไม่?\n\n**โปรดบันทึกงานของคุณก่อนดำเนินการครับ!**",
+            QMessageBox.Yes | QMessageBox.No,
+            QMessageBox.No
+        )
+
+        if reply == QMessageBox.No:
+            return
+
+        try:
+            total_seconds = int((self.target_shutdown_time - datetime.now()).total_seconds())
+            self.total_seconds = total_seconds
+            self.remaining_seconds = total_seconds
+
+            command = "/r" if is_restart else "/s"
+            subprocess.run(["shutdown", command, "/t", str(total_seconds)], check=True)
+
+            self.is_timer_active = True
+            self.status_label.setText(f"สถานะ: จะ{action_text}ในอีก {time_str}")
+            self.cancel_button.setEnabled(True)
+            self.start_button.setEnabled(False)
+            self.countdown_timer.start(1000)
+
+            self.save_settings()
+
+        except Exception as e:
+            QMessageBox.critical(self, "ข้อผิดพลาด", f"ไม่สามารถตั้งเวลาได้: {e}")
+
     def start_timer(self):
         """ฟังก์ชันเริ่มตั้งเวลาปิดเครื่องหรือรีสตาร์ท"""
         if self.is_timer_active:
             QMessageBox.warning(self, "คำเตือน", "มีการตั้งเวลาอยู่แล้ว กรุณายกเลิกก่อนตั้งค่าใหม่")
             return
 
-        is_restart = self.action_combo.currentIndex() == 1
-        action_text = "รีสตาร์ท" if is_restart else "ปิดเครื่อง"
-        
+        action_index = self.action_combo.currentIndex()
+        action_map = {0: ("ปิดเครื่อง", "/s"), 1: ("รีสตาร์ท", "/r"), 2: ("พักเครื่อง", "sleep"), 3: ("จำศีล", "hibernate")}
+        action_text, command_type = action_map.get(action_index, ("ปิดเครื่อง", "/s"))
+
+        # สำหรับ Sleep/Hibernate ไม่ต้องยืนยันมาก
+        if action_index >= 2:
+            self._execute_sleep_hibernate(action_text, command_type)
+            return
+
         reply = QMessageBox.question(
-            self, 
+            self,
             f"ยืนยันการตั้งเวลา",
             f"คุณต้องการตั้งเวลา{action_text}หรือไม่?\n\n**โปรดบันทึกงานของคุณก่อนดำเนินการครับ!**",
             QMessageBox.Yes | QMessageBox.No,
@@ -299,12 +420,10 @@ class ShutdownTimerApp(QMainWindow):
         try:
             mode_index = self.mode_button_group.checkedId()
             if mode_index == 0:
-                # รวมวันที่จาก date_edit และเวลาจาก dropdown
+                # รวมวันที่จาก date_edit และเวลาจาก time_edit
                 date_part = self.date_edit.date()
-                hours = int(self.time_hours_combo.currentText())
-                minutes = int(self.time_minutes_combo.currentText())
-                target_qdatetime = QDateTime(date_part)
-                target_qdatetime = target_qdatetime.addSecs(hours * 3600 + minutes * 60)
+                time_part = self.time_edit.time()
+                target_qdatetime = QDateTime(date_part, time_part)
                 self.target_shutdown_time = target_qdatetime.toPython()
             elif mode_index == 1:
                 # ดึงค่าจาก Dropdown แล้วแปลงเป็นตัวเลข
@@ -322,20 +441,46 @@ class ShutdownTimerApp(QMainWindow):
                 return
 
             total_seconds = int((self.target_shutdown_time - datetime.now()).total_seconds())
-            
-            command = "/r" if is_restart else "/s"
-            subprocess.run(["shutdown", command, "/t", str(total_seconds)], check=True)
+            self.total_seconds = total_seconds
+            self.remaining_seconds = total_seconds
+
+            subprocess.run(["shutdown", command_type, "/t", str(total_seconds)], check=True)
 
             self.is_timer_active = True
             self.status_label.setText(f"สถานะ: จะ{action_text}เวลา {self.target_shutdown_time.strftime('%H:%M:%S')}")
             self.cancel_button.setEnabled(True)
             self.start_button.setEnabled(False)
             self.countdown_timer.start(1000)
-            
+
             self.save_settings()
 
         except Exception as e:
             QMessageBox.critical(self, "ข้อผิดพลาด", f"ไม่สามารถตั้งเวลาได้: {e}")
+
+    def _execute_sleep_hibernate(self, action_text, command_type):
+        """ทำการ Sleep หรือ Hibernate ทันที"""
+        reply = QMessageBox.question(
+            self,
+            f"ยืนยันการ{action_text}",
+            f"ต้องการ{action_text}ทันทีหรือไม่?\n\n**โปรดบันทึกงานของคุณก่อนดำเนินการครับ!**",
+            QMessageBox.Yes | QMessageBox.No,
+            QMessageBox.No
+        )
+
+        if reply == QMessageBox.No:
+            return
+
+        try:
+            if command_type == "sleep":
+                # Sleep command
+                subprocess.run(["rundll32.exe", "powrprof.dll,SetSuspendState", "0,1,0"], check=True)
+            else:  # hibernate
+                # Hibernate command
+                subprocess.run(["rundll32.exe", "powrprof.dll,SetSuspendState", "1,1,0"], check=True)
+
+            self.status_label.setText(f"สถานะ: กำลัง{action_text}...")
+        except Exception as e:
+            QMessageBox.critical(self, "ข้อผิดพลาด", f"ไม่สามารถ{action_text}ได้: {e}")
 
     def cancel_timer(self):
         """ฟังก์ชันยกเลิกการตั้งเวลา"""
@@ -366,9 +511,10 @@ class ShutdownTimerApp(QMainWindow):
             return
 
         remaining = self.target_shutdown_time - datetime.now()
-        
+
         if remaining.total_seconds() <= 0:
             self.countdown_label.setText("00:00:00")
+            self.progress_bar.setValue(100)
             is_restart = self.action_combo.currentIndex() == 1
             action_text = "รีสตาร์ท" if is_restart else "ปิดเครื่อง"
             self.status_label.setText(f"สถานะ: กำลัง{action_text}...")
@@ -376,21 +522,27 @@ class ShutdownTimerApp(QMainWindow):
             self.reset_ui_state()
         else:
             total_seconds = int(remaining.total_seconds())
+            self.remaining_seconds = total_seconds
             hours, remainder = divmod(total_seconds, 3600)
             minutes, seconds = divmod(remainder, 60)
             self.countdown_label.setText(f"{hours:02d}:{minutes:02d}:{seconds:02d}")
 
+            # Update progress bar
+            if self.total_seconds > 0:
+                progress = int((self.total_seconds - self.remaining_seconds) / self.total_seconds * 100)
+                self.progress_bar.setValue(progress)
+
     def clear_fields(self):
         """ล้างค่าในช่องกรอกข้อมูลและลบไฟล์ config"""
         self.date_edit.setDateTime(QDateTime.currentDateTime().addSecs(3600))
-        self.time_hours_combo.setCurrentIndex(0)
-        self.time_minutes_combo.setCurrentIndex(0)
+        self.time_edit.setTime(QDateTime.currentDateTime().addSecs(3600).time())
         self.hours_combo.setCurrentIndex(0) # รีเซ็ตเป็นค่าแรก
         self.minutes_combo.setCurrentIndex(0)
         self.seconds_combo.setCurrentIndex(0)
         self.action_combo.setCurrentIndex(0)
         self.status_label.setText("สถานะ: ยังไม่มีการตั้งเวลา")
         self.countdown_label.setText("--:--:--")
+        self.progress_bar.setValue(0)
         self._delete_config_file()
 
     def reset_ui_state(self):
@@ -398,6 +550,9 @@ class ShutdownTimerApp(QMainWindow):
         self.is_timer_active = False
         self.countdown_timer.stop()
         self.target_shutdown_time = None
+        self.total_seconds = 0
+        self.remaining_seconds = 0
+        self.progress_bar.setValue(0)
         self.cancel_button.setEnabled(False)
         self.start_button.setEnabled(True)
 
@@ -420,9 +575,8 @@ class ShutdownTimerApp(QMainWindow):
             "action": self.action_combo.currentIndex(),
             "mode": self.mode_button_group.checkedId(),
             "date": self.date_edit.date().toString(Qt.ISODate),
-            "time_hours": self.time_hours_combo.currentIndex(),
-            "time_minutes": self.time_minutes_combo.currentIndex(),
-            "hours": self.hours_combo.currentIndex(), # << บันทึก Index
+            "time": self.time_edit.time().toString("HH:mm"),
+            "hours": self.hours_combo.currentIndex(),
             "minutes": self.minutes_combo.currentIndex(),
             "seconds": self.seconds_combo.currentIndex()
         }
@@ -454,11 +608,12 @@ class ShutdownTimerApp(QMainWindow):
             if date_str:
                 self.date_edit.setDate(QDate.fromString(date_str, Qt.ISODate))
 
-            # โหลดค่าเวลา (hours/minutes)
-            self.time_hours_combo.setCurrentIndex(settings.get("time_hours", 0))
-            self.time_minutes_combo.setCurrentIndex(settings.get("time_minutes", 0))
+            # โหลดค่าเวลา
+            time_str = settings.get("time")
+            if time_str:
+                self.time_edit.setTime(QDateTime.fromString(time_str, "HH:mm").time())
 
-            self.hours_combo.setCurrentIndex(settings.get("hours", 0)) # << โหลด Index
+            self.hours_combo.setCurrentIndex(settings.get("hours", 0))
             self.minutes_combo.setCurrentIndex(settings.get("minutes", 0))
             self.seconds_combo.setCurrentIndex(settings.get("seconds", 0))
 
@@ -468,10 +623,10 @@ class ShutdownTimerApp(QMainWindow):
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-    
+
     # ตั้งค่าให้แสดงตัวเลขเป็นอาราบิกเสมอ
     QLocale.setDefault(QLocale.C)
-    
+
     if sys.platform == "win32":
         import ctypes
         myappid = 'mycompany.myproduct.subproduct.version'

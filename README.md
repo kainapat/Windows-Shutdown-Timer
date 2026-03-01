@@ -1,8 +1,8 @@
 # 🕒 Windows Shutdown Timer
 
-โปรแกรมตั้งเวลาปิดเครื่อง/รีสตาร์ทคอมพิวเตอร์ Windows อัตโนมัติ ที่มาพร้อมกับ GUI สวยงามและใช้งานง่าย
+โปรแกรมตั้งเวลาปิดเครื่อง/รีสตาร์ท/พักเครื่อง/จำศีลคอมพิวเตอร์ Windows อัตโนมัติ ที่มาพร้อมกับ GUI สวยงามและใช้งานง่าย
 
-A beautiful and user-friendly Windows shutdown/restart timer application with dark mode UI.
+A beautiful and user-friendly Windows shutdown/restart/sleep/hibernate timer application with dark mode UI.
 
 ![Python](https://img.shields.io/badge/Python-3.8+-blue.svg)
 ![PySide6](https://img.shields.io/badge/PySide6-6.0+-green.svg)
@@ -12,15 +12,18 @@ A beautiful and user-friendly Windows shutdown/restart timer application with da
 
 ## ✨ Features (คุณสมบัติเด่น)
 
-- 🎯 **สองโหมดการทำงาน**: เลือกได้ว่าจะ Shutdown หรือ Restart
+- 🎯 **สี่โหมดการทำงาน**: Shutdown, Restart, Sleep, Hibernate
+- ⚡ **Quick Presets**: ปุ่มลัด 15 นาที, 30 นาที, 1 ชั่วโมง, 2 ชั่วโมง
 - ⏰ **หลากหลายรูปแบบการตั้งเวลา**:
   - ระบุวัน/เวลาเจาะจง (Specific Date/Time)
   - นับถอยหลังแบบชั่วโมง (1-24 ชั่วโมง)
   - นับถอยหลังแบบนาที (1-60 นาที)
   - นับถอยหลังแบบวินาที (10-300 วินาที)
+- 📊 **Progress Bar**: แสดงความคืบหน้าการนับถอยหลังเป็น %
 - 📊 **ตัวนับถอยหลังแบบเรียลไทม์**: แสดงเวลาที่เหลืออย่างชัดเจน
 - 💾 **บันทึกการตั้งค่าอัตโนมัติ**: เปิดครั้งหน้าไม่ต้องตั้งใหม่
 - 🎨 **Dark Mode UI**: ธีมสีสวยงามแบบ Navy Blue
+- 📐 **ปรับขนาดหน้าต่างได้**: UI ย่อ/ขยายได้ตามต้องการ
 - ⚡ **เบาและรวดเร็ว**: ไม่กินทรัพยากรระบบ
 
 ---
@@ -46,13 +49,13 @@ A beautiful and user-friendly Windows shutdown/restart timer application with da
 
 1. **Clone หรือดาวน์โหลด repository นี้**
    ```bash
-   git clone <repository-url>
-   cd "Windows Shutdown Timer"
+   git clone https://github.com/kainapat/Windows-Shutdown-Timer.git
+   cd "Windows-Shutdown-Timer"
    ```
 
 2. **ติดตั้ง Dependencies**
    ```bash
-   pip install PySide6
+   pip install -r requirements.txt
    ```
 
 3. **รันโปรแกรม**
@@ -64,9 +67,17 @@ A beautiful and user-friendly Windows shutdown/restart timer application with da
 
 ## 🎮 How to Use (วิธีใช้งาน)
 
+### Quick Presets (ใช้งานเร็ว)
+1. เลือกการกระทำ (Shutdown หรือ Restart)
+2. กดปุ่ม Preset ที่ต้องการ (15 นาที / 30 นาที / 1 ชม. / 2 ชม.)
+3. ยืนยัน แล้วรอนับถอยหลัง
+
+### โหมดปกติ
 1. **เลือกการกระทำ** (Action):
    - ปิดเครื่อง (Shutdown)
    - รีสตาร์ท (Restart)
+   - พักเครื่อง (Sleep)
+   - จำศีล (Hibernate)
 
 2. **เลือกโหมดการตั้งเวลา**:
    - ✅ ระบุวันที่/เวลา: เลือกวันและเวลาที่ต้องการจากปฏิทิน
@@ -76,7 +87,7 @@ A beautiful and user-friendly Windows shutdown/restart timer application with da
 
 3. **กดปุ่ม "เริ่มตั้งเวลา"**
    - โปรแกรมจะยืนยันความต้องการอีกครั้ง
-   - เมื่อยืนยันแล้ว ตัวนับถอยหลังจะเริ่มทำงาน
+   - เมื่อยืนยันแล้ว Progress Bar และตัวนับถอยหลังจะเริ่มทำงาน
 
 4. **ยกเลิกการตั้งเวลา** (ถ้าต้องการ):
    - กดปุ่ม "ยกเลิก" ได้ตลอดเวลาก่อนหมดเวลา
@@ -114,13 +125,16 @@ A beautiful and user-friendly Windows shutdown/restart timer application with da
 ```
 Windows Shutdown Timer/
 │
+├── .github/workflows/         # GitHub Actions for auto build
+│   └── build-release.yml
 ├── shutdown_timer.py          # Main application source code
+├── requirements.txt           # Python dependencies
 ├── icon.ico                   # Application icon
 ├── off.png                    # Additional resource
 ├── Windows Shutdown Timer.spec # PyInstaller spec file
 ├── timer_config.json          # Auto-saved settings (created at runtime)
-├── build/                     # Build artifacts
-└── dist/                      # Compiled executable
+├── build/                     # Build artifacts (gitignored)
+└── dist/                      # Compiled executable (gitignored)
 ```
 
 ---
@@ -132,6 +146,8 @@ Windows Shutdown Timer/
 - สีปุ่ม: Blue/Pink/Gray accents
 - ฟอนต์: Segoe UI
 - มี Hover Effects และ Rounded Corners
+- Progress Bar แสดง % การนับถอยหลัง
+- UI ย่อ/ขยายขนาดได้
 
 ---
 
@@ -141,6 +157,8 @@ Windows Shutdown Timer/
 
 - **Shutdown**: `shutdown /s /t [seconds]`
 - **Restart**: `shutdown /r /t [seconds]`
+- **Sleep**: `rundll32.exe powrprof.dll,SetSuspendState 0,1,0`
+- **Hibernate**: `rundll32.exe powrprof.dll,SetSuspendState 1,1,0`
 - **Cancel**: `shutdown /a`
 
 ไม่มีการติดตั้งซอฟต์แวร์เพิ่มเติม และปลอดภัย 100%
@@ -154,7 +172,8 @@ Windows Shutdown Timer/
 {
     "action": 0,
     "mode": 1,
-    "datetime": "2025-11-20T20:00:00",
+    "date": "2025-11-20",
+    "time": "20:00",
     "hours": 2,
     "minutes": 30,
     "seconds": 0
@@ -162,6 +181,16 @@ Windows Shutdown Timer/
 ```
 
 ไฟล์นี้จะถูกลบอัตโนมัติเมื่อปิดโปรแกรม หรือกด "ล้างค่า"
+
+---
+
+## 🚀 Auto Build with GitHub Actions
+
+Repository นี้มี GitHub Actions workflow สำหรับ Build และ Release อัตโนมัติ:
+
+- Push tag แบบ `v*` (เช่น `v1.0.0`) เพื่อ trigger build
+- Build จะทำงานบน Windows และสร้าง `.exe`
+- Release พร้อมไฟล์ `.exe` จะถูกสร้างโดยอัตโนมัติ
 
 ---
 
@@ -194,7 +223,6 @@ Created with ❤️ for Windows users who need a simple shutdown timer.
 
 หากพบปัญหาหรือต้องการสอบถาม:
 - เปิด Issue ใน GitHub repository
-- หรือติดต่อผ่าน [your contact method]
 
 ---
 
