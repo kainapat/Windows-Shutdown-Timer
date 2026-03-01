@@ -32,6 +32,7 @@ from PySide6.QtCore import (
     Qt,
     QLocale,
     QDate,
+    QTime,
     QPropertyAnimation,
     QEasingCurve,
     QSize,
