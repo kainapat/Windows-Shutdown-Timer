@@ -1,0 +1,29 @@
+# Build directories
+build/
+dist/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Virtual environments
+venv/
+env/
+ENV/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Config file (auto-generated at runtime)
+timer_config.json
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
