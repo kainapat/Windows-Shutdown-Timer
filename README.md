@@ -219,11 +219,4 @@ Created with ❤️ for Windows users who need a simple shutdown timer.
 
 ---
 
-## 📞 Support
-
-หากพบปัญหาหรือต้องการสอบถาม:
-- เปิด Issue ใน GitHub repository
-
----
-
 **Happy Scheduling! 🎉**
