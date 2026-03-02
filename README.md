@@ -172,7 +172,7 @@ Windows Shutdown Timer/
 {
     "action": 0,
     "mode": 1,
-    "date": "2025-11-20",
+    "date": "2026-03-02",
     "time": "20:00",
     "hours": 2,
     "minutes": 30,

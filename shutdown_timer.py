@@ -17,14 +17,15 @@ from PySide6.QtWidgets import (
     QPushButton,
     QComboBox,
     QDateTimeEdit,
-    QTimeEdit,
     QSpinBox,
     QMessageBox,
     QRadioButton,
     QButtonGroup,
-    QProgressBar,
     QGroupBox,
     QGridLayout,
+    QStackedWidget,
+    QGraphicsDropShadowEffect,
+    QProgressBar,
 )
 from PySide6.QtCore import (
     QTimer,
@@ -36,8 +37,20 @@ from PySide6.QtCore import (
     QPropertyAnimation,
     QEasingCurve,
     QSize,
+    QPoint,
+    QRect,
 )
-from PySide6.QtGui import QFont, QIcon
+from PySide6.QtGui import (
+    QFont,
+    QIcon,
+    QColor,
+    QPainter,
+    QPen,
+    QBrush,
+    QLinearGradient,
+    QRadialGradient,
+    QFontDatabase,
+)
 
 # --- คำสั่งสำหรับการแพ็กเป็น .exe ด้วย PyInstaller ---
 # 1. ติดตั้ง PyInstaller: pip install pyinstaller
@@ -46,89 +59,265 @@ from PySide6.QtGui import QFont, QIcon
 
 CONFIG_FILE = "timer_config.json"
 
+# --- Color Themes for Each Action ---
+ACTION_COLORS = {
+    0: {  # Shutdown - Red
+        "name": "shutdown",
+        "primary": "#f38ba8",
+        "secondary": "#f5c2e7",
+        "accent": "#eba0ac",
+        "bg_gradient_end": "#2d1f2f",
+        "progress": "#f38ba8",
+        "icon": "⏻",
+    },
+    1: {  # Restart - Orange
+        "name": "restart",
+        "primary": "#fab387",
+        "secondary": "#f9e2af",
+        "accent": "#f5c2e7",
+        "bg_gradient_end": "#2d2520",
+        "progress": "#fab387",
+        "icon": "↻",
+    },
+    2: {  # Sleep - Blue
+        "name": "sleep",
+        "primary": "#89b4fa",
+        "secondary": "#b4befe",
+        "accent": "#74c7ec",
+        "bg_gradient_end": "#1f2535",
+        "progress": "#89b4fa",
+        "icon": "⏾",
+    },
+    3: {  # Hibernate - Purple
+        "name": "hibernate",
+        "primary": "#cba6f7",
+        "secondary": "#f5c2e7",
+        "accent": "#b4befe",
+        "bg_gradient_end": "#2a1f35",
+        "progress": "#cba6f7",
+        "icon": "⏿",
+    },
+}
+
+# --- Unicode Icons ---
+ICONS = {
+    "start": "▶",
+    "cancel": "✕",
+    "clear": "⌫",
+    "clock": "⏱",
+    "calendar": "📅",
+    "timer": "⏲",
+}
+
+# --- Preset Data ---
+PRESETS = [
+    {"value": 15, "unit": "minutes", "icon": "⚡", "label": "15", "sublabel": "นาที"},
+    {"value": 30, "unit": "minutes", "icon": "⚡", "label": "30", "sublabel": "นาที"},
+    {"value": 1, "unit": "hours", "icon": "⏰", "label": "1", "sublabel": "ชม."},
+    {"value": 2, "unit": "hours", "icon": "⏰", "label": "2", "sublabel": "ชม."},
+]
+
+
+class PresetCard(QPushButton):
+    """Glassmorphism preset card button"""
+
+    def __init__(self, icon, label, sublabel, parent=None):
+        super().__init__(parent)
+        self.setFixedSize(115, 100)
+        self.setCursor(Qt.PointingHandCursor)
+
+        layout = QVBoxLayout(self)
+        layout.setSpacing(4)
+        layout.setContentsMargins(8, 8, 8, 8)
+
+        icon_label = QLabel(icon)
+        icon_label.setAlignment(Qt.AlignCenter)
+        icon_label.setStyleSheet("font-size: 20px; background: transparent;")
+
+        value_label = QLabel(label)
+        value_label.setAlignment(Qt.AlignCenter)
+        value_label.setFont(QFont("Segoe UI", 18, QFont.Bold))
+        value_label.setStyleSheet("background: transparent; color: #cdd6f4;")
+
+        unit_label = QLabel(sublabel)
+        unit_label.setAlignment(Qt.AlignCenter)
+        unit_label.setFont(QFont("Segoe UI", 10))
+        unit_label.setStyleSheet("background: transparent; color: #a6adc8;")
+
+        layout.addWidget(icon_label)
+        layout.addWidget(value_label)
+        layout.addWidget(unit_label)
+
+        # Add shadow effect
+        shadow = QGraphicsDropShadowEffect(self)
+        shadow.setBlurRadius(15)
+        shadow.setColor(QColor(0, 0, 0, 60))
+        shadow.setOffset(0, 4)
+        self.setGraphicsEffect(shadow)
+
+        self.shadow_effect = shadow
+
+    def enterEvent(self, event):
+        self.shadow_effect.setBlurRadius(25)
+        self.shadow_effect.setColor(QColor(0, 0, 0, 80))
+        self.shadow_effect.setOffset(0, 6)
+        super().enterEvent(event)
+
+    def leaveEvent(self, event):
+        self.shadow_effect.setBlurRadius(15)
+        self.shadow_effect.setColor(QColor(0, 0, 0, 60))
+        self.shadow_effect.setOffset(0, 4)
+        super().leaveEvent(event)
+
+
+class Toast(QWidget):
+    """Modern toast notification"""
+
+    def __init__(self, parent, message, duration=3000, type_="info"):
+        super().__init__(parent)
+        self.setWindowFlags(Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint)
+        self.setAttribute(Qt.WA_TranslucentBackground)
+
+        colors = {
+            "info": ("#89b4fa", "#1e1e2e"),
+            "success": ("#a6e3a1", "#1e1e2e"),
+            "warning": ("#fab387", "#1e1e2e"),
+            "error": ("#f38ba8", "#1e1e2e"),
+        }
+        border_color, bg_color = colors.get(type_, colors["info"])
+
+        self.setStyleSheet(f"""
+            QWidget {{
+                background-color: rgba(49, 50, 68, 0.95);
+                border: 2px solid {border_color};
+                border-radius: 12px;
+                padding: 12px 24px;
+                color: #cdd6f4;
+            }}
+            QLabel {{
+                background: transparent;
+                color: #cdd6f4;
+                font-size: 13px;
+                font-family: 'Segoe UI', sans-serif;
+            }}
+        """)
+
+        layout = QHBoxLayout(self)
+        layout.setContentsMargins(16, 12, 16, 12)
+
+        self.label = QLabel(message)
+        self.label.setStyleSheet(f"color: #cdd6f4; font-size: 13px;")
+        layout.addWidget(self.label)
+
+        self.duration = duration
+        self.animation = None
+        self.opacity_effect = None
+
+    def showEvent(self, event):
+        super().showEvent(event)
+        self.adjustSize()
+        parent = self.parent()
+        if parent:
+            self.move(parent.width() // 2 - self.width() // 2, 20)
+
+        # Slide in animation
+        self.animation = QPropertyAnimation(self, b"pos")
+        self.animation.setDuration(300)
+        self.animation.setEasingCurve(QEasingCurve.OutBack)
+        start_pos = QPoint(self.x(), self.y() + 20)
+        end_pos = QPoint(self.x(), self.y())
+        self.animation.setStartValue(start_pos)
+        self.animation.setEndValue(end_pos)
+        self.animation.start()
+
+        # Auto hide timer
+        QTimer.singleShot(self.duration, self.hide_animation)
+
+    def hide_animation(self):
+        self.animation = QPropertyAnimation(self, b"windowOpacity")
+        self.animation.setDuration(200)
+        self.animation.setStartValue(1.0)
+        self.animation.setEndValue(0.0)
+        self.animation.finished.connect(self.close)
+        self.animation.start()
+
 
 class ShutdownTimerApp(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("Windows Shutdown/Restart Timer")
-        self.setMinimumSize(500, 550)
-        self.resize(500, 600)
+        self.setWindowTitle("Windows Shutdown Timer")
+        self.setMinimumSize(580, 750)
+        self.resize(600, 800)
 
-        # ตัวแปรสำหรับจัดการสถานะ
+        # State variables
         self.countdown_timer = QTimer()
         self.countdown_timer.timeout.connect(self.update_countdown)
         self.target_shutdown_time = None
         self.is_timer_active = False
         self.total_seconds = 0
         self.remaining_seconds = 0
-
-        # Animation for countdown
-        self.countdown_animation = None
+        self.current_theme = ACTION_COLORS[0]
+        self.is_compact = False
 
         self.init_ui()
         self.load_settings()
         self.apply_styles()
+        self.update_theme_colors(0)
 
     def init_ui(self):
-        """สร้างและจัดวาง Widgets ต่างๆ บนหน้าต่าง"""
+        """Create and arrange widgets"""
         central_widget = QWidget()
         self.setCentralWidget(central_widget)
         main_layout = QVBoxLayout(central_widget)
-        main_layout.setSpacing(15)
-        main_layout.setContentsMargins(20, 20, 20, 20)
+        main_layout.setSpacing(18)
+        main_layout.setContentsMargins(24, 24, 24, 24)
 
-        # --- Quick Presets Section ---
-        presets_group = QGroupBox("⚡ Quick Presets (กดเร็ว)")
+        # --- Header with Action Selection ---
+        header_layout = QHBoxLayout()
+
+        self.action_combo = QComboBox()
+        self.action_combo.addItem(f"{ACTION_COLORS[0]['icon']} ปิดเครื่อง (Shutdown)")
+        self.action_combo.addItem(f"{ACTION_COLORS[1]['icon']} รีสตาร์ท (Restart)")
+        self.action_combo.addItem(f"{ACTION_COLORS[2]['icon']} พักเครื่อง (Sleep)")
+        self.action_combo.addItem(f"{ACTION_COLORS[3]['icon']} จำศีล (Hibernate)")
+        self.action_combo.setMinimumHeight(40)
+        self.action_combo.setMinimumWidth(280)
+        self.action_combo.currentIndexChanged.connect(self.update_theme_colors)
+
+        header_layout.addWidget(QLabel("การกระทำ:"))
+        header_layout.addWidget(self.action_combo, 1)
+        main_layout.addLayout(header_layout)
+
+        # --- Quick Presets Section (Visual Cards) ---
+        presets_group = QGroupBox(f"{ICONS['clock']} Quick Presets")
         presets_layout = QGridLayout(presets_group)
+        presets_layout.setSpacing(12)
 
-        self.preset_15min = QPushButton("15 นาที")
-        self.preset_30min = QPushButton("30 นาที")
-        self.preset_1hour = QPushButton("1 ชั่วโมง")
-        self.preset_2hour = QPushButton("2 ชั่วโมง")
+        self.preset_buttons = []
+        for i, preset in enumerate(PRESETS):
+            btn = PresetCard(preset["icon"], preset["label"], preset["sublabel"])
+            btn.clicked.connect(
+                lambda checked,
+                v=preset["value"],
+                u=preset["unit"]: self.start_preset_timer(v, u)
+            )
+            self.preset_buttons.append(btn)
+            presets_layout.addWidget(btn, 0, i)
 
-        self.preset_15min.clicked.connect(
-            lambda: self.start_preset_timer(15, "minutes")
-        )
-        self.preset_30min.clicked.connect(
-            lambda: self.start_preset_timer(30, "minutes")
-        )
-        self.preset_1hour.clicked.connect(lambda: self.start_preset_timer(1, "hours"))
-        self.preset_2hour.clicked.connect(lambda: self.start_preset_timer(2, "hours"))
-
-        presets_layout.addWidget(self.preset_15min, 0, 0)
-        presets_layout.addWidget(self.preset_30min, 0, 1)
-        presets_layout.addWidget(self.preset_1hour, 0, 2)
-        presets_layout.addWidget(self.preset_2hour, 0, 3)
-
+        presets_layout.setColumnStretch(4, 1)
         main_layout.addWidget(presets_group)
 
-        # --- ส่วนเลือกการกระทำ ---
-        action_layout = QHBoxLayout()
-        self.action_label = QLabel("เลือกการกระทำ:")
-        self.action_combo = QComboBox()
-        self.action_combo.addItems(
-            [
-                "ปิดเครื่อง (Shutdown)",
-                "รีสตาร์ท (Restart)",
-                "พักเครื่อง (Sleep)",
-                "จำศีล (Hibernate)",
-            ]
-        )
-        action_layout.addWidget(self.action_label)
-        action_layout.addWidget(self.action_combo)
-        main_layout.addLayout(action_layout)
-
-        # --- ส่วนเลือกโหมดการตั้งเวลา (ใช้ Radio Buttons) ---
-        mode_group_layout = QVBoxLayout()
-        self.mode_label = QLabel("เลือกโหมด:")
-        mode_group_layout.addWidget(self.mode_label)
+        # --- Mode Selection (Radio Buttons in horizontal layout) ---
+        mode_group = QGroupBox(f"{ICONS['timer']} โหมดการตั้งเวลา")
+        mode_layout = QVBoxLayout(mode_group)
 
         self.mode_button_group = QButtonGroup(self)
+        mode_buttons_layout = QHBoxLayout()
 
-        self.radio_datetime = QRadioButton("ตั้งเวลาแบบระบุวันที่/เวลา")
-        self.radio_hours = QRadioButton("ตั้งเวลาแบบนับถอยหลัง (ชั่วโมง)")
-        self.radio_minutes = QRadioButton("ตั้งเวลาแบบนับถอยหลัง (นาที)")
-        self.radio_seconds = QRadioButton("ตั้งเวลาแบบนับถอยหลัง (วินาที)")
+        self.radio_datetime = QRadioButton(f"{ICONS['calendar']} ระบุวัน/เวลา")
+        self.radio_hours = QRadioButton("⏱ นับถอยหลัง (ชั่วโมง)")
+        self.radio_minutes = QRadioButton("⏱ นับถอยหลัง (นาที)")
+        self.radio_seconds = QRadioButton("⏱ นับถอยหลัง (วินาที)")
 
         self.mode_button_group.addButton(self.radio_datetime, 0)
         self.mode_button_group.addButton(self.radio_hours, 1)
@@ -137,98 +326,136 @@ class ShutdownTimerApp(QMainWindow):
 
         self.mode_button_group.idToggled.connect(self.on_mode_toggled)
 
-        mode_group_layout.addWidget(self.radio_datetime)
-        mode_group_layout.addWidget(self.radio_hours)
-        mode_group_layout.addWidget(self.radio_minutes)
-        mode_group_layout.addWidget(self.radio_seconds)
+        mode_buttons_layout.addWidget(self.radio_datetime)
+        mode_buttons_layout.addWidget(self.radio_hours)
+        mode_buttons_layout.addWidget(self.radio_minutes)
+        mode_buttons_layout.addWidget(self.radio_seconds)
+        mode_layout.addLayout(mode_buttons_layout)
 
-        main_layout.addLayout(mode_group_layout)
+        # --- Time Input Container with Stacked Widget ---
+        self.time_stack = QStackedWidget()
 
-        # --- ส่วนกรอกข้อมูลเวลา ---
-        # ส่วนเลือกวัน/เวลาแบบเจาะจง (Datetime mode)
-        self.datetime_container = QWidget()
-        self.datetime_layout = QHBoxLayout(self.datetime_container)
-        self.datetime_layout.setContentsMargins(0, 0, 0, 0)
+        # Datetime page
+        self.datetime_page = QWidget()
+        datetime_layout = QHBoxLayout(self.datetime_page)
+        datetime_layout.setContentsMargins(0, 0, 0, 0)
 
         self.date_edit = QDateTimeEdit()
         self.date_edit.setDateTime(QDateTime.currentDateTime().addSecs(3600))
         self.date_edit.setDisplayFormat("ddd d MMM yyyy")
         self.date_edit.setCalendarPopup(True)
+        self.date_edit.setMinimumWidth(140)
 
-        # Dropdown เลือกชั่วโมง (00-23)
         self.time_hours_combo = QComboBox()
         self.time_hours_combo.addItems([f"{i:02d}" for i in range(0, 24)])
         self.time_hours_combo.setCurrentText(
             f"{QDateTime.currentDateTime().addSecs(3600).toString('HH')}"
         )
-        self.time_hours_combo.setMaximumWidth(60)
+        self.time_hours_combo.setMinimumWidth(60)
 
-        # Dropdown เลือกนาที (00-59)
         self.time_minutes_combo = QComboBox()
         self.time_minutes_combo.addItems([f"{i:02d}" for i in range(0, 60)])
         self.time_minutes_combo.setCurrentText(
             f"{QDateTime.currentDateTime().addSecs(3600).toString('mm')}"
         )
-        self.time_minutes_combo.setMaximumWidth(60)
+        self.time_minutes_combo.setMinimumWidth(60)
 
-        self.datetime_layout.addWidget(QLabel("วันที่:"))
-        self.datetime_layout.addWidget(self.date_edit)
-        self.datetime_layout.addWidget(QLabel("เวลา:"))
-        self.datetime_layout.addWidget(self.time_hours_combo)
-        self.datetime_layout.addWidget(QLabel(":"))
-        self.datetime_layout.addWidget(self.time_minutes_combo)
+        datetime_layout.addWidget(QLabel("วันที่:"))
+        datetime_layout.addWidget(self.date_edit)
+        datetime_layout.addWidget(QLabel("เวลา:"))
+        datetime_layout.addWidget(self.time_hours_combo)
+        datetime_layout.addWidget(QLabel(":"))
+        datetime_layout.addWidget(self.time_minutes_combo)
+        datetime_layout.addStretch()
 
-        # สร้าง Dropdown สำหรับเลือกเวลาแทน Spinbox
+        # Hours page
+        self.hours_page = QWidget()
+        hours_layout = QHBoxLayout(self.hours_page)
+        hours_layout.setContentsMargins(0, 0, 0, 0)
         self.hours_combo = QComboBox()
-        self.hours_combo.addItems([f"{i} ชั่วโมง" for i in range(1, 25)])  # 1-24 ชั่วโมง
-        self.hours_combo.hide()
+        self.hours_combo.addItems([f"{i} ชั่วโมง" for i in range(1, 25)])
+        self.hours_combo.setMinimumWidth(150)
+        hours_layout.addWidget(QLabel("ระยะเวลา:"))
+        hours_layout.addWidget(self.hours_combo)
+        hours_layout.addStretch()
 
+        # Minutes page
+        self.minutes_page = QWidget()
+        minutes_layout = QHBoxLayout(self.minutes_page)
+        minutes_layout.setContentsMargins(0, 0, 0, 0)
         self.minutes_combo = QComboBox()
-        self.minutes_combo.addItems([f"{i} นาที" for i in range(1, 61)])  # 1-60 นาที
-        self.minutes_combo.hide()
+        self.minutes_combo.addItems([f"{i} นาที" for i in range(1, 61)])
+        self.minutes_combo.setMinimumWidth(150)
+        minutes_layout.addWidget(QLabel("ระยะเวลา:"))
+        minutes_layout.addWidget(self.minutes_combo)
+        minutes_layout.addStretch()
 
+        # Seconds page
+        self.seconds_page = QWidget()
+        seconds_layout = QHBoxLayout(self.seconds_page)
+        seconds_layout.setContentsMargins(0, 0, 0, 0)
         self.seconds_combo = QComboBox()
-        self.seconds_combo.addItems(
-            [f"{i} วินาที" for i in range(10, 301, 10)]
-        )  # 10-300 วินาที (ทีละ 10 วินาที)
-        self.seconds_combo.hide()
+        self.seconds_combo.addItems([f"{i} วินาที" for i in range(10, 301, 10)])
+        self.seconds_combo.setMinimumWidth(150)
+        seconds_layout.addWidget(QLabel("ระยะเวลา:"))
+        seconds_layout.addWidget(self.seconds_combo)
+        seconds_layout.addStretch()
 
-        main_layout.addWidget(self.datetime_container)
-        main_layout.addWidget(self.hours_combo)
-        main_layout.addWidget(self.minutes_combo)
-        main_layout.addWidget(self.seconds_combo)
+        self.time_stack.addWidget(self.datetime_page)
+        self.time_stack.addWidget(self.hours_page)
+        self.time_stack.addWidget(self.minutes_page)
+        self.time_stack.addWidget(self.seconds_page)
 
-        # --- ส่วนแสดงสถานะและเวลาที่เหลือ ---
+        mode_layout.addWidget(self.time_stack)
+        main_layout.addWidget(mode_group)
+
+        # --- Status Section with Beautiful Progress Bar ---
         status_group = QGroupBox("สถานะ")
         status_layout = QVBoxLayout(status_group)
+        status_layout.setSpacing(18)
+        status_layout.setContentsMargins(20, 16, 20, 16)
 
-        self.status_label = QLabel("สถานะ: ยังไม่มีการตั้งเวลา")
-        self.status_label.setAlignment(Qt.AlignCenter)
-
+        # Countdown display
         self.countdown_label = QLabel("--:--:--")
         self.countdown_label.setAlignment(Qt.AlignCenter)
-        self.countdown_label.setFont(QFont("Arial", 32, QFont.Bold))
+        countdown_font = QFont("JetBrains Mono, Consolas, monospace", 42, QFont.Bold)
+        self.countdown_label.setFont(countdown_font)
+        self.countdown_label.setStyleSheet(
+            "background: transparent; color: #cdd6f4; letter-spacing: 2px;"
+        )
 
-        # Progress Bar
+        # Beautiful Progress Bar
         self.progress_bar = QProgressBar()
         self.progress_bar.setMaximum(100)
         self.progress_bar.setValue(0)
         self.progress_bar.setTextVisible(True)
         self.progress_bar.setFormat("%p%")
+        self.progress_bar.setMinimumHeight(28)
+        self.progress_bar.setMaximumHeight(28)
 
-        status_layout.addWidget(self.status_label)
+        self.status_label = QLabel("สถานะ: ยังไม่มีการตั้งเวลา")
+        self.status_label.setAlignment(Qt.AlignCenter)
+        self.status_label.setFont(QFont("Segoe UI", 11))
+        self.status_label.setStyleSheet("color: #a6adc8; background: transparent;")
+
         status_layout.addWidget(self.countdown_label)
         status_layout.addWidget(self.progress_bar)
-
+        status_layout.addWidget(self.status_label)
         main_layout.addWidget(status_group)
 
-        # --- ส่วนปุ่มควบคุม ---
+        # --- Control Buttons ---
         button_layout = QHBoxLayout()
-        self.start_button = QPushButton("เริ่มตั้งเวลา")
-        self.cancel_button = QPushButton("ยกเลิก")
-        self.clear_button = QPushButton("ล้างค่า")
+        button_layout.setSpacing(12)
+
+        self.start_button = QPushButton(f"{ICONS['start']} เริ่มตั้งเวลา")
+        self.cancel_button = QPushButton(f"{ICONS['cancel']} ยกเลิก")
+        self.clear_button = QPushButton(f"{ICONS['clear']} ล้างค่า")
 
         self.cancel_button.setEnabled(False)
+
+        self.start_button.setMinimumHeight(45)
+        self.cancel_button.setMinimumHeight(45)
+        self.clear_button.setMinimumHeight(45)
 
         self.start_button.clicked.connect(self.start_timer)
         self.cancel_button.clicked.connect(self.cancel_timer)
@@ -243,9 +470,14 @@ class ShutdownTimerApp(QMainWindow):
         button_layout.addWidget(self.clear_button)
         main_layout.addLayout(button_layout)
 
+        # Store references for dynamic styling
+        self.preset_group = presets_group
+        self.mode_group = mode_group
+        self.status_group = status_group
+
     def apply_styles(self):
-        """กำหนด Theme สี Dark Blue/Navy ให้กับแอปพลิเคชัน"""
-        self.setStyleSheet("""
+        """Apply base stylesheet - theme colors will be applied dynamically"""
+        base_style = """
             QMainWindow {
                 background-color: #1e1e2e;
             }
@@ -253,54 +485,70 @@ class ShutdownTimerApp(QMainWindow):
                 background-color: #1e1e2e;
                 color: #cdd6f4;
                 font-family: 'Segoe UI', 'Microsoft Sans Serif', sans-serif;
-                font-size: 12pt;
+                font-size: 11pt;
             }
             QGroupBox {
-                border: 2px solid #45475a;
-                border-radius: 8px;
-                margin-top: 10px;
-                padding-top: 10px;
+                background-color: rgba(49, 50, 68, 0.6);
+                border: 1px solid rgba(137, 180, 250, 0.3);
+                border-radius: 16px;
+                margin-top: 12px;
+                padding-top: 12px;
+                padding-bottom: 12px;
+                padding-left: 16px;
+                padding-right: 16px;
                 font-weight: bold;
             }
             QGroupBox::title {
                 subcontrol-origin: margin;
-                left: 10px;
-                padding: 0 5px;
+                left: 16px;
+                padding: 0 8px;
                 color: #89b4fa;
+                font-size: 12pt;
             }
             QLabel {
                 color: #cdd6f4;
                 background-color: transparent;
             }
-            QComboBox, QDateTimeEdit, QTimeEdit {
-                background-color: #313244;
-                border: 1px solid #45475a;
-                border-radius: 8px;
-                padding: 5px 10px;
+            QComboBox, QDateTimeEdit {
+                background-color: rgba(49, 50, 68, 0.8);
+                border: 1px solid rgba(137, 180, 250, 0.2);
+                border-radius: 10px;
+                padding: 8px 12px;
                 color: #cdd6f4;
                 min-width: 80px;
             }
-            QComboBox::drop-down, QDateTimeEdit::drop-down, QTimeEdit::drop-down {
+            QComboBox::drop-down, QDateTimeEdit::drop-down {
                 border: none;
-                width: 20px;
+                width: 24px;
             }
-            QComboBox::down-arrow, QDateTimeEdit::down-arrow, QTimeEdit::down-arrow {
+            QComboBox::down-arrow, QDateTimeEdit::down-arrow {
                 image: none;
                 border-left: 5px solid transparent;
                 border-right: 5px solid transparent;
                 border-top: 5px solid #89b4fa;
             }
+            QComboBox:hover, QDateTimeEdit:hover {
+                border-color: rgba(137, 180, 250, 0.5);
+            }
+            QComboBox QAbstractItemView {
+                background-color: #313244;
+                border: 1px solid #45475a;
+                border-radius: 8px;
+                selection-background-color: #585b70;
+                padding: 4px;
+            }
             QRadioButton {
                 color: #cdd6f4;
-                spacing: 10px;
-                font-size: 11pt;
+                spacing: 8px;
+                font-size: 10pt;
+                background: transparent;
             }
             QRadioButton::indicator {
                 width: 18px;
                 height: 18px;
                 border-radius: 9px;
                 border: 2px solid #89b4fa;
-                background-color: #1e1e2e;
+                background-color: transparent;
             }
             QRadioButton::indicator:checked {
                 background-color: #89b4fa;
@@ -310,98 +558,250 @@ class ShutdownTimerApp(QMainWindow):
                 border-color: #b4befe;
             }
             QPushButton {
-                background-color: #45475a;
-                border: none;
-                border-radius: 8px;
-                padding: 10px;
+                background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                    stop:0 rgba(69, 71, 90, 0.9),
+                    stop:1 rgba(49, 50, 68, 0.9));
+                border: 1px solid rgba(137, 180, 250, 0.2);
+                border-radius: 12px;
+                padding: 12px 20px;
                 font-weight: bold;
-                font-size: 14px;
+                font-size: 12px;
+                color: #cdd6f4;
             }
             QPushButton:hover {
-                background-color: #585b70;
+                background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                    stop:0 rgba(88, 91, 112, 0.9),
+                    stop:1 rgba(69, 71, 90, 0.9));
+                border-color: rgba(137, 180, 250, 0.4);
             }
             QPushButton:pressed {
-                background-color: #6c7086;
+                background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                    stop:0 rgba(49, 50, 68, 0.9),
+                    stop:1 rgba(69, 71, 90, 0.9));
             }
-            QPushButton#startButton {
-                background-color: #89b4fa;
-                color: #1e1e2e;
-            }
-            QPushButton#startButton:hover {
-                background-color: #b4befe;
-            }
-            QPushButton#cancelButton {
-                background-color: #f38ba8;
-                color: #1e1e2e;
-            }
-            QPushButton#cancelButton:hover {
-                background-color: #eba0ac;
-            }
-            QPushButton#cancelButton:disabled {
+            QPushButton:disabled {
                 background-color: #45475a;
                 color: #6c7086;
-            }
-            QPushButton#clearButton {
-                background-color: #a6adc8;
-                color: #1e1e2e;
-            }
-            QPushButton#clearButton:hover {
-                background-color: #cdd6f4;
+                border-color: transparent;
             }
             QProgressBar {
-                border: 2px solid #45475a;
-                border-radius: 8px;
+                border: 2px solid rgba(137, 180, 250, 0.2);
+                border-radius: 14px;
                 text-align: center;
-                background-color: #313244;
-                height: 25px;
+                background-color: rgba(49, 50, 68, 0.8);
+                color: #cdd6f4;
+                font-weight: bold;
+                font-size: 12px;
             }
             QProgressBar::chunk {
-                background-color: #89b4fa;
-                border-radius: 6px;
+                background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
+                    stop:0 #89b4fa,
+                    stop:0.5 #b4befe,
+                    stop:1 #89b4fa);
+                border-radius: 10px;
+                margin: 2px;
             }
+            QDateTimeEdit::calendar {
+                background-color: #313244;
+                border: 1px solid #45475a;
+            }
+            QCalendarWidget QWidget {
+                background-color: #313244;
+                color: #cdd6f4;
+            }
+            QCalendarWidget QAbstractItemView:enabled {
+                background-color: #313244;
+                color: #cdd6f4;
+                selection-background-color: #89b4fa;
+                selection-color: #1e1e2e;
+            }
+            QCalendarWidget QAbstractItemView:disabled {
+                color: #6c7086;
+            }
+        """
+        self.setStyleSheet(base_style)
+
+    def hex_to_rgb(self, hex_color):
+        """Convert hex color to RGB tuple string"""
+        hex_color = hex_color.lstrip("#")
+        r = int(hex_color[0:2], 16)
+        g = int(hex_color[2:4], 16)
+        b = int(hex_color[4:6], 16)
+        return f"{r}, {g}, {b}"
+
+    def update_theme_colors(self, action_index):
+        """Update theme colors based on selected action"""
+        self.current_theme = ACTION_COLORS.get(action_index, ACTION_COLORS[0])
+        primary = self.current_theme["primary"]
+        secondary = self.current_theme["secondary"]
+        accent = self.current_theme["accent"]
+        bg_end = self.current_theme["bg_gradient_end"]
+
+        # Update countdown color to match theme
+        self.countdown_label.setStyleSheet(
+            f"background: transparent; color: {primary}; letter-spacing: 2px;"
+        )
+
+        # Dynamic stylesheet for action-specific elements
+        dynamic_style = f"""
+            QMainWindow {{
+                background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
+                    stop:0 #1e1e2e,
+                    stop:1 {bg_end});
+            }}
+            QGroupBox::title {{
+                color: {primary};
+            }}
+            QComboBox::down-arrow, QDateTimeEdit::down-arrow {{
+                border-top-color: {primary};
+            }}
+            QRadioButton::indicator {{
+                border-color: {primary};
+            }}
+            QRadioButton::indicator:checked {{
+                background-color: {primary};
+                border-color: {primary};
+            }}
+            QProgressBar {{
+                border-color: rgba({self.hex_to_rgb(primary)}, 0.3);
+            }}
+            QProgressBar::chunk {{
+                background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
+                    stop:0 {primary},
+                    stop:0.5 {secondary},
+                    stop:1 {primary});
+            }}
+        """
+
+        # Apply dynamic style by combining with base
+        current_style = self.styleSheet()
+        if "/* DYNAMIC */" in current_style:
+            base = current_style.split("/* DYNAMIC */")[0]
+        else:
+            base = current_style
+
+        self.setStyleSheet(base + "/* DYNAMIC */" + dynamic_style)
+
+        # Update preset button styles
+        for btn in self.preset_buttons:
+            btn.setStyleSheet(f"""
+                QPushButton {{
+                    background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
+                        stop:0 rgba(69, 71, 90, 0.8),
+                        stop:1 rgba(49, 50, 68, 0.8));
+                    border: 2px solid transparent;
+                    border-radius: 16px;
+                    padding: 16px;
+                }}
+                QPushButton:hover {{
+                    border-color: {primary};
+                    background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
+                        stop:0 rgba(88, 91, 112, 0.9),
+                        stop:1 rgba(69, 71, 90, 0.9));
+                }}
+                QPushButton:pressed {{
+                    background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
+                        stop:0 rgba(49, 50, 68, 0.9),
+                        stop:1 rgba(69, 71, 90, 0.9));
+                }}
+            """)
+
+        # Update control buttons with action colors
+        self.start_button.setStyleSheet(f"""
+            QPushButton {{
+                background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                    stop:0 {primary},
+                    stop:1 {accent});
+                border: none;
+                border-radius: 12px;
+                padding: 12px 24px;
+                font-weight: bold;
+                font-size: 13px;
+                color: #1e1e2e;
+            }}
+            QPushButton:hover {{
+                background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                    stop:0 {secondary},
+                    stop:1 {primary});
+            }}
+            QPushButton:pressed {{
+                background: {accent};
+            }}
         """)
-        self.start_button.setObjectName("startButton")
-        self.cancel_button.setObjectName("cancelButton")
-        self.clear_button.setObjectName("clearButton")
+
+        self.cancel_button.setStyleSheet(f"""
+            QPushButton {{
+                background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                    stop:0 #f38ba8,
+                    stop:1 #eba0ac);
+                border: none;
+                border-radius: 12px;
+                padding: 12px 24px;
+                font-weight: bold;
+                font-size: 13px;
+                color: #1e1e2e;
+            }}
+            QPushButton:hover {{
+                background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                    stop:0 #eba0ac,
+                    stop:1 #f38ba8);
+            }}
+            QPushButton:pressed {{
+                background: #f5c2e7;
+            }}
+            QPushButton:disabled {{
+                background-color: #45475a;
+                color: #6c7086;
+            }}
+        """)
+
+        self.clear_button.setStyleSheet(f"""
+            QPushButton {{
+                background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                    stop:0 #a6adc8,
+                    stop:1 #9399b2);
+                border: none;
+                border-radius: 12px;
+                padding: 12px 24px;
+                font-weight: bold;
+                font-size: 13px;
+                color: #1e1e2e;
+            }}
+            QPushButton:hover {{
+                background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                    stop:0 #cdd6f4,
+                    stop:1 #a6adc8);
+            }}
+            QPushButton:pressed {{
+                background: #b4befe;
+            }}
+        """)
 
     def on_mode_toggled(self, id, checked):
-        """สลับการแสดงผล Widget ตาม Radio Button ที่เลือก"""
+        """Switch time input widget based on selected mode"""
         if not checked:
             return
 
-        self.datetime_container.hide()
-        self.hours_combo.hide()
-        self.minutes_combo.hide()
-        self.seconds_combo.hide()
-
-        if id == 0:
-            self.datetime_container.show()
-        elif id == 1:
-            self.hours_combo.show()
-        elif id == 2:
-            self.minutes_combo.show()
-        else:  # id == 3
-            self.seconds_combo.show()
+        # Animate the stack widget change
+        self.time_stack.setCurrentIndex(id)
 
     def start_preset_timer(self, value, unit):
-        """เริ่มตั้งเวลาแบบ Preset ทันที"""
+        """Start timer from preset card"""
         if self.is_timer_active:
-            QMessageBox.warning(self, "คำเตือน", "มีการตั้งเวลาอยู่แล้ว กรุณายกเลิกก่อนตั้งค่าใหม่")
+            self.show_toast("มีการตั้งเวลาอยู่แล้ว กรุณายกเลิกก่อน", "warning")
             return
 
-        # ดึงการกระทำที่เลือก (shutdown หรือ restart เท่านั้นสำหรับ preset)
+        # Get selected action
         action_index = self.action_combo.currentIndex()
-        if action_index >= 2:  # Sleep หรือ Hibernate
-            QMessageBox.warning(
-                self, "คำเตือน", "Quick Presets รองรับเฉพาะ Shutdown และ Restart"
-            )
+        if action_index >= 2:  # Sleep or Hibernate
+            self.show_toast("Quick Presets รองรับเฉพาะ Shutdown และ Restart", "warning")
             self.action_combo.setCurrentIndex(0)
             return
 
         is_restart = action_index == 1
         action_text = "รีสตาร์ท" if is_restart else "ปิดเครื่อง"
 
-        # คำนวณเวลา
+        # Calculate time
         if unit == "minutes":
             self.target_shutdown_time = datetime.now() + timedelta(minutes=value)
             time_str = f"{value} นาที"
@@ -436,15 +836,16 @@ class ShutdownTimerApp(QMainWindow):
             self.start_button.setEnabled(False)
             self.countdown_timer.start(1000)
 
+            self.show_toast(f"ตั้งเวลา{action_text}แล้ว: {time_str}", "success")
             self.save_settings()
 
         except Exception as e:
-            QMessageBox.critical(self, "ข้อผิดพลาด", f"ไม่สามารถตั้งเวลาได้: {e}")
+            self.show_toast(f"ไม่สามารถตั้งเวลาได้: {e}", "error")
 
     def start_timer(self):
-        """ฟังก์ชันเริ่มตั้งเวลาปิดเครื่องหรือรีสตาร์ท"""
+        """Start shutdown/restart timer"""
         if self.is_timer_active:
-            QMessageBox.warning(self, "คำเตือน", "มีการตั้งเวลาอยู่แล้ว กรุณายกเลิกก่อนตั้งค่าใหม่")
+            self.show_toast("มีการตั้งเวลาอยู่แล้ว กรุณายกเลิกก่อน", "warning")
             return
 
         action_index = self.action_combo.currentIndex()
@@ -456,7 +857,7 @@ class ShutdownTimerApp(QMainWindow):
         }
         action_text, command_type = action_map.get(action_index, ("ปิดเครื่อง", "/s"))
 
-        # สำหรับ Sleep/Hibernate ไม่ต้องยืนยันมาก
+        # Sleep/Hibernate execute immediately
         if action_index >= 2:
             self._execute_sleep_hibernate(action_text, command_type)
             return
@@ -482,7 +883,6 @@ class ShutdownTimerApp(QMainWindow):
                 target_qdatetime = QDateTime(date_part, time_part)
                 self.target_shutdown_time = target_qdatetime.toPython()
             elif mode_index == 1:
-                # ดึงค่าจาก Dropdown แล้วแปลงเป็นตัวเลข
                 hours = int(self.hours_combo.currentText().split()[0])
                 self.target_shutdown_time = datetime.now() + timedelta(hours=hours)
             elif mode_index == 2:
@@ -493,7 +893,7 @@ class ShutdownTimerApp(QMainWindow):
                 self.target_shutdown_time = datetime.now() + timedelta(seconds=seconds)
 
             if self.target_shutdown_time <= datetime.now():
-                QMessageBox.warning(self, "ข้อผิดพลาด", "กรุณาตั้งเวลาในอนาคต")
+                self.show_toast("กรุณาตั้งเวลาในอนาคต", "warning")
                 return
 
             total_seconds = int(
@@ -514,13 +914,14 @@ class ShutdownTimerApp(QMainWindow):
             self.start_button.setEnabled(False)
             self.countdown_timer.start(1000)
 
+            self.show_toast(f"ตั้งเวลา{action_text}สำเร็จ", "success")
             self.save_settings()
 
         except Exception as e:
-            QMessageBox.critical(self, "ข้อผิดพลาด", f"ไม่สามารถตั้งเวลาได้: {e}")
+            self.show_toast(f"ไม่สามารถตั้งเวลาได้: {e}", "error")
 
     def _execute_sleep_hibernate(self, action_text, command_type):
-        """ทำการ Sleep หรือ Hibernate ทันที"""
+        """Execute Sleep or Hibernate immediately"""
         reply = QMessageBox.question(
             self,
             f"ยืนยันการ{action_text}",
@@ -534,26 +935,25 @@ class ShutdownTimerApp(QMainWindow):
 
         try:
             if command_type == "sleep":
-                # Sleep command
                 subprocess.run(
                     ["rundll32.exe", "powrprof.dll,SetSuspendState", "0,1,0"],
                     check=True,
                 )
             else:  # hibernate
-                # Hibernate command
                 subprocess.run(
                     ["rundll32.exe", "powrprof.dll,SetSuspendState", "1,1,0"],
                     check=True,
                 )
 
             self.status_label.setText(f"สถานะ: กำลัง{action_text}...")
+            self.show_toast(f"กำลัง{action_text}...", "info")
         except Exception as e:
-            QMessageBox.critical(self, "ข้อผิดพลาด", f"ไม่สามารถ{action_text}ได้: {e}")
+            self.show_toast(f"ไม่สามารถ{action_text}ได้: {e}", "error")
 
     def cancel_timer(self):
-        """ฟังก์ชันยกเลิกการตั้งเวลา"""
+        """Cancel active timer"""
         if not self.is_timer_active:
-            QMessageBox.information(self, "ข้อมูล", "ไม่มีการตั้งเวลาปิดเครื่อง/รีสตาร์ทอยู่ในขณะนี้")
+            self.show_toast("ไม่มีการตั้งเวลาอยู่ในขณะนี้", "info")
             return
 
         reply = QMessageBox.question(
@@ -569,14 +969,13 @@ class ShutdownTimerApp(QMainWindow):
                 subprocess.run(["shutdown", "/a"], check=True)
                 self.reset_ui_state()
                 self.status_label.setText("สถานะ: ยกเลิกการตั้งเวลาแล้ว")
+                self.show_toast("ยกเลิกการตั้งเวลาสำเร็จ", "success")
             except Exception as e:
-                QMessageBox.critical(
-                    self, "ข้อผิดพลาด", f"ไม่สามารถยกเลิกได้: {e}\n(อาจจะไม่มีการตั้งเวลาอยู่จริง)"
-                )
+                self.show_toast(f"ไม่สามารถยกเลิกได้: {e}", "error")
                 self.reset_ui_state()
 
     def update_countdown(self):
-        """อัปเดตเวลานับถอยหลังทุกวินาที"""
+        """Update countdown display every second"""
         if not self.is_timer_active or not self.target_shutdown_time:
             return
 
@@ -606,8 +1005,13 @@ class ShutdownTimerApp(QMainWindow):
                 )
                 self.progress_bar.setValue(progress)
 
+    def show_toast(self, message, type_="info"):
+        """Show toast notification"""
+        toast = Toast(self, message, duration=3000, type_=type_)
+        toast.show()
+
     def clear_fields(self):
-        """ล้างค่าในช่องกรอกข้อมูลและลบไฟล์ config"""
+        """Clear all fields and delete config"""
         self.date_edit.setDateTime(QDateTime.currentDateTime().addSecs(3600))
         self.time_hours_combo.setCurrentText(
             QDateTime.currentDateTime().addSecs(3600).toString("HH")
@@ -615,7 +1019,7 @@ class ShutdownTimerApp(QMainWindow):
         self.time_minutes_combo.setCurrentText(
             QDateTime.currentDateTime().addSecs(3600).toString("mm")
         )
-        self.hours_combo.setCurrentIndex(0)  # รีเซ็ตเป็นค่าแรก
+        self.hours_combo.setCurrentIndex(0)
         self.minutes_combo.setCurrentIndex(0)
         self.seconds_combo.setCurrentIndex(0)
         self.action_combo.setCurrentIndex(0)
@@ -623,25 +1027,27 @@ class ShutdownTimerApp(QMainWindow):
         self.countdown_label.setText("--:--:--")
         self.progress_bar.setValue(0)
         self._delete_config_file()
+        self.show_toast("ล้างค่าเรียบร้อย", "info")
 
     def reset_ui_state(self):
-        """รีเซ็ตสถานะ UI หลังจากนับถอยหลังเสร็จสิ้น"""
+        """Reset UI state after timer completes"""
         self.is_timer_active = False
         self.countdown_timer.stop()
         self.target_shutdown_time = None
         self.total_seconds = 0
         self.remaining_seconds = 0
         self.progress_bar.setValue(0)
+        self.countdown_label.setText("--:--:--")
         self.cancel_button.setEnabled(False)
         self.start_button.setEnabled(True)
 
     def closeEvent(self, event):
-        """Event ที่เรียกเมื่อปิดโปรแกรม"""
+        """Called when closing the application"""
         self._delete_config_file()
         super().closeEvent(event)
 
     def _delete_config_file(self):
-        """ฟังก์ชันสำหรับลบไฟล์การตั้งค่าอย่างปลอดภัย"""
+        """Safely delete config file"""
         try:
             if os.path.exists(CONFIG_FILE):
                 os.remove(CONFIG_FILE)
@@ -649,7 +1055,7 @@ class ShutdownTimerApp(QMainWindow):
             print(f"Could not delete config file: {e}")
 
     def save_settings(self):
-        """บันทึกการตั้งค่าล่าสุดลงไฟล์ JSON"""
+        """Save settings to JSON file"""
         settings = {
             "action": self.action_combo.currentIndex(),
             "mode": self.mode_button_group.checkedId(),
@@ -666,7 +1072,7 @@ class ShutdownTimerApp(QMainWindow):
             print(f"Could not save settings: {e}")
 
     def load_settings(self):
-        """โหลดการตั้งค่าจากไฟล์ JSON"""
+        """Load settings from JSON file"""
         if not os.path.exists(CONFIG_FILE):
             self.radio_datetime.setChecked(True)
             return
@@ -682,12 +1088,10 @@ class ShutdownTimerApp(QMainWindow):
             if radio_to_check:
                 radio_to_check.setChecked(True)
 
-            # โหลดค่าวันที่
             date_str = settings.get("date")
             if date_str:
                 self.date_edit.setDate(QDate.fromString(date_str, Qt.ISODate))
 
-            # โหลดค่าเวลา
             time_str = settings.get("time")
             if time_str:
                 time_parts = time_str.split(":")
@@ -705,7 +1109,7 @@ class ShutdownTimerApp(QMainWindow):
 if __name__ == "__main__":
     app = QApplication(sys.argv)
 
-    # ตั้งค่าให้แสดงตัวเลขเป็นอาราบิกเสมอ
+    # Set locale for consistent number display
     QLocale.setDefault(QLocale.C)
 
     if sys.platform == "win32":
