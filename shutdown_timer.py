@@ -611,7 +611,7 @@ class ShutdownTimerApp(QMainWindow):
                 border-radius: 14px;
                 text-align: center;
                 background-color: rgba(49, 50, 68, 0.8);
-                color: #cdd6f4;
+                color: #808080;
                 font-weight: bold;
                 font-size: 12px;
             }

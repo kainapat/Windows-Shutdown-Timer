@@ -4,9 +4,11 @@
 
 A beautiful and user-friendly Windows shutdown/restart/sleep/hibernate timer application with dark mode UI.
 
-![Python](https://img.shields.io/badge/Python-3.8+-blue.svg)
+![Python](https://img.shields.io/badge/Python-3.12+-blue.svg)
 ![PySide6](https://img.shields.io/badge/PySide6-6.0+-green.svg)
 ![Platform](https://img.shields.io/badge/Platform-Windows-lightgrey.svg)
+![PyInstaller](https://img.shields.io/badge/PyInstaller-6.16+-orange.svg)
+![Last Updated](https://img.shields.io/badge/Last%20Updated-March%202026-brightgreen.svg)
 
 ---
 
@@ -31,9 +33,10 @@ A beautiful and user-friendly Windows shutdown/restart/sleep/hibernate timer app
 ## 📋 System Requirements (ข้อกำหนดระบบ)
 
 - **Operating System**: Windows 7/8/10/11
-- **Python**: 3.8 หรือสูงกว่า (สำหรับรันจาก source code)
+- **Python**: 3.12 หรือสูงกว่า (สำหรับรันจาก source code)
 - **ไลบรารี่ที่ต้องใช้**:
-  - PySide6
+  - PySide6 6.0+
+  - PyInstaller 6.16+ (สำหรับ build .exe)
 
 ---
 
@@ -218,6 +221,22 @@ This project is open source and available for personal and educational use.
 ## 👨‍💻 Author
 
 Created with ❤️ for Windows users who need a simple shutdown timer.
+
+---
+
+## 📅 Changelog
+
+### v1.1.0 (March 2026)
+- 🎨 ปรับสีตัวเลข % ใน Progress Bar เป็นสีเทา (#808080) เพื่อให้อ่านง่ายขึ้น
+- 🔧 อัปเดต build ด้วย PyInstaller 6.16 + Python 3.12
+
+### v1.0.0 (Initial Release)
+- 🎯 สี่โหมดการทำงาน: Shutdown, Restart, Sleep, Hibernate
+- ⚡ Quick Presets (15 นาที / 30 นาที / 1 ชม. / 2 ชม.)
+- 📊 Progress Bar + Real-time Countdown
+- 🎨 Dark Mode UI พร้อม Dynamic Color Theme
+- 🔔 Toast Notifications
+- 💾 Auto-save Config
 
 ---
 
