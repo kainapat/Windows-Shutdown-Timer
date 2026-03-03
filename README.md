@@ -22,8 +22,8 @@ A beautiful and user-friendly Windows shutdown/restart/sleep/hibernate timer app
 - 📊 **Progress Bar**: แสดงความคืบหน้าการนับถอยหลังเป็น %
 - 📊 **ตัวนับถอยหลังแบบเรียลไทม์**: แสดงเวลาที่เหลืออย่างชัดเจน
 - 💾 **บันทึกการตั้งค่าอัตโนมัติ**: เปิดครั้งหน้าไม่ต้องตั้งใหม่
-- 🎨 **Dark Mode UI**: ธีมสีสวยงามแบบ Navy Blue
-- 📐 **ปรับขนาดหน้าต่างได้**: UI ย่อ/ขยายได้ตามต้องการ
+- 🎨 **Dark Mode UI**: ธีมสีสวยงามแบบ Dark Blue พร้อม Dynamic Color Theme ตามการกระทำที่เลือก
+- 🔔 **Toast Notifications**: แจ้งเตือนสถานะแบบ Overlay พร้อมสีตามประเภท (สี, เขียว, ส้ม, แดง)
 - ⚡ **เบาและรวดเร็ว**: ไม่กินทรัพยากรระบบ
 
 ---
@@ -142,12 +142,14 @@ Windows Shutdown Timer/
 ## 🎨 UI Preview
 
 โปรแกรมมาพร้อมกับ **Dark Mode Theme** ที่สวยงามและทันสมัย:
-- สีพื้นหลัง: Navy Blue (#1e1e2e)
-- สีปุ่ม: Blue/Pink/Gray accents
+- สีพื้นหลัง: Deep Blue (#1e1e2e) พร้อม Dynamic Gradient ตาม Action ที่เลือก
+- สีปุ่มเริ่มต้น: ตามสีธีม (ชมพู/ส้ม/น้ำเงิน/ม่วง)
+- สีปุ่มยกเลิก: Gradient แดง
 - ฟอนต์: Segoe UI
-- มี Hover Effects และ Rounded Corners
+- มี Hover Effects, Drop Shadow และ Rounded Corners
 - Progress Bar แสดง % การนับถอยหลัง
-- UI ย่อ/ขยายขนาดได้
+- Toast Notification แสดงที่ด้านบนหน้าต่าง ไม่ซ้อนทับกัน
+- ขนาดหน้าต่างคงที่ 600×680px
 
 ---
 

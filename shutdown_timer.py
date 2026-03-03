@@ -178,59 +178,76 @@ class Toast(QWidget):
         self.setWindowFlags(Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint)
         self.setAttribute(Qt.WA_TranslucentBackground)
 
-        colors = {
-            "info": ("#89b4fa", "#1e1e2e"),
-            "success": ("#a6e3a1", "#1e1e2e"),
-            "warning": ("#fab387", "#1e1e2e"),
-            "error": ("#f38ba8", "#1e1e2e"),
+        configs = {
+            "info":    {"bg": "#1e66f5", "fg": "#ffffff", "icon": "ℹ️"},
+            "success": {"bg": "#40a02b", "fg": "#ffffff", "icon": "✅"},
+            "warning": {"bg": "#df8e1d", "fg": "#ffffff", "icon": "⚠️"},
+            "error":   {"bg": "#d20f39", "fg": "#ffffff", "icon": "❌"},
         }
-        border_color, bg_color = colors.get(type_, colors["info"])
+        cfg = configs.get(type_, configs["info"])
 
         self.setStyleSheet(f"""
-            QWidget {{
-                background-color: rgba(49, 50, 68, 0.95);
-                border: 2px solid {border_color};
-                border-radius: 12px;
-                padding: 12px 24px;
-                color: #cdd6f4;
+            QWidget#toastBody {{
+                background-color: {cfg['bg']};
+                border-radius: 14px;
             }}
             QLabel {{
                 background: transparent;
-                color: #cdd6f4;
+                color: {cfg['fg']};
                 font-size: 13px;
+                font-weight: bold;
                 font-family: 'Segoe UI', sans-serif;
             }}
         """)
 
-        layout = QHBoxLayout(self)
-        layout.setContentsMargins(16, 12, 16, 12)
+        outer = QVBoxLayout(self)
+        outer.setContentsMargins(0, 0, 0, 0)
+
+        body = QWidget()
+        body.setObjectName("toastBody")
+
+        # Drop shadow
+        shadow = QGraphicsDropShadowEffect(body)
+        shadow.setBlurRadius(24)
+        shadow.setColor(QColor(0, 0, 0, 140))
+        shadow.setOffset(0, 4)
+        body.setGraphicsEffect(shadow)
+
+        layout = QHBoxLayout(body)
+        layout.setContentsMargins(18, 12, 18, 12)
+        layout.setSpacing(10)
+
+        icon_label = QLabel(cfg["icon"])
+        icon_label.setStyleSheet("font-size: 16px; background: transparent;")
+        layout.addWidget(icon_label)
 
         self.label = QLabel(message)
-        self.label.setStyleSheet(f"color: #cdd6f4; font-size: 13px;")
+        self.label.setStyleSheet(f"color: {cfg['fg']}; font-size: 13px; font-weight: bold;")
         layout.addWidget(self.label)
+
+        outer.addWidget(body)
 
         self.duration = duration
         self.animation = None
-        self.opacity_effect = None
 
     def showEvent(self, event):
         super().showEvent(event)
         self.adjustSize()
         parent = self.parent()
         if parent:
-            self.move(parent.width() // 2 - self.width() // 2, 20)
+            # Position at top center with 20px margin from top
+            x = parent.width() // 2 - self.width() // 2
+            y = 20
+            self.move(x, y)
 
-        # Slide in animation
+        # Slide down animation
         self.animation = QPropertyAnimation(self, b"pos")
-        self.animation.setDuration(300)
-        self.animation.setEasingCurve(QEasingCurve.OutBack)
-        start_pos = QPoint(self.x(), self.y() + 20)
-        end_pos = QPoint(self.x(), self.y())
-        self.animation.setStartValue(start_pos)
-        self.animation.setEndValue(end_pos)
+        self.animation.setDuration(280)
+        self.animation.setEasingCurve(QEasingCurve.OutCubic)
+        self.animation.setStartValue(QPoint(self.x(), self.y() - 20))
+        self.animation.setEndValue(QPoint(self.x(), self.y()))
         self.animation.start()
 
-        # Auto hide timer
         QTimer.singleShot(self.duration, self.hide_animation)
 
     def hide_animation(self):
@@ -246,8 +263,7 @@ class ShutdownTimerApp(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Windows Shutdown Timer")
-        self.setMinimumSize(580, 750)
-        self.resize(600, 800)
+        self.setFixedSize(600, 680)
 
         # State variables
         self.countdown_timer = QTimer()
@@ -258,6 +274,7 @@ class ShutdownTimerApp(QMainWindow):
         self.remaining_seconds = 0
         self.current_theme = ACTION_COLORS[0]
         self.is_compact = False
+        self.current_toast = None
 
         self.init_ui()
         self.load_settings()
@@ -312,7 +329,9 @@ class ShutdownTimerApp(QMainWindow):
         mode_layout = QVBoxLayout(mode_group)
 
         self.mode_button_group = QButtonGroup(self)
-        mode_buttons_layout = QHBoxLayout()
+        mode_buttons_layout = QGridLayout()
+        mode_buttons_layout.setHorizontalSpacing(12)
+        mode_buttons_layout.setVerticalSpacing(6)
 
         self.radio_datetime = QRadioButton(f"{ICONS['calendar']} ระบุวัน/เวลา")
         self.radio_hours = QRadioButton("⏱ นับถอยหลัง (ชั่วโมง)")
@@ -326,10 +345,12 @@ class ShutdownTimerApp(QMainWindow):
 
         self.mode_button_group.idToggled.connect(self.on_mode_toggled)
 
-        mode_buttons_layout.addWidget(self.radio_datetime)
-        mode_buttons_layout.addWidget(self.radio_hours)
-        mode_buttons_layout.addWidget(self.radio_minutes)
-        mode_buttons_layout.addWidget(self.radio_seconds)
+        mode_buttons_layout.addWidget(self.radio_datetime, 0, 0)
+        mode_buttons_layout.addWidget(self.radio_hours, 0, 1)
+        mode_buttons_layout.addWidget(self.radio_minutes, 1, 0)
+        mode_buttons_layout.addWidget(self.radio_seconds, 1, 1)
+        mode_buttons_layout.setColumnStretch(0, 1)
+        mode_buttons_layout.setColumnStretch(1, 1)
         mode_layout.addLayout(mode_buttons_layout)
 
         # --- Time Input Container with Stacked Widget ---
@@ -405,6 +426,7 @@ class ShutdownTimerApp(QMainWindow):
         self.time_stack.addWidget(self.hours_page)
         self.time_stack.addWidget(self.minutes_page)
         self.time_stack.addWidget(self.seconds_page)
+        self.time_stack.setFixedHeight(60)
 
         mode_layout.addWidget(self.time_stack)
         main_layout.addWidget(mode_group)
@@ -731,23 +753,27 @@ class ShutdownTimerApp(QMainWindow):
 
         self.cancel_button.setStyleSheet(f"""
             QPushButton {{
-                background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
-                    stop:0 #f38ba8,
-                    stop:1 #eba0ac);
+                background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
+                    stop:0 #ff6b6b,
+                    stop:0.5 #e53e3e,
+                    stop:1 #9b2335);
                 border: none;
                 border-radius: 12px;
                 padding: 12px 24px;
                 font-weight: bold;
                 font-size: 13px;
-                color: #1e1e2e;
+                color: #ffffff;
             }}
             QPushButton:hover {{
-                background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
-                    stop:0 #eba0ac,
-                    stop:1 #f38ba8);
+                background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
+                    stop:0 #ff8e8e,
+                    stop:0.5 #fc5c5c,
+                    stop:1 #e53e3e);
             }}
             QPushButton:pressed {{
-                background: #f5c2e7;
+                background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
+                    stop:0 #e53e3e,
+                    stop:1 #7b1d2a);
             }}
             QPushButton:disabled {{
                 background-color: #45475a;
@@ -969,7 +995,7 @@ class ShutdownTimerApp(QMainWindow):
                 subprocess.run(["shutdown", "/a"], check=True)
                 self.reset_ui_state()
                 self.status_label.setText("สถานะ: ยกเลิกการตั้งเวลาแล้ว")
-                self.show_toast("ยกเลิกการตั้งเวลาสำเร็จ", "success")
+                self.show_toast("ยกเลิกการตั้งเวลาสำเร็จ", "error")
             except Exception as e:
                 self.show_toast(f"ไม่สามารถยกเลิกได้: {e}", "error")
                 self.reset_ui_state()
@@ -1007,8 +1033,14 @@ class ShutdownTimerApp(QMainWindow):
 
     def show_toast(self, message, type_="info"):
         """Show toast notification"""
+        if self.current_toast is not None:
+            try:
+                self.current_toast.close()
+            except Exception:
+                pass
         toast = Toast(self, message, duration=3000, type_=type_)
         toast.show()
+        self.current_toast = toast
 
     def clear_fields(self):
         """Clear all fields and delete config"""
