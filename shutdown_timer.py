@@ -3,6 +3,7 @@
 import sys
 import os
 import json
+import logging
 import subprocess
 from datetime import datetime, timedelta
 
@@ -58,6 +59,10 @@ from PySide6.QtGui import (
 # pyinstaller --onefile --windowed --name="Windows Shutdown Timer" --icon=icon.ico shutdown_timer.py
 
 CONFIG_FILE = "timer_config.json"
+
+# Initialize logger
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
 
 # --- Color Themes for Each Action ---
 ACTION_COLORS = {
@@ -854,7 +859,7 @@ class ShutdownTimerApp(QMainWindow):
             self.remaining_seconds = total_seconds
 
             command = "/r" if is_restart else "/s"
-            subprocess.run(["shutdown", command, "/t", str(total_seconds)], check=True)
+            subprocess.run(["shutdown", command, "/t", str(total_seconds)], check=True, timeout=5)
 
             self.is_timer_active = True
             self.status_label.setText(f"สถานะ: จะ{action_text}ในอีก {time_str}")
@@ -922,6 +927,12 @@ class ShutdownTimerApp(QMainWindow):
                 self.show_toast("กรุณาตั้งเวลาในอนาคต", "warning")
                 return
 
+            # Validate max duration (24 hours for safety)
+            max_duration = timedelta(hours=24)
+            if self.target_shutdown_time - datetime.now() > max_duration:
+                self.show_toast("กรุณาตั้งเวลาไม่เกิน 24 ชั่วโมง", "warning")
+                return
+
             total_seconds = int(
                 (self.target_shutdown_time - datetime.now()).total_seconds()
             )
@@ -929,7 +940,7 @@ class ShutdownTimerApp(QMainWindow):
             self.remaining_seconds = total_seconds
 
             subprocess.run(
-                ["shutdown", command_type, "/t", str(total_seconds)], check=True
+                ["shutdown", command_type, "/t", str(total_seconds)], check=True, timeout=5
             )
 
             self.is_timer_active = True
@@ -964,11 +975,13 @@ class ShutdownTimerApp(QMainWindow):
                 subprocess.run(
                     ["rundll32.exe", "powrprof.dll,SetSuspendState", "0,1,0"],
                     check=True,
+                    timeout=5,
                 )
             else:  # hibernate
                 subprocess.run(
                     ["rundll32.exe", "powrprof.dll,SetSuspendState", "1,1,0"],
                     check=True,
+                    timeout=5,
                 )
 
             self.status_label.setText(f"สถานะ: กำลัง{action_text}...")
@@ -992,7 +1005,7 @@ class ShutdownTimerApp(QMainWindow):
 
         if reply == QMessageBox.Yes:
             try:
-                subprocess.run(["shutdown", "/a"], check=True)
+                subprocess.run(["shutdown", "/a"], check=True, timeout=5)
                 self.reset_ui_state()
                 self.status_label.setText("สถานะ: ยกเลิกการตั้งเวลาแล้ว")
                 self.show_toast("ยกเลิกการตั้งเวลาสำเร็จ", "error")
@@ -1005,7 +1018,8 @@ class ShutdownTimerApp(QMainWindow):
         if not self.is_timer_active or not self.target_shutdown_time:
             return
 
-        remaining = self.target_shutdown_time - datetime.now()
+        now = datetime.now()
+        remaining = self.target_shutdown_time - now
 
         if remaining.total_seconds() <= 0:
             self.countdown_label.setText("00:00:00")
@@ -1017,7 +1031,7 @@ class ShutdownTimerApp(QMainWindow):
             self.reset_ui_state()
         else:
             total_seconds = int(remaining.total_seconds())
-            self.remaining_seconds = total_seconds
+            self.remaining_seconds = max(0, total_seconds)
             hours, remainder = divmod(total_seconds, 3600)
             minutes, seconds = divmod(remainder, 60)
             self.countdown_label.setText(f"{hours:02d}:{minutes:02d}:{seconds:02d}")
@@ -1029,7 +1043,7 @@ class ShutdownTimerApp(QMainWindow):
                     / self.total_seconds
                     * 100
                 )
-                self.progress_bar.setValue(progress)
+                self.progress_bar.setValue(min(100, progress))
 
     def show_toast(self, message, type_="info"):
         """Show toast notification"""
@@ -1075,6 +1089,7 @@ class ShutdownTimerApp(QMainWindow):
 
     def closeEvent(self, event):
         """Called when closing the application"""
+        self.countdown_timer.stop()
         self._delete_config_file()
         super().closeEvent(event)
 
@@ -1084,10 +1099,10 @@ class ShutdownTimerApp(QMainWindow):
             if os.path.exists(CONFIG_FILE):
                 os.remove(CONFIG_FILE)
         except Exception as e:
-            print(f"Could not delete config file: {e}")
+            logger.warning(f"Could not delete config file: {e}")
 
     def save_settings(self):
-        """Save settings to JSON file"""
+        """Save settings to JSON file with atomic write"""
         settings = {
             "action": self.action_combo.currentIndex(),
             "mode": self.mode_button_group.checkedId(),
@@ -1098,10 +1113,25 @@ class ShutdownTimerApp(QMainWindow):
             "seconds": self.seconds_combo.currentIndex(),
         }
         try:
-            with open(CONFIG_FILE, "w", encoding="utf-8") as f:
-                json.dump(settings, f, indent=4)
+            # Write to temp file first, then atomically move
+            import tempfile
+            fd, temp_path = tempfile.mkstemp(suffix='.json', text=True)
+            try:
+                with os.fdopen(fd, 'w', encoding='utf-8') as f:
+                    json.dump(settings, f, indent=4)
+                # Atomic rename to avoid corruption from concurrent access
+                if sys.platform == "win32":
+                    os.replace(temp_path, CONFIG_FILE)
+                else:
+                    os.rename(temp_path, CONFIG_FILE)
+            except Exception:
+                try:
+                    os.unlink(temp_path)
+                except Exception:
+                    pass
+                raise
         except Exception as e:
-            print(f"Could not save settings: {e}")
+            logger.error(f"Could not save settings: {e}")
 
     def load_settings(self):
         """Load settings from JSON file"""
@@ -1135,14 +1165,26 @@ class ShutdownTimerApp(QMainWindow):
             self.seconds_combo.setCurrentIndex(settings.get("seconds", 0))
 
         except Exception as e:
-            print(f"Could not load settings: {e}")
+            logger.error(f"Could not load settings: {e}")
 
 
 if __name__ == "__main__":
+    import signal
+    import tempfile
+    
     app = QApplication(sys.argv)
 
     # Set locale for consistent number display
     QLocale.setDefault(QLocale.C)
+
+    # Handle keyboard interrupt (Ctrl+C) gracefully
+    def handle_signal(sig, frame):
+        if 'window' in globals() and window.is_timer_active:
+            window.cancel_timer()
+        app.quit()
+    
+    signal.signal(signal.SIGINT, handle_signal)
+    signal.signal(signal.SIGBREAK, handle_signal)  # Windows Ctrl+Break
 
     if sys.platform == "win32":
         import ctypes
