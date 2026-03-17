@@ -21,8 +21,8 @@ A beautiful and user-friendly Windows shutdown/restart/sleep/hibernate timer app
   - นับถอยหลังแบบชั่วโมง (1-24 ชั่วโมง)
   - นับถอยหลังแบบนาที (1-60 นาที)
   - นับถอยหลังแบบวินาที (10-300 วินาที)
-- 📊 **Progress Bar**: แสดงความคืบหน้าการนับถอยหลังเป็น %
-- 📊 **ตัวนับถอยหลังแบบเรียลไทม์**: แสดงเวลาที่เหลืออย่างชัดเจน
+- 📊 **Progress Bar**: แสดงความคืบหน้าการนับถอยหลัง + เวลาที่เหลือในรูปแบบ MM:SS (เช่น "50% - เหลือ 15:45")
+- 📊 **ตัวนับถอยหลังแบบเรียลไทม์**: แสดงเวลาที่เหลืออย่างชัดเจนด้วยฟอนต์ monospace ที่ทำให้ตัวเลขอ่านง่ายขึ้น
 - � **แสดงเวลาที่จะทำการกระทำ**: สถานะแสดงเวลาจริง เช่น "จะปิดเครื่องเวลา 17:00" แทนการนับถอยหลัง
 - �💾 **บันทึกการตั้งค่าอัตโนมัติ**: เปิดครั้งหน้าไม่ต้องตั้งใหม่
 - 🔒 **Safety Features**: 
@@ -157,10 +157,12 @@ Windows Shutdown Timer/
 - สีพื้นหลัง: Deep Blue (#1e1e2e) พร้อม Dynamic Gradient ตาม Action ที่เลือก
 - สีปุ่มเริ่มต้น: ตามสีธีม (ชมพู/ส้ม/น้ำเงิน/ม่วง)
 - สีปุ่มยกเลิก: Gradient แดง
-- ฟอนต์: Segoe UI
+- ฟอนต์: Segoe UI (Action/Controls) + Auto-detected Monospace (Countdown display)
+- **Action Icons**: Emoji ที่เข้าใจง่าย (🔌 Shutdown / 🔄 Restart / 😴 Sleep / 🌙 Hibernate)
+- **Countdown Font**: Fixed-pitch monospace ที่ป้องกันการกระโดดของตัวเลข
 - มี Hover Effects, Drop Shadow และ Rounded Corners
-- Progress Bar แสดง % การนับถอยหลัง
-- Toast Notification แสดงที่ด้านบนหน้าต่าง ไม่ซ้อนทับกัน
+- Progress Bar แสดง % + เวลาที่เหลือ (เช่น "45% - เหลือ 12:30")
+- Toast Notification แสดงที่ด้านบนหน้าต่าง ไม่ซ้อนทับกัน พร้อม memory leak fix
 - ขนาดหน้าต่างคงที่ 600×680px
 
 ---
@@ -241,6 +243,14 @@ Created with ❤️ for Windows users who need a simple shutdown timer.
 ---
 
 ## 📅 Changelog
+
+### v1.3.0 (March 2026) - UI/UX Improvements
+**Enhancements**:
+- ✨ Action Combo Box: เปลี่ยนมาใช้ Emoji ที่เข้าใจง่าย (🔌🔄😴🌙) แทนสัญลักษณ์นามธรรม
+- ✨ Thai-only UI: ลบข้อความภาษาอังกฤษออกจากการเลือก Action เพื่อให้อินเทอร์เฟซสะอาดกว่า
+- ✨ Progress Bar Enhancement: แสดงเปอร์เซ็นต์ + เวลาที่เหลือในรูปแบบ MM:SS (เช่น "50% - เหลือ 15:45")
+- 🔧 Font Detection: ปรับปรุงการเลือกฟอนต์แบบ Monospace ด้วย Smart Fallback (JetBrains Mono → Consolas → Courier New)
+- 🔧 Fixed-Pitch Display: เพิ่ม setFixedPitch() เพื่อป้องกันการกระโดดของตัวเลขในตัวนับถอยหลัง
 
 ### v1.2.0 (March 2026) - Bug Fixes & Stability
 **Critical Fixes**:

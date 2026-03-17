@@ -73,7 +73,7 @@ ACTION_COLORS = {
         "accent": "#eba0ac",
         "bg_gradient_end": "#2d1f2f",
         "progress": "#f38ba8",
-        "icon": "⏻",
+        "icon": "🔌",
     },
     1: {  # Restart - Orange
         "name": "restart",
@@ -82,7 +82,7 @@ ACTION_COLORS = {
         "accent": "#f5c2e7",
         "bg_gradient_end": "#2d2520",
         "progress": "#fab387",
-        "icon": "↻",
+        "icon": "🔄",
     },
     2: {  # Sleep - Blue
         "name": "sleep",
@@ -91,7 +91,7 @@ ACTION_COLORS = {
         "accent": "#74c7ec",
         "bg_gradient_end": "#1f2535",
         "progress": "#89b4fa",
-        "icon": "⏾",
+        "icon": "😴",
     },
     3: {  # Hibernate - Purple
         "name": "hibernate",
@@ -100,7 +100,7 @@ ACTION_COLORS = {
         "accent": "#b4befe",
         "bg_gradient_end": "#2a1f35",
         "progress": "#cba6f7",
-        "icon": "⏿",
+        "icon": "🌙",
     },
 }
 
@@ -298,10 +298,10 @@ class ShutdownTimerApp(QMainWindow):
         header_layout = QHBoxLayout()
 
         self.action_combo = QComboBox()
-        self.action_combo.addItem(f"{ACTION_COLORS[0]['icon']} ปิดเครื่อง (Shutdown)")
-        self.action_combo.addItem(f"{ACTION_COLORS[1]['icon']} รีสตาร์ท (Restart)")
-        self.action_combo.addItem(f"{ACTION_COLORS[2]['icon']} พักเครื่อง (Sleep)")
-        self.action_combo.addItem(f"{ACTION_COLORS[3]['icon']} จำศีล (Hibernate)")
+        self.action_combo.addItem(f"{ACTION_COLORS[0]['icon']} ปิดเครื่อง")
+        self.action_combo.addItem(f"{ACTION_COLORS[1]['icon']} รีสตาร์ท")
+        self.action_combo.addItem(f"{ACTION_COLORS[2]['icon']} พักเครื่อง")
+        self.action_combo.addItem(f"{ACTION_COLORS[3]['icon']} จำศีล")
         self.action_combo.setMinimumHeight(40)
         self.action_combo.setMinimumWidth(280)
         self.action_combo.currentIndexChanged.connect(self.update_theme_colors)
@@ -445,7 +445,13 @@ class ShutdownTimerApp(QMainWindow):
         # Countdown display
         self.countdown_label = QLabel("--:--:--")
         self.countdown_label.setAlignment(Qt.AlignCenter)
-        countdown_font = QFont("JetBrains Mono, Consolas, monospace", 42, QFont.Bold)
+        # Select best available monospace font with fallback
+        available_fonts = QFontDatabase.families()
+        countdown_font_name = "JetBrains Mono" if "JetBrains Mono" in available_fonts else \
+                              "Consolas" if "Consolas" in available_fonts else \
+                              "Courier New"
+        countdown_font = QFont(countdown_font_name, 42, QFont.Bold)
+        countdown_font.setFixedPitch(True)  # Prevent digit jiggling
         self.countdown_label.setFont(countdown_font)
         self.countdown_label.setStyleSheet(
             "background: transparent; color: #cdd6f4; letter-spacing: 2px;"
@@ -1063,13 +1069,16 @@ class ShutdownTimerApp(QMainWindow):
             minutes, seconds = divmod(remainder, 60)
             self.countdown_label.setText(f"{hours:02d}:{minutes:02d}:{seconds:02d}")
 
-            # Update progress bar
+            # Update progress bar with remaining time
             if self.total_seconds > 0:
                 progress = int(
                     (self.total_seconds - self.remaining_seconds)
                     / self.total_seconds
                     * 100
                 )
+                # Display remaining time in MM:SS format alongside percentage
+                mins, secs = divmod(self.remaining_seconds, 60)
+                self.progress_bar.setFormat(f"{progress}% - เหลือ {mins:02d}:{secs:02d}")
                 self.progress_bar.setValue(min(100, progress))
 
     def show_toast(self, message, type_="info"):
