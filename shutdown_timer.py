@@ -862,7 +862,7 @@ class ShutdownTimerApp(QMainWindow):
             subprocess.run(["shutdown", command, "/t", str(total_seconds)], check=True)
 
             self.is_timer_active = True
-            self.status_label.setText(f"สถานะ: จะ{action_text}ในอีก {time_str}")
+            self.status_label.setText(f"สถานะ: จะ{action_text}เวลา {self.target_shutdown_time.strftime('%H:%M:%S')}")
             self.cancel_button.setEnabled(True)
             self.start_button.setEnabled(False)
             self.countdown_timer.start(1000)
