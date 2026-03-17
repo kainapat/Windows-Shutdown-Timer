@@ -1076,7 +1076,7 @@ class ShutdownTimerApp(QMainWindow):
         """Show toast notification"""
         if self.current_toast is not None:
             try:
-                self.current_toast.close()
+                self.current_toast.deleteLater()
             except Exception:
                 pass
         toast = Toast(self, message, duration=3000, type_=type_)

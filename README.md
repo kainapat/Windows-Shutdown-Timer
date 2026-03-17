@@ -30,8 +30,12 @@ A beautiful and user-friendly Windows shutdown/restart/sleep/hibernate timer app
   - Input validation (24 ชั่วโมง max)
   - Auto-cancel previous schedules
 - 🎨 **Dark Mode UI**: ธีมสีสวยงามแบบ Dark Blue พร้อม Dynamic Color Theme ตามการกระทำที่เลือก
-- 🔔 **Toast Notifications**: แจ้งเตือนสถานะแบบ Overlay พร้อมสีตามประเภท (สี, เขียว, ส้ม, แดง)
+- 🔔 **Toast Notifications**: แจ้งเตือนสถานะแบบ Overlay พร้อมสีตามประเภท และป้องกันการซ้อนกันด้วยการจัดการ memory ที่ถูกต้อง
 - ⚡ **เบาและรวดเร็ว**: ไม่กินทรัพยากรระบบ
+- 🔧 **Bug Fixes & Improvements**:
+  - แก้ปัญหา Toast ซ้อนกันเมื่อแสดงเร็ว ๆ (ใช้ deleteLater แทน close)
+  - ป้องกัน memory leak จากการจัดการ widget ที่ไม่ถูกต้อง
+  - แสดงเวลาที่จะทำการกระทำแทนการนับถอยหลัง เพื่อเห็นชัดเจนยิ่งขึ้น
 
 ---
 
