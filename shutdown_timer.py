@@ -859,7 +859,7 @@ class ShutdownTimerApp(QMainWindow):
             self.remaining_seconds = total_seconds
 
             command = "/r" if is_restart else "/s"
-            subprocess.run(["shutdown", command, "/t", str(total_seconds)], check=True, timeout=5)
+            subprocess.run(["shutdown", command, "/t", str(total_seconds)], check=True)
 
             self.is_timer_active = True
             self.status_label.setText(f"สถานะ: จะ{action_text}ในอีก {time_str}")
@@ -942,14 +942,14 @@ class ShutdownTimerApp(QMainWindow):
             # First, cancel any existing shutdown
             try:
                 subprocess.run(
-                    ["shutdown", "/a"], timeout=5, capture_output=True
+                    ["shutdown", "/a"], capture_output=True
                 )
             except Exception:
                 pass  # No existing shutdown to cancel, which is fine
 
             # Now schedule the new shutdown
             subprocess.run(
-                ["shutdown", command_type, "/t", str(total_seconds)], check=True, timeout=5
+                ["shutdown", command_type, "/t", str(total_seconds)], check=True
             )
 
             self.is_timer_active = True
@@ -971,9 +971,6 @@ class ShutdownTimerApp(QMainWindow):
                 error_msg = "ต้องมีสิทธิ์ Administrator เพื่อใช้งานฟีเจอร์นี้"
             logger.error(f"Shutdown command failed with code {e.returncode}: {e}")
             self.show_toast(error_msg, "error")
-        except subprocess.TimeoutExpired:
-            logger.error("Shutdown command timed out")
-            self.show_toast("หมดเวลารอคำสั่ง โปรดลองใหม่", "error")
         except Exception as e:
             logger.error(f"Unexpected error during timer: {e}")
             self.show_toast(f"ไม่สามารถตั้งเวลาได้: {e}", "error")
@@ -996,13 +993,11 @@ class ShutdownTimerApp(QMainWindow):
                 subprocess.run(
                     ["rundll32.exe", "powrprof.dll,SetSuspendState", "0,1,0"],
                     check=True,
-                    timeout=5,
                 )
             else:  # hibernate
                 subprocess.run(
                     ["rundll32.exe", "powrprof.dll,SetSuspendState", "1,1,0"],
                     check=True,
-                    timeout=5,
                 )
 
             self.status_label.setText(f"สถานะ: กำลัง{action_text}...")
@@ -1026,7 +1021,7 @@ class ShutdownTimerApp(QMainWindow):
 
         if reply == QMessageBox.Yes:
             try:
-                subprocess.run(["shutdown", "/a"], check=True, timeout=5)
+                subprocess.run(["shutdown", "/a"], check=True)
                 self.countdown_timer.stop()  # Stop the GUI countdown timer too
                 self.reset_ui_state()
                 self.is_timer_active = False
@@ -1039,10 +1034,6 @@ class ShutdownTimerApp(QMainWindow):
                     self.show_toast("ไม่มีการตั้งเวลาให้ยกเลิก", "info")
                 else:
                     self.show_toast(f"ไม่สามารถยกเลิกได้: Code {e.returncode}", "error")
-                self.reset_ui_state()
-            except subprocess.TimeoutExpired:
-                logger.error("Shutdown cancel command timed out")
-                self.show_toast("หมดเวลารอคำสั่ง โปรดลองใหม่", "error")
                 self.reset_ui_state()
             except Exception as e:
                 logger.error(f"Unexpected error during cancel: {e}")

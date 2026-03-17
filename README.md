@@ -28,7 +28,6 @@ A beautiful and user-friendly Windows shutdown/restart/sleep/hibernate timer app
   - Atomic file writes สำหรับ config
   - Input validation (24 ชั่วโมง max)
   - Auto-cancel previous schedules
-  - Timeout protection
 - 🎨 **Dark Mode UI**: ธีมสีสวยงามแบบ Dark Blue พร้อม Dynamic Color Theme ตามการกระทำที่เลือก
 - 🔔 **Toast Notifications**: แจ้งเตือนสถานะแบบ Overlay พร้อมสีตามประเภท (สี, เขียว, ส้ม, แดง)
 - ⚡ **เบาและรวดเร็ว**: ไม่กินทรัพยากรระบบ
@@ -174,7 +173,6 @@ Windows Shutdown Timer/
 **Safety Features**:
 - ✅ อัตโนมัติยกเลิกการตั้งเวลาเดิมก่อนตั้งเวลาใหม่
 - ✅ Atomic file writes สำหรับ `timer_config.json` เพื่อหลีกเลี่ยงการเสียหาย
-- ✅ Timeout 5 วินาทีสำหรับทุกคำสั่ง Windows
 - ✅ Input validation เพื่อป้องกันการตั้งเวลาเกินกว่า 24 ชั่วโมง
 - ✅ Error handling ที่ชัดเจนสำหรับข้อความผิดพลาด (Admin permissions, etc.)
 
@@ -241,7 +239,6 @@ Created with ❤️ for Windows users who need a simple shutdown timer.
 
 ### v1.2.0 (March 2026) - Bug Fixes & Stability
 **Critical Fixes**:
-- 🔧 แก้ไข: Subprocess timeout protection - เพิ่ม timeout=5 วินาที สำหรับคำสั่ง Windows
 - 🔧 แก้ไข: QTimer memory leak - เพิ่ม `.stop()` ใน closeEvent()
 - 🔧 แก้ไข: Race condition ในฟังก์ชัน update_countdown() - ปรับใช้ datetime comparison แบบตรงไป
 - 🔧 แก้ไข: Config file cross-drive move error - ใช้ temp file ในไดเรกทอรีเดียวกัน
