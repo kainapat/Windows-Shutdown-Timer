@@ -939,6 +939,15 @@ class ShutdownTimerApp(QMainWindow):
             self.total_seconds = total_seconds
             self.remaining_seconds = total_seconds
 
+            # First, cancel any existing shutdown
+            try:
+                subprocess.run(
+                    ["shutdown", "/a"], timeout=5, capture_output=True
+                )
+            except Exception:
+                pass  # No existing shutdown to cancel, which is fine
+
+            # Now schedule the new shutdown
             subprocess.run(
                 ["shutdown", command_type, "/t", str(total_seconds)], check=True, timeout=5
             )
@@ -954,7 +963,19 @@ class ShutdownTimerApp(QMainWindow):
             self.show_toast(f"ตั้งเวลา{action_text}สำเร็จ", "success")
             self.save_settings()
 
+        except subprocess.CalledProcessError as e:
+            error_msg = f"ไม่สามารถตั้งเวลาได้ (Code {e.returncode})"
+            if e.returncode == 1190:
+                error_msg = "มีการตั้งเวลาปิดเครื่องอยู่แล้ว กรุณากดยกเลิก"
+            elif e.returncode == 5:
+                error_msg = "ต้องมีสิทธิ์ Administrator เพื่อใช้งานฟีเจอร์นี้"
+            logger.error(f"Shutdown command failed with code {e.returncode}: {e}")
+            self.show_toast(error_msg, "error")
+        except subprocess.TimeoutExpired:
+            logger.error("Shutdown command timed out")
+            self.show_toast("หมดเวลารอคำสั่ง โปรดลองใหม่", "error")
         except Exception as e:
+            logger.error(f"Unexpected error during timer: {e}")
             self.show_toast(f"ไม่สามารถตั้งเวลาได้: {e}", "error")
 
     def _execute_sleep_hibernate(self, action_text, command_type):
@@ -1006,10 +1027,25 @@ class ShutdownTimerApp(QMainWindow):
         if reply == QMessageBox.Yes:
             try:
                 subprocess.run(["shutdown", "/a"], check=True, timeout=5)
+                self.countdown_timer.stop()  # Stop the GUI countdown timer too
                 self.reset_ui_state()
+                self.is_timer_active = False
                 self.status_label.setText("สถานะ: ยกเลิกการตั้งเวลาแล้ว")
-                self.show_toast("ยกเลิกการตั้งเวลาสำเร็จ", "error")
+                self.show_toast("ยกเลิกการตั้งเวลาสำเร็จ", "success")
+                self.save_settings()
+            except subprocess.CalledProcessError as e:
+                logger.error(f"Failed to cancel shutdown: {e}")
+                if e.returncode == 1116:  # ERROR_NO_SHUTDOWN_IN_PROGRESS
+                    self.show_toast("ไม่มีการตั้งเวลาให้ยกเลิก", "info")
+                else:
+                    self.show_toast(f"ไม่สามารถยกเลิกได้: Code {e.returncode}", "error")
+                self.reset_ui_state()
+            except subprocess.TimeoutExpired:
+                logger.error("Shutdown cancel command timed out")
+                self.show_toast("หมดเวลารอคำสั่ง โปรดลองใหม่", "error")
+                self.reset_ui_state()
             except Exception as e:
+                logger.error(f"Unexpected error during cancel: {e}")
                 self.show_toast(f"ไม่สามารถยกเลิกได้: {e}", "error")
                 self.reset_ui_state()
 
@@ -1113,17 +1149,13 @@ class ShutdownTimerApp(QMainWindow):
             "seconds": self.seconds_combo.currentIndex(),
         }
         try:
-            # Write to temp file first, then atomically move
-            import tempfile
-            fd, temp_path = tempfile.mkstemp(suffix='.json', text=True)
+            # Write to temp file in same directory to avoid cross-drive issues
+            temp_path = CONFIG_FILE + ".tmp"
             try:
-                with os.fdopen(fd, 'w', encoding='utf-8') as f:
+                with open(temp_path, 'w', encoding='utf-8') as f:
                     json.dump(settings, f, indent=4)
                 # Atomic rename to avoid corruption from concurrent access
-                if sys.platform == "win32":
-                    os.replace(temp_path, CONFIG_FILE)
-                else:
-                    os.rename(temp_path, CONFIG_FILE)
+                os.replace(temp_path, CONFIG_FILE)
             except Exception:
                 try:
                     os.unlink(temp_path)
