@@ -864,6 +864,14 @@ class ShutdownTimerApp(QMainWindow):
             self.total_seconds = total_seconds
             self.remaining_seconds = total_seconds
 
+            # Cancel any existing shutdown schedule first (prevent conflicts)
+            try:
+                subprocess.run(
+                    ["shutdown", "/a"], capture_output=True
+                )
+            except Exception:
+                pass  # No existing shutdown to cancel, which is fine
+
             command = "/r" if is_restart else "/s"
             subprocess.run(["shutdown", command, "/t", str(total_seconds)], check=True)
 
