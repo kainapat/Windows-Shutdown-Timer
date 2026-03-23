@@ -5,7 +5,7 @@
 A beautiful and user-friendly Windows shutdown/restart/sleep/hibernate timer application with dark mode UI.
 
 ![Python](https://img.shields.io/badge/Python-3.12+-blue.svg)
-![PySide6](https://img.shields.io/badge/PySide6-6.0+-green.svg)
+![PySide6](https://img.shields.io/badge/PySide6-6.4+-green.svg)
 ![Platform](https://img.shields.io/badge/Platform-Windows-lightgrey.svg)
 ![PyInstaller](https://img.shields.io/badge/PyInstaller-6.16+-orange.svg)
 ![Last Updated](https://img.shields.io/badge/Last%20Updated-March%202026-brightgreen.svg)
@@ -37,15 +37,7 @@ A beautiful and user-friendly Windows shutdown/restart/sleep/hibernate timer app
   - แก้ปัญหา Toast ซ้อนกันและ Memory leak
   - ปรับปรุงการคำนวณวันเวลาและการจัดการ Config แบบ Cross-drive
   - ระบบ Smart Font Fallback สำหรับหน้าจอแสดงผลเวลา
-  - Input validation (24 ชั่วโมง max)
-  - Auto-cancel previous schedules
-- 🎨 **Dark Mode UI**: ธีมสีสวยงามแบบ Dark Blue พร้อม Dynamic Color Theme ตามการกระทำที่เลือก
-- 🔔 **Toast Notifications**: แจ้งเตือนสถานะแบบ Overlay พร้อมสีตามประเภท และป้องกันการซ้อนกันด้วยการจัดการ memory ที่ถูกต้อง
-- ⚡ **เบาและรวดเร็ว**: ไม่กินทรัพยากรระบบ
-- 🔧 **Bug Fixes & Improvements**:
-  - แก้ปัญหา Toast ซ้อนกันเมื่อแสดงเร็ว ๆ (ใช้ deleteLater แทน close)
-  - ป้องกัน memory leak จากการจัดการ widget ที่ไม่ถูกต้อง
-  - แสดงเวลาที่จะทำการกระทำแทนการนับถอยหลัง เพื่อเห็นชัดเจนยิ่งขึ้น
+- 📋 **Terminal Logging**: แสดง log ทุกการกระทำใน Terminal พร้อม Emoji สวยงาม (🚀⚡🛑✅🧹👋)
 
 ---
 
@@ -54,7 +46,7 @@ A beautiful and user-friendly Windows shutdown/restart/sleep/hibernate timer app
 - **Operating System**: Windows 7/8/10/11
 - **Python**: 3.12 หรือสูงกว่า (สำหรับรันจาก source code)
 - **ไลบรารี่ที่ต้องใช้**:
-  - PySide6 6.0+
+  - PySide6 6.4.0+
   - PyInstaller 6.16+ (สำหรับ build .exe)
 
 ---
@@ -177,6 +169,36 @@ Windows Shutdown Timer/
 
 ---
 
+## 📋 Terminal Logging
+
+เมื่อรันจาก source code ทุกการกระทำจะแสดง log สวยงามพร้อม Emoji ใน Terminal:
+```
+20:29:49 │ 🚀 Application started — Window 600×680
+20:29:52 │ ⚡ [Preset] ปิดเครื่อง in 15 นาที (899s) → ⏰ 20:44:51
+20:29:55 │ 🛑 Cancelling scheduled shutdown...
+20:29:55 │ ✅ Timer cancelled successfully
+20:30:00 │ ⏱️  [Timer] ปิดเครื่อง in 3600s → ⏰ 21:30:00
+20:30:03 │ 🛑 Cancelling scheduled shutdown...
+20:30:03 │ ✅ Timer cancelled successfully
+20:30:06 │ 🧹 All fields cleared, config deleted
+20:30:08 │ 👋 Application closing... Bye!
+```
+
+| Emoji | ความหมาย |
+|:-----:|----------|
+| 🚀 | เปิดโปรแกรม |
+| ⚡ | Quick Preset |
+| ⏱️ | Timer ปกติ |
+| 😴 | Sleep/Hibernate |
+| 🛑 | กำลังยกเลิก |
+| ✅ | สำเร็จ |
+| 🧹 | ล้างค่า |
+| 👋 | ปิดโปรแกรม |
+| ❌💥 | Error |
+| ⚠️ | Warning |
+
+---
+
 ## 🔒 How It Works (หลักการทำงาน)
 
 โปรแกรมนี้ทำงานโดยส่งคำสั่งไปยัง Windows System โดยตรงผ่าน Command Line:
@@ -253,6 +275,16 @@ Created with ❤️ for Windows users who need a simple shutdown timer.
 ---
 
 ## 📅 Changelog
+
+### v1.4.0 (March 2026) - Terminal Logging & Code Cleanup
+**New Features**:
+- 📋 Terminal Logging: แสดง log ทุกการกระทำพร้อม Emoji (🚀⚡🛑✅🧹👋)
+- 📋 รองรับ log ทั้ง INFO, WARNING, ERROR พร้อมรูปแบบ `HH:MM:SS │ message`
+
+**Code Cleanup**:
+- 🧹 ลบ unused imports: QSpinBox, QIcon, QPainter, QPen, QBrush, QLinearGradient, QRadialGradient, QSize, QRect
+- 🧹 ลบ dead code: `is_compact`, `import tempfile`
+- 🔧 เพิ่ม logging StreamHandler ให้ log แสดงผลจริงใน Terminal
 
 ### v1.3.0 (March 2026) - UI/UX Improvements
 **Enhancements**:

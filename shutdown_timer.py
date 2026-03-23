@@ -18,7 +18,6 @@ from PySide6.QtWidgets import (
     QPushButton,
     QComboBox,
     QDateTimeEdit,
-    QSpinBox,
     QMessageBox,
     QRadioButton,
     QButtonGroup,
@@ -37,19 +36,11 @@ from PySide6.QtCore import (
     QTime,
     QPropertyAnimation,
     QEasingCurve,
-    QSize,
     QPoint,
-    QRect,
 )
 from PySide6.QtGui import (
     QFont,
-    QIcon,
     QColor,
-    QPainter,
-    QPen,
-    QBrush,
-    QLinearGradient,
-    QRadialGradient,
     QFontDatabase,
 )
 
@@ -63,6 +54,9 @@ CONFIG_FILE = "timer_config.json"
 # Initialize logger
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
+_handler = logging.StreamHandler()
+_handler.setFormatter(logging.Formatter("%(asctime)s │ %(message)s", datefmt="%H:%M:%S"))
+logger.addHandler(_handler)
 
 # --- Color Themes for Each Action ---
 ACTION_COLORS = {
@@ -278,13 +272,13 @@ class ShutdownTimerApp(QMainWindow):
         self.total_seconds = 0
         self.remaining_seconds = 0
         self.current_theme = ACTION_COLORS[0]
-        self.is_compact = False
         self.current_toast = None
 
         self.init_ui()
         self.load_settings()
         self.apply_styles()
         self.update_theme_colors(0)
+        logger.info("🚀 Application started — Window 600×680")
 
     def init_ui(self):
         """Create and arrange widgets"""
@@ -873,6 +867,7 @@ class ShutdownTimerApp(QMainWindow):
                 pass  # No existing shutdown to cancel, which is fine
 
             command = "/r" if is_restart else "/s"
+            logger.info(f"⚡ [Preset] {action_text} in {time_str} ({total_seconds}s) → ⏰ {self.target_shutdown_time.strftime('%H:%M:%S')}")
             subprocess.run(["shutdown", command, "/t", str(total_seconds)], check=True)
 
             self.is_timer_active = True
@@ -962,6 +957,7 @@ class ShutdownTimerApp(QMainWindow):
                 pass  # No existing shutdown to cancel, which is fine
 
             # Now schedule the new shutdown
+            logger.info(f"⏱️  [Timer] {action_text} in {total_seconds}s → ⏰ {self.target_shutdown_time.strftime('%H:%M:%S')}")
             subprocess.run(
                 ["shutdown", command_type, "/t", str(total_seconds)], check=True
             )
@@ -983,10 +979,10 @@ class ShutdownTimerApp(QMainWindow):
                 error_msg = "มีการตั้งเวลาปิดเครื่องอยู่แล้ว กรุณากดยกเลิก"
             elif e.returncode == 5:
                 error_msg = "ต้องมีสิทธิ์ Administrator เพื่อใช้งานฟีเจอร์นี้"
-            logger.error(f"Shutdown command failed with code {e.returncode}: {e}")
+            logger.error(f"❌ Shutdown command failed (code {e.returncode}): {e}")
             self.show_toast(error_msg, "error")
         except Exception as e:
-            logger.error(f"Unexpected error during timer: {e}")
+            logger.error(f"💥 Unexpected error during timer: {e}")
             self.show_toast(f"ไม่สามารถตั้งเวลาได้: {e}", "error")
 
     def _execute_sleep_hibernate(self, action_text, command_type):
@@ -1003,6 +999,7 @@ class ShutdownTimerApp(QMainWindow):
             return
 
         try:
+            logger.info(f"😴 Executing {action_text} immediately...")
             if command_type == "sleep":
                 subprocess.run(
                     ["rundll32.exe", "powrprof.dll,SetSuspendState", "0,1,0"],
@@ -1035,22 +1032,24 @@ class ShutdownTimerApp(QMainWindow):
 
         if reply == QMessageBox.Yes:
             try:
+                logger.info("🛑 Cancelling scheduled shutdown...")
                 subprocess.run(["shutdown", "/a"], check=True)
                 self.countdown_timer.stop()  # Stop the GUI countdown timer too
                 self.reset_ui_state()
                 self.is_timer_active = False
                 self.status_label.setText("สถานะ: ยกเลิกการตั้งเวลาแล้ว")
+                logger.info("✅ Timer cancelled successfully")
                 self.show_toast("ยกเลิกการตั้งเวลาสำเร็จ", "success")
                 self.save_settings()
             except subprocess.CalledProcessError as e:
-                logger.error(f"Failed to cancel shutdown: {e}")
+                logger.error(f"❌ Failed to cancel shutdown: {e}")
                 if e.returncode == 1116:  # ERROR_NO_SHUTDOWN_IN_PROGRESS
                     self.show_toast("ไม่มีการตั้งเวลาให้ยกเลิก", "info")
                 else:
                     self.show_toast(f"ไม่สามารถยกเลิกได้: Code {e.returncode}", "error")
                 self.reset_ui_state()
             except Exception as e:
-                logger.error(f"Unexpected error during cancel: {e}")
+                logger.error(f"💥 Unexpected error during cancel: {e}")
                 self.show_toast(f"ไม่สามารถยกเลิกได้: {e}", "error")
                 self.reset_ui_state()
 
@@ -1117,6 +1116,7 @@ class ShutdownTimerApp(QMainWindow):
         self.countdown_label.setText("--:--:--")
         self.progress_bar.setValue(0)
         self._delete_config_file()
+        logger.info("🧹 All fields cleared, config deleted")
         self.show_toast("ล้างค่าเรียบร้อย", "info")
 
     def reset_ui_state(self):
@@ -1133,6 +1133,7 @@ class ShutdownTimerApp(QMainWindow):
 
     def closeEvent(self, event):
         """Called when closing the application"""
+        logger.info("👋 Application closing... Bye!")
         self.countdown_timer.stop()
         self._delete_config_file()
         super().closeEvent(event)
@@ -1143,7 +1144,7 @@ class ShutdownTimerApp(QMainWindow):
             if os.path.exists(CONFIG_FILE):
                 os.remove(CONFIG_FILE)
         except Exception as e:
-            logger.warning(f"Could not delete config file: {e}")
+            logger.warning(f"⚠️  Could not delete config file: {e}")
 
     def save_settings(self):
         """Save settings to JSON file with atomic write"""
@@ -1171,7 +1172,7 @@ class ShutdownTimerApp(QMainWindow):
                     pass
                 raise
         except Exception as e:
-            logger.error(f"Could not save settings: {e}")
+            logger.error(f"💾❌ Could not save settings: {e}")
 
     def load_settings(self):
         """Load settings from JSON file"""
@@ -1205,12 +1206,11 @@ class ShutdownTimerApp(QMainWindow):
             self.seconds_combo.setCurrentIndex(settings.get("seconds", 0))
 
         except Exception as e:
-            logger.error(f"Could not load settings: {e}")
+            logger.error(f"📂❌ Could not load settings: {e}")
 
 
 if __name__ == "__main__":
     import signal
-    import tempfile
     
     app = QApplication(sys.argv)
 
