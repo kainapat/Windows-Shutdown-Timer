@@ -15,18 +15,28 @@ A beautiful and user-friendly Windows shutdown/restart/sleep/hibernate timer app
 ## ✨ Features (คุณสมบัติเด่น)
 
 - 🎯 **สี่โหมดการทำงาน**: Shutdown, Restart, Sleep, Hibernate
-- ⚡ **Quick Presets**: ปุ่มลัด 15 นาที, 30 นาที, 1 ชั่วโมง, 2 ชั่วโมง
+- ⚡ **Quick Presets**: ปุ่มลัดแบบ Glassmorphism (15 นาที, 30 นาที, 1 ชั่วโมง, 2 ชั่วโมง)
 - ⏰ **หลากหลายรูปแบบการตั้งเวลา**:
   - ระบุวัน/เวลาเจาะจง (Specific Date/Time)
   - นับถอยหลังแบบชั่วโมง (1-24 ชั่วโมง)
   - นับถอยหลังแบบนาที (1-60 นาที)
   - นับถอยหลังแบบวินาที (10-300 วินาที)
 - 📊 **Progress Bar**: แสดงความคืบหน้าการนับถอยหลัง + เวลาที่เหลือในรูปแบบ MM:SS (เช่น "50% - เหลือ 15:45")
-- 📊 **ตัวนับถอยหลังแบบเรียลไทม์**: แสดงเวลาที่เหลืออย่างชัดเจนด้วยฟอนต์ monospace ที่ทำให้ตัวเลขอ่านง่ายขึ้น
-- � **แสดงเวลาที่จะทำการกระทำ**: สถานะแสดงเวลาจริง เช่น "จะปิดเครื่องเวลา 17:00" แทนการนับถอยหลัง
-- �💾 **บันทึกการตั้งค่าอัตโนมัติ** (ชั่วคราวระหว่างการรัน): ลบไฟล์เมื่อปิดโปรแกรมหรือเมื่อเวลาทำงานเสร็จสิ้น
-- 🔒 **Safety Features**: 
-  - Atomic file writes สำหรับ config
+- 📊 **ตัวนับถอยหลังแบบเรียลไทม์**: แสดงเวลาที่เหลือแม่นยำด้วยฟอนต์ monospace (JetBrains Mono/Consolas/Courier) ป้องกันเลขขยับ (Fixed-pitch)
+- 🕒 **แสดงเวลาที่จะทำการกระทำ**: สถานะจะแสดงเวลาจริงชัดเจน เช่น "จะปิดเครื่องเวลา 17:00"
+- 💾 **บันทึกการตั้งค่าอัตโนมัติ**: ระบบบันทึกการตั้งค่าล่าสุดด้วย Atomic write (timer_config.json) และลบออกอัตโนมัติเมื่อเสร็จสิ้น
+- 🔒 **Safety & Graceful Handling**:
+  - Atomic file writes ป้องกันไฟล์เสีย
+  - Input validation สูงสุด 24 ชั่วโมง
+  - Auto-cancel previous schedules ป้องกันคำสั่งทับซ้อน
+  - **Graceful Termination**: รองรับการปิดโปรแกรมด้วย Ctrl+C หรือ Ctrl+Break โดยจะหยุดนับถอยหลังก่อนออกเสมอ
+- 🎨 **Modern Dark Mode UI**: ดีไซน์แบบ Glassmorphism พร้อม Dynamic Color Theme เปลี่ยนโทนสีแดง/ส้ม/น้ำเงิน/ม่วงตาม Action
+- 🔔 **Toast Notifications**: แจ้งเตือนสถานะแบบ Overlay ที่สวยงาม ป้องกันการซ้อนกันและจัดการหน่วยความจำอย่างดี
+- ⚡ **เบาและรวดเร็ว**: พัฒนาด้วย PySide6 ไม่กินทรัพยากรเครื่อง
+- 🔧 **Bug Fixes & Improvements**:
+  - แก้ปัญหา Toast ซ้อนกันและ Memory leak
+  - ปรับปรุงการคำนวณวันเวลาและการจัดการ Config แบบ Cross-drive
+  - ระบบ Smart Font Fallback สำหรับหน้าจอแสดงผลเวลา
   - Input validation (24 ชั่วโมง max)
   - Auto-cancel previous schedules
 - 🎨 **Dark Mode UI**: ธีมสีสวยงามแบบ Dark Blue พร้อม Dynamic Color Theme ตามการกระทำที่เลือก
