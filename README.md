@@ -123,13 +123,14 @@ Timer inputs and window dimensions are isolated into separate configuration file
 
 ## Changelog
 
-### v1.5.1 (June 2026) - Graceful Terminal Interrupt
+### v1.6.0 (June 2026) - Ethereal Glass UI/UX & Silent Interrupts
+- **Ethereal Glass Theme**: Restyled UI to OLED-black (#09090b) background with glowing dynamic accents, concentric boundaries, and custom glass button presets.
 - **Silent Interrupt Handling**: Aborts schedules silently on `Ctrl+C` or `Ctrl+Break` terminal signals, skipping blocking confirmation message popups.
 
-### v1.5.0 (June 2026) - Resizable Window & Settings Separation
-- **Ethereal Glass Theme**: Restyled UI to OLED-black (#09090b) background with glowing dynamic accents, concentric boundaries, and custom glass button presets.
-- **Resizable Layout & Constraints**: Unlocked resizability above a fixed minimum threshold of 600x680px.
-- **Geometry Persistence**: Saves window dimensions and positions into `window_config.json` on close, reloading them on startup.
+### v1.5.0 (June 2026) - Resizable UI & Geometry Persistence
+- **Resizable Layout & Constraints**: Unlocked window resizability above a fixed minimum threshold of 600x680px.
+- **Geometry Persistence**: Saves window dimensions and position coordinates into `window_config.json` on exit, restoring the window state on the next launch.
+- **Settings Separation**: Isolated layout geometries from timer settings, ensuring window sizes are preserved when clearing user timer inputs.
 
 ### v1.4.0 (March 2026) - Terminal Logging & Code Cleanup
 - **Terminal Logging**: Added timestamped logs (`HH:MM:SS │ message`) featuring context-specific emoji symbols.
