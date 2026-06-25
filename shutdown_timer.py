@@ -50,6 +50,7 @@ from PySide6.QtGui import (
 # pyinstaller --onefile --windowed --name="Windows Shutdown Timer" --icon=icon.ico shutdown_timer.py
 
 CONFIG_FILE = "timer_config.json"
+WINDOW_CONFIG_FILE = "window_config.json"
 
 # Initialize logger
 logger = logging.getLogger(__name__)
@@ -276,10 +277,11 @@ class ShutdownTimerApp(QMainWindow):
         self.current_toast = None
 
         self.init_ui()
+        self.load_window_settings()
         self.load_settings()
         self.apply_styles()
         self.update_theme_colors(0)
-        logger.info("🚀 Application started — Window 600×680")
+        logger.info("🚀 Application started")
 
     def init_ui(self):
         """Create and arrange widgets"""
@@ -1136,6 +1138,7 @@ class ShutdownTimerApp(QMainWindow):
         """Called when closing the application"""
         logger.info("👋 Application closing... Bye!")
         self.countdown_timer.stop()
+        self.save_window_settings()
         self._delete_config_file()
         super().closeEvent(event)
 
@@ -1208,6 +1211,43 @@ class ShutdownTimerApp(QMainWindow):
 
         except Exception as e:
             logger.error(f"📂❌ Could not load settings: {e}")
+
+    def save_window_settings(self):
+        """Save window size and position to JSON file"""
+        settings = {
+            "width": self.width(),
+            "height": self.height(),
+            "x": self.x(),
+            "y": self.y(),
+        }
+        try:
+            temp_path = WINDOW_CONFIG_FILE + ".tmp"
+            with open(temp_path, 'w', encoding='utf-8') as f:
+                json.dump(settings, f, indent=4)
+            os.replace(temp_path, WINDOW_CONFIG_FILE)
+            logger.info("💾 Window size and position saved")
+        except Exception as e:
+            logger.error(f"💾❌ Could not save window settings: {e}")
+
+    def load_window_settings(self):
+        """Load window size and position from JSON file"""
+        if not os.path.exists(WINDOW_CONFIG_FILE):
+            return
+        try:
+            with open(WINDOW_CONFIG_FILE, "r", encoding="utf-8") as f:
+                settings = json.load(f)
+            
+            width = settings.get("width", 600)
+            height = settings.get("height", 680)
+            self.resize(width, height)
+            
+            x = settings.get("x")
+            y = settings.get("y")
+            if x is not None and y is not None:
+                self.move(x, y)
+                logger.info(f"📂 Window size ({width}x{height}) and position ({x}, {y}) restored")
+        except Exception as e:
+            logger.error(f"📂❌ Could not load window settings: {e}")
 
 
 if __name__ == "__main__":
