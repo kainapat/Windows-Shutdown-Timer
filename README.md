@@ -22,11 +22,13 @@ A lightweight, modern Windows shutdown, restart, sleep, and hibernate scheduler 
 - **Specific Time**: Pick a precise calendar date and target time.
 - **Countdown Timer**: Specify custom intervals down to hours, minutes, or seconds (up to 24 hours).
 
-### 3. "Ethereal Glass" Interface
-- **Window Geometry Persistence**: Automatically records your custom window dimensions and desktop coordinates on exit, restoring them on the next launch.
+### 3. "Ethereal Glass" Bento Grid Dashboard
+- **Bento Grid Layout**: Organizes the interface into a modern asymmetric grid of cards (Bento boxes) separating setup parameters from active countdowns.
+- **Cinematic Motion**: Implements horizontal slide transitions for input method switching and spring-back click physics on interactive buttons.
+- **Window Geometry & Position Persistence**: Automatically records your custom window dimensions and desktop coordinates on exit, restoring them on the next launch (minimum bounds adjusted to 650x580px for optimal grid rendering).
 - **Monospace Countdown**: Monospace typography prevents digit layout jitter during real-time countdown updates.
-- **Dynamic Accent Colors**: Adjusts the interface's color accents dynamically according to the selected power action.
-- **Integrated Toast Overlay**: Custom non-overlapping status notifications with built-in memory management.
+- **Dynamic Glow Accents**: Adjusts the interface's color accents and radial glow backgrounds dynamically according to the selected power action.
+- **Integrated Toast Overlay**: Custom non-blocking status notifications with entry slide-down and exit fade animations.
 
 ### 4. Robust Safety Defaults
 - **Atomic File Serialization**: Settings are written to temporary files before replacing active configurations to avoid disk write corruption.
@@ -122,6 +124,11 @@ Timer inputs and window dimensions are isolated into separate configuration file
 ---
 
 ## Changelog
+
+### v1.7.0 (June 2026) - Bento Grid UI & Cinematic Motion Redesign
+- **Asymmetric Bento Grid Layout**: Rearranged the dashboard widgets into concentric Bento Box panels to optimize visual hierarchy.
+- **Cinematic Slide & Haptic Motion**: Integrated custom `SlidingStackedWidget` slide transitions and physics-based button compression on clicks.
+- **Glow & Accent System**: Re-tuned neon gradients and radial background glows to change fluidly with each action theme.
 
 ### v1.6.0 (June 2026) - Ethereal Glass UI/UX & Silent Interrupts
 - **Ethereal Glass Theme**: Restyled UI to OLED-black (#09090b) background with glowing dynamic accents, concentric boundaries, and custom glass button presets.
