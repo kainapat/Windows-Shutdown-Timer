@@ -1,324 +1,141 @@
-# 🕒 Windows Shutdown Timer
+# Windows Shutdown Timer
 
-โปรแกรมตั้งเวลาปิดเครื่อง/รีสตาร์ท/พักเครื่อง/จำศีลคอมพิวเตอร์ Windows อัตโนมัติ ที่มาพร้อมกับ GUI สวยงามและใช้งานง่าย
+โปรแกรมตั้งเวลาปิดเครื่อง รีสตาร์ท พักเครื่อง และจำศีลคอมพิวเตอร์ Windows พัฒนาด้วย Python และ PySide6 มาพร้อมอินเทอร์เฟซสไตล์มินิมอล/โมเดิร์นที่รองรับการปรับขนาดและจดจำตำแหน่งหน้าต่างอัตโนมัติ
 
-A beautiful and user-friendly Windows shutdown/restart/sleep/hibernate timer application with dark mode UI.
+A lightweight, reliable Windows shutdown/restart/sleep/hibernate timer application built with Python and PySide6.
 
-![Python](https://img.shields.io/badge/Python-3.12+-blue.svg)
-![PySide6](https://img.shields.io/badge/PySide6-6.4+-green.svg)
-![Platform](https://img.shields.io/badge/Platform-Windows-lightgrey.svg)
-![PyInstaller](https://img.shields.io/badge/PyInstaller-6.16+-orange.svg)
-![Last Updated](https://img.shields.io/badge/Last%20Updated-March%202026-brightgreen.svg)
-
----
-
-## ✨ Features (คุณสมบัติเด่น)
-
-- 🎯 **สี่โหมดการทำงาน**: Shutdown, Restart, Sleep, Hibernate
-- ⚡ **Quick Presets**: ปุ่มลัดแบบ Glassmorphism (15 นาที, 30 นาที, 1 ชั่วโมง, 2 ชั่วโมง)
-- ⏰ **หลากหลายรูปแบบการตั้งเวลา**:
-  - ระบุวัน/เวลาเจาะจง (Specific Date/Time)
-  - นับถอยหลังแบบชั่วโมง (1-24 ชั่วโมง)
-  - นับถอยหลังแบบนาที (1-60 นาที)
-  - นับถอยหลังแบบวินาที (10-300 วินาที)
-- 📊 **Progress Bar**: แสดงความคืบหน้าการนับถอยหลัง + เวลาที่เหลือในรูปแบบ MM:SS (เช่น "50% - เหลือ 15:45")
-- 📊 **ตัวนับถอยหลังแบบเรียลไทม์**: แสดงเวลาที่เหลือแม่นยำด้วยฟอนต์ monospace (JetBrains Mono/Consolas/Courier) ป้องกันเลขขยับ (Fixed-pitch)
-- 🕒 **แสดงเวลาที่จะทำการกระทำ**: สถานะจะแสดงเวลาจริงชัดเจน เช่น "จะปิดเครื่องเวลา 17:00"
-- 💾 **บันทึกการตั้งค่าอัตโนมัติ**: ระบบบันทึกการตั้งค่าล่าสุดด้วย Atomic write (timer_config.json) และลบออกอัตโนมัติเมื่อเสร็จสิ้น
-- 🔒 **Safety & Graceful Handling**:
-  - Atomic file writes ป้องกันไฟล์เสีย
-  - Input validation สูงสุด 24 ชั่วโมง
-  - Auto-cancel previous schedules ป้องกันคำสั่งทับซ้อน
-  - **Graceful Termination**: รองรับการปิดโปรแกรมด้วย Ctrl+C หรือ Ctrl+Break โดยจะหยุดนับถอยหลังก่อนออกเสมอ
-- 🎨 **Modern Dark Mode UI**: ดีไซน์แบบ Glassmorphism พร้อม Dynamic Color Theme เปลี่ยนโทนสีแดง/ส้ม/น้ำเงิน/ม่วงตาม Action
-- 🔔 **Toast Notifications**: แจ้งเตือนสถานะแบบ Overlay ที่สวยงาม ป้องกันการซ้อนกันและจัดการหน่วยความจำอย่างดี
-- ⚡ **เบาและรวดเร็ว**: พัฒนาด้วย PySide6 ไม่กินทรัพยากรเครื่อง
-- 🔧 **Bug Fixes & Improvements**:
-  - แก้ปัญหา Toast ซ้อนกันและ Memory leak
-  - ปรับปรุงการคำนวณวันเวลาและการจัดการ Config แบบ Cross-drive
-  - ระบบ Smart Font Fallback สำหรับหน้าจอแสดงผลเวลา
-- 📋 **Terminal Logging**: แสดง log ทุกการกระทำใน Terminal พร้อม Emoji สวยงาม (🚀⚡🛑✅🧹👋)
+[![Python 3.12+](https://img.shields.io/badge/Python-3.12+-blue.svg)](https://www.python.org/)
+[![PySide6](https://img.shields.io/badge/PySide6-6.4+-green.svg)](https://doc.qt.io/qtforpython-6/)
+[![Platform](https://img.shields.io/badge/Platform-Windows-lightgrey.svg)](https://www.microsoft.com/windows)
+[![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 ---
 
-## 📋 System Requirements (ข้อกำหนดระบบ)
+## ฟีเจอร์หลัก (Key Features)
 
-- **Operating System**: Windows 7/8/10/11
-- **Python**: 3.12 หรือสูงกว่า (สำหรับรันจาก source code)
-- **ไลบรารี่ที่ต้องใช้**:
-  - PySide6 6.4.0+
-  - PyInstaller 6.16+ (สำหรับ build .exe)
+### 1. โหมดการทำงานครอบคลุม (Operation Modes)
+- **Shutdown**: ปิดเครื่องคอมพิวเตอร์
+- **Restart**: เริ่มระบบใหม่
+- **Sleep**: พักเครื่อง (ใช้พลังงานต่ำ)
+- **Hibernate**: จำศีล (เซฟสถานะงานลงดิสก์แล้วดับเครื่อง)
+
+### 2. การตั้งเวลาที่ยืดหยุ่น (Scheduling Options)
+- **Quick Presets**: ปุ่มลัดตั้งเวลาด่วน (15 นาที, 30 นาที, 1 ชั่วโมง, 2 ชั่วโมง)
+- **Specific Time**: ระบุวันและเวลาที่เจาะจงผ่านปฏิทิน
+- **Countdown**: นับถอยหลังระบุละเอียดเป็น ชั่วโมง, นาที หรือวินาที (สูงสุด 24 ชั่วโมง)
+
+### 3. อินเทอร์เฟซและการแสดงผล (UI/UX Design)
+- **Resizable & Sticky Window**: หน้าต่างปรับขนาดได้อย่างอิสระ (ขั้นต่ำ 600x680px) และจดจำขนาด/ตำแหน่งการวางบนหน้าจอล่าสุดเมื่อเปิดใช้งานครั้งถัดไป
+- **Monospace Countdown**: ตัวนับเวลาถอยหลังแบบเรียลไทม์ที่แสดงผลด้วยฟอนต์ Monospace เพื่อป้องกันตัวเลขขยับตัวไปมาระหว่างเปลี่ยนวิ
+- **Dynamic Themes**: เปลี่ยนโทนสีของโปรแกรม (แดง, ส้ม, น้ำเงิน, ม่วง) ตามประเภทของการกระทำที่เลือกโดยอัตโนมัติ
+- **Toast Notifications**: ระบบแจ้งเตือนข้อความบนตัวโปรแกรม ทำงานรวดเร็ว ไม่ทับซ้อนกัน และไม่มีปัญหา Memory Leak
+
+### 4. ความปลอดภัยและความเสถียร (Safety & Performance)
+- **Atomic Writes**: บันทึกการตั้งค่าลงไฟล์ `timer_config.json` และ `window_config.json` แบบปลอดภัย ป้องกันไฟล์เสียหายเมื่อแอปถูกปิดกะทันหัน
+- **Auto-Cancel**: ยกเลิกการตั้งเวลาคำสั่งเดิมใน Windows อัตโนมัติก่อนตั้งค่าใหม่ เพื่อป้องกันคำสั่งชนกัน
+- **Graceful Exit**: ดักจับการปิดโปรแกรมหรือการกด `Ctrl+C` / `Ctrl+Break` ใน Terminal เพื่อเคลียร์สถานะอย่างถูกต้องก่อนปิดระบบ
 
 ---
 
-## 🚀 Installation (การติดตั้ง)
+## ความต้องการของระบบ (System Requirements)
 
-### วิธีที่ 1: ใช้ไฟล์ .exe (แนะนำสำหรับผู้ใช้ทั่วไป)
+- **OS**: Windows 7 / 8 / 10 / 11
+- **Python**: 3.12 ขึ้นไป (กรณีรันจาก Source Code)
+- **Dependencies**:
+  - `PySide6 >= 6.4.0`
 
-1. ดาวน์โหลดไฟล์ `.exe` จากหน้า [Releases](../../releases)
-2. Double-click เพื่อเปิดโปรแกรม
-3. เริ่มใช้งานได้เลย ไม่ต้องติดตั้ง Python
+---
 
-### วิธีที่ 2: รันจาก Source Code (สำหรับ Developer)
+## การติดตั้งและการใช้งาน (Installation & Usage)
 
-1. **Clone หรือดาวน์โหลด repository นี้**
+### สำหรับผู้ใช้ทั่วไป (ดาวน์โหลดไฟล์ .exe)
+1. ดาวน์โหลดไฟล์เวอร์ชันล่าสุดจากหน้า [Releases](../../releases) (ไฟล์ `.exe` แบบ Standalone)
+2. ดับเบิ้ลคลิกเพื่อเปิดใช้งานได้ทันทีโดยไม่ต้องติดตั้ง Python หรือไลบรารี่เพิ่มเติม
+
+### สำหรับนักพัฒนา (รันจาก Source Code)
+1. **Clone repository และเปิดโฟลเดอร์โครงการ**:
    ```bash
    git clone https://github.com/kainapat/Windows-Shutdown-Timer.git
-   cd "Windows-Shutdown-Timer"
+   cd Windows-Shutdown-Timer
    ```
 
-2. **ติดตั้ง Dependencies**
+2. **ติดตั้งไลบรารี่ที่จำเป็น**:
    ```bash
    pip install -r requirements.txt
    ```
 
-3. **รันโปรแกรม**
+3. **สั่งรันแอปพลิเคชัน**:
    ```bash
    python shutdown_timer.py
    ```
 
 ---
 
-## 🎮 How to Use (วิธีใช้งาน)
+## การสร้างไฟล์ .exe (Building Executable)
 
-### Quick Presets (ใช้งานเร็ว)
-1. เลือกการกระทำ (Shutdown หรือ Restart)
-2. กดปุ่ม Preset ที่ต้องการ (15 นาที / 30 นาที / 1 ชม. / 2 ชม.)
-3. ยืนยัน แล้วรอนับถอยหลัง
+หากต้องการแพ็กโปรแกรมเป็นไฟล์ `.exe` เดี่ยวสำหรับใช้งานทั่วไป สามารถทำได้โดยใช้ PyInstaller:
 
-### โหมดปกติ
-1. **เลือกการกระทำ** (Action):
-   - ปิดเครื่อง (Shutdown)
-   - รีสตาร์ท (Restart)
-   - พักเครื่อง (Sleep)
-   - จำศีล (Hibernate)
-
-2. **เลือกโหมดการตั้งเวลา**:
-   - ✅ ระบุวันที่/เวลา: เลือกวันและเวลาที่ต้องการจากปฏิทิน
-   - ✅ นับถอยหลัง (ชั่วโมง): เลือกจำนวนชั่วโมง
-   - ✅ นับถอยหลัง (นาที): เลือกจำนวนนาที
-   - ✅ นับถอยหลัง (วินาที): เลือกจำนวนวินาที
-
-3. **กดปุ่ม "เริ่มตั้งเวลา"**
-   - โปรแกรมจะยืนยันความต้องการอีกครั้ง
-   - เมื่อยืนยันแล้ว Progress Bar และตัวนับถอยหลังจะเริ่มทำงาน
-
-4. **ยกเลิกการตั้งเวลา** (ถ้าต้องการ):
-   - กดปุ่ม "ยกเลิก" ได้ตลอดเวลาก่อนหมดเวลา
-
-5. **ล้างค่า**:
-   - กดปุ่ม "ล้างค่า" เพื่อรีเซ็ตการตั้งค่าทั้งหมด
-
-> ⚠️ **คำเตือน**: กรุณาบันทึกงานของคุณก่อนตั้งเวลาปิดเครื่อง/รีสตาร์ท!
-
----
-
-## 🔧 Build เป็น .exe (สำหรับ Developer)
-
-หากต้องการสร้างไฟล์ `.exe` แบบ standalone:
-
-1. **ติดตั้ง PyInstaller**
+1. **ติดตั้ง PyInstaller**:
    ```bash
    pip install pyinstaller
    ```
 
-2. **Build โปรแกรม**
+2. **รันคำสั่ง Build**:
    ```bash
    pyinstaller --onefile --windowed --name="Windows Shutdown Timer" --icon=icon.ico shutdown_timer.py
    ```
 
-3. **ไฟล์ .exe จะอยู่ที่**
-   ```
-   dist/Windows Shutdown Timer.exe
-   ```
+3. ไฟล์ติดตั้งสำเร็จรูปจะอยู่ในโฟลเดอร์ `dist/Windows Shutdown Timer.exe`
 
 ---
 
-## 📂 Project Structure
+## โครงสร้างโครงการ (Project Structure)
 
 ```
 Windows Shutdown Timer/
-│
-├── .github/workflows/         # GitHub Actions for auto build
-│   └── build-release.yml
-├── shutdown_timer.py          # Main application source code
-├── requirements.txt           # Python dependencies
-├── icon.ico                   # Application icon
-├── off.png                    # Additional resource
-├── Windows Shutdown Timer.spec # PyInstaller spec file
-├── timer_config.json          # Auto-saved settings (created at runtime)
-├── build/                     # Build artifacts (gitignored)
-└── dist/                      # Compiled executable (gitignored)
+├── shutdown_timer.py          # ซอร์สโค้ดหลักของแอปพลิเคชัน
+├── requirements.txt           # รายการไลบรารี่ที่โปรแกรมต้องการ
+├── icon.ico                   # ไอคอนหลักของแอปพลิเคชัน
+├── off.png                    # รูปภาพประกอบอินเทอร์เฟซ
+├── Windows Shutdown Timer.spec # ไฟล์การตั้งค่าการแพ็ก .exe ของ PyInstaller
+├── timer_config.json          # ไฟล์เซฟการตั้งค่าเวลาปัจจุบัน (สร้างขึ้นชั่วคราว)
+└── window_config.json         # ไฟล์จดจำขนาดและตำแหน่งหน้าต่าง
 ```
 
 ---
 
-## 🎨 UI Preview
+## การทำงานเบื้องหลัง (How It Works)
 
-โปรแกรมมาพร้อมกับ **Dark Mode Theme** ที่สวยงามและทันสมัย:
-- สีพื้นหลัง: Deep Blue (#1e1e2e) พร้อม Dynamic Gradient ตาม Action ที่เลือก
-- สีปุ่มเริ่มต้น: ตามสีธีม (ชมพู/ส้ม/น้ำเงิน/ม่วง)
-- สีปุ่มยกเลิก: Gradient แดง
-- ฟอนต์: Segoe UI (Action/Controls) + Auto-detected Monospace (Countdown display)
-- **Action Icons**: Emoji ที่เข้าใจง่าย (🔌 Shutdown / 🔄 Restart / 😴 Sleep / 🌙 Hibernate)
-- **Countdown Font**: Fixed-pitch monospace ที่ป้องกันการกระโดดของตัวเลข
-- มี Hover Effects, Drop Shadow และ Rounded Corners
-- Progress Bar แสดง % + เวลาที่เหลือ (เช่น "45% - เหลือ 12:30")
-- Toast Notification แสดงที่ด้านบนหน้าต่าง ไม่ซ้อนทับกัน พร้อม memory leak fix
-- ขนาดหน้าต่างคงที่ 600×680px
-
----
-
-## 📋 Terminal Logging
-
-เมื่อรันจาก source code ทุกการกระทำจะแสดง log สวยงามพร้อม Emoji ใน Terminal:
-```
-20:29:49 │ 🚀 Application started — Window 600×680
-20:29:52 │ ⚡ [Preset] ปิดเครื่อง in 15 นาที (899s) → ⏰ 20:44:51
-20:29:55 │ 🛑 Cancelling scheduled shutdown...
-20:29:55 │ ✅ Timer cancelled successfully
-20:30:00 │ ⏱️  [Timer] ปิดเครื่อง in 3600s → ⏰ 21:30:00
-20:30:03 │ 🛑 Cancelling scheduled shutdown...
-20:30:03 │ ✅ Timer cancelled successfully
-20:30:06 │ 🧹 All fields cleared, config deleted
-20:30:08 │ 👋 Application closing... Bye!
-```
-
-| Emoji | ความหมาย |
-|:-----:|----------|
-| 🚀 | เปิดโปรแกรม |
-| ⚡ | Quick Preset |
-| ⏱️ | Timer ปกติ |
-| 😴 | Sleep/Hibernate |
-| 🛑 | กำลังยกเลิก |
-| ✅ | สำเร็จ |
-| 🧹 | ล้างค่า |
-| 👋 | ปิดโปรแกรม |
-| ❌💥 | Error |
-| ⚠️ | Warning |
-
----
-
-## 🔒 How It Works (หลักการทำงาน)
-
-โปรแกรมนี้ทำงานโดยส่งคำสั่งไปยัง Windows System โดยตรงผ่าน Command Line:
-
+โปรแกรมเรียกใช้คำสั่งระบบของ Windows (Windows Command Line) ในการทำงานดังนี้:
 - **Shutdown**: `shutdown /s /t [seconds]`
 - **Restart**: `shutdown /r /t [seconds]`
 - **Sleep**: `rundll32.exe powrprof.dll,SetSuspendState 0,1,0`
 - **Hibernate**: `rundll32.exe powrprof.dll,SetSuspendState 1,1,0`
 - **Cancel**: `shutdown /a`
 
-**Safety Features**:
-- ✅ อัตโนมัติยกเลิกการตั้งเวลาเดิมก่อนตั้งเวลาใหม่
-- ✅ Atomic file writes สำหรับ `timer_config.json` เพื่อหลีกเลี่ยงการเสียหาย
-- ✅ Input validation เพื่อป้องกันการตั้งเวลาเกินกว่า 24 ชั่วโมง
-- ✅ Error handling ที่ชัดเจนสำหรับข้อความผิดพลาด (Admin permissions, etc.)
-
-ไม่มีการติดตั้งซอฟต์แวร์เพิ่มเติม และปลอดภัย 100%
-
 ---
 
-## 📝 Configuration File
+## ประวัติการอัปเดต (Changelog)
 
-โปรแกรมจะบันทึกการตั้งค่าล่าสุดไว้ในไฟล์ `timer_config.json`:
-```json
-{
-    "action": 0,
-    "mode": 1,
-    "date": "2026-03-02",
-    "time": "20:00",
-    "hours": 2,
-    "minutes": 30,
-    "seconds": 0
-}
-```
-
-ไฟล์นี้จะถูกลบอัตโนมัติเมื่อปิดโปรแกรม เมื่อเวลานับถอยหลังถึง 0 หรือกด "ล้างค่า"
-
----
-
-## 🚀 Auto Build with GitHub Actions
-
-Repository นี้มี GitHub Actions workflow สำหรับ Build และ Release อัตโนมัติ:
-
-- Push tag แบบ `v*` (เช่น `v1.0.0`) เพื่อ trigger build
-- Build จะทำงานบน Windows และสร้าง `.exe`
-- Release พร้อมไฟล์ `.exe` จะถูกสร้างโดยอัตโนมัติ
-
----
-
-## 🐛 Known Issues / Limitations
-
-- ต้องใช้สิทธิ์ Administrator เมื่อตั้งเวลา Shutdown/Restart บนระบบที่มีการป้องกันสูง
-- ทำงานได้บน Windows เท่านั้น (ใช้คำสั่ง `shutdown` ของ Windows)
-- Sleep/Hibernate จะทำงานทันทีและไม่รอเวลา (ตามการออกแบบเดิม)
-
----
-
-## 🤝 Contributing
-
-ยินดีรับ Pull Requests และ Suggestions ทุกรูปแบบ!
-
----
-
-## 📄 License
-
-This project is open source and available for personal and educational use.
-
----
-
-## 👨‍💻 Author
-
-Created with ❤️ for Windows users who need a simple shutdown timer.
-
----
-
-## 📅 Changelog
+### v1.5.0 (June 2026) - Resizable Window & Settings Separation
+- **Resizable UI**: เปลี่ยนขนาดหน้าต่างให้ยืดขยายได้อย่างอิสระโดยตั้งขนาดขั้นต่ำไว้ที่ 600x680px เพื่อลดการแออัดของหน้าจอ
+- **Position & Size Persistence**: บันทึกข้อมูลขนาด (Size) และพิกัดตำแหน่ง (Position) ลงในไฟล์ `window_config.json` ตอนปิดแอป และกู้คืนสภาพแวดล้อมเดิมเมื่อเปิดแอปใหม่
+- **Clean Configuration Architecture**: แยกการจดจำขนาดหน้าต่างออกจากประวัติตั้งเวลา เพื่อไม่ให้ข้อมูลตำแหน่งและขนาดหน้าต่างหายไปเมื่อสิ้นสุดการตั้งเวลาหรือเคลียร์ช่องป้อนข้อมูล
 
 ### v1.4.0 (March 2026) - Terminal Logging & Code Cleanup
-**New Features**:
-- 📋 Terminal Logging: แสดง log ทุกการกระทำพร้อม Emoji (🚀⚡🛑✅🧹👋)
-- 📋 รองรับ log ทั้ง INFO, WARNING, ERROR พร้อมรูปแบบ `HH:MM:SS │ message`
-
-**Code Cleanup**:
-- 🧹 ลบ unused imports: QSpinBox, QIcon, QPainter, QPen, QBrush, QLinearGradient, QRadialGradient, QSize, QRect
-- 🧹 ลบ dead code: `is_compact`, `import tempfile`
-- 🔧 เพิ่ม logging StreamHandler ให้ log แสดงผลจริงใน Terminal
+- **Terminal Logging**: เพิ่มระบบ Log รายละเอียดการทำงานของแอปใน Terminal พร้อม Emoji และ Timestamp รูปแบบ `HH:MM:SS │ message`
+- **Code Optimization**: เคลียร์ Unused Imports (QSpinBox, QPainter, QPen ฯลฯ) และลบ dead code ออกทั้งหมดเพื่อลดขนาดแอปพลิเคชัน
 
 ### v1.3.0 (March 2026) - UI/UX Improvements
-**Enhancements**:
-- ✨ Action Combo Box: เปลี่ยนมาใช้ Emoji ที่เข้าใจง่าย (🔌🔄😴🌙) แทนสัญลักษณ์นามธรรม
-- ✨ Thai-only UI: ลบข้อความภาษาอังกฤษออกจากการเลือก Action เพื่อให้อินเทอร์เฟซสะอาดกว่า
-- ✨ Progress Bar Enhancement: แสดงเปอร์เซ็นต์ + เวลาที่เหลือในรูปแบบ MM:SS (เช่น "50% - เหลือ 15:45")
-- 🔧 Font Detection: ปรับปรุงการเลือกฟอนต์แบบ Monospace ด้วย Smart Fallback (JetBrains Mono → Consolas → Courier New)
-- 🔧 Fixed-Pitch Display: เพิ่ม setFixedPitch() เพื่อป้องกันการกระโดดของตัวเลขในตัวนับถอยหลัง
+- **Action Icons**: ปรับปรุงเมนู Dropdown ให้เป็นสัญลักษณ์ Emoji ที่อ่านง่าย (🔌, 🔄, 😴, 🌙)
+- **Monospace Countdown**: ตั้งค่า Font-pitch ของหน้าจอถอยหลังแบบเรียลไทม์เพื่อป้องกันไม่ให้ตัวเลขขยับตัวขณะนับถอยหลัง
 
 ### v1.2.0 (March 2026) - Bug Fixes & Stability
-**Critical Fixes**:
-- 🔧 แก้ไข: QTimer memory leak - เพิ่ม `.stop()` ใน closeEvent()
-- 🔧 แก้ไข: Race condition ในฟังก์ชัน update_countdown() - ปรับใช้ datetime comparison แบบตรงไป
-- 🔧 แก้ไข: Config file cross-drive move error - ใช้ temp file ในไดเรกทอรีเดียวกัน
-- 🔧 แก้ไข: Logger not defined error - เพิ่ม logger initialization
-
-**Improvements**:
-- ⚡ Input validation - เพิ่มการตรวจสอบค่าสูงสุด 24 ชั่วโมง
-- ⚡ Shutdown scheduling - อัตโนมัติยกเลิกการตั้งเวลาเดิมก่อนตั้งใหม่
-- ⚡ Error handling - ปรับปรุงข้อความแสดงข้อผิดพลาดให้ชัดเจน (รองรับ error codes)
-- ⚡ Cancel timer - เพิ่ม proper cleanup และ error handling สำหรับการยกเลิก
-
-### v1.1.0 (March 2026) - UI Improvements
-- 🎨 ปรับสีตัวเลข % ใน Progress Bar เป็นสีเทา (#808080) เพื่อให้อ่านง่ายขึ้น
-- 🔧 อัปเดต build ด้วย PyInstaller 6.16 + Python 3.12
-
-### v1.0.0 (Initial Release)
-- 🎯 สี่โหมดการทำงาน: Shutdown, Restart, Sleep, Hibernate
-- ⚡ Quick Presets (15 นาที / 30 นาที / 1 ชม. / 2 ชม.)
-- 📊 Progress Bar + Real-time Countdown
-- 🎨 Dark Mode UI พร้อม Dynamic Color Theme
-- 🔔 Toast Notifications
-- 💾 Auto-save Config
+- **Memory Leak Fix**: หยุดการทำงานของ QTimer ทันทีเมื่อปิดหน้าต่าง ป้องกันโปรแกรมค้างใน Task Manager
+- **Atomic File Config**: เปลี่ยนกระบวนการบันทึกไฟล์ config แบบเขียนลงไฟล์ชั่วคราวก่อนย้ายทับไฟล์จริง ป้องกันปัญหาเขียนไฟล์ทับขณะไดรฟ์ต่างกัน (Cross-drive move error)
 
 ---
 
-**Happy Scheduling! 🎉**
+## สัญญาอนุญาต (License)
+
+โครงการนี้อยู่ภายใต้สัญญาอนุญาตแบบ **MIT License** สามารถนำไปดัดแปลง ศึกษา และใช้งานได้ฟรีตามข้อตกลงที่ระบุไว้
