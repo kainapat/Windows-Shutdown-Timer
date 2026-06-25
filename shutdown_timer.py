@@ -63,38 +63,38 @@ logger.addHandler(_handler)
 ACTION_COLORS = {
     0: {  # Shutdown - Red
         "name": "shutdown",
-        "primary": "#f38ba8",
-        "secondary": "#f5c2e7",
-        "accent": "#eba0ac",
-        "bg_gradient_end": "#2d1f2f",
-        "progress": "#f38ba8",
+        "primary": "#ff5f85",
+        "secondary": "#ffa9bc",
+        "accent": "#ff3b65",
+        "bg_gradient_end": "#1a0a0f",
+        "progress": "#ff5f85",
         "icon": "🔌",
     },
     1: {  # Restart - Orange
         "name": "restart",
-        "primary": "#fab387",
-        "secondary": "#f9e2af",
-        "accent": "#f5c2e7",
-        "bg_gradient_end": "#2d2520",
-        "progress": "#fab387",
+        "primary": "#ff9e3b",
+        "secondary": "#ffd29d",
+        "accent": "#ff8300",
+        "bg_gradient_end": "#1a0f07",
+        "progress": "#ff9e3b",
         "icon": "🔄",
     },
     2: {  # Sleep - Blue
         "name": "sleep",
-        "primary": "#89b4fa",
-        "secondary": "#b4befe",
-        "accent": "#74c7ec",
-        "bg_gradient_end": "#1f2535",
-        "progress": "#89b4fa",
+        "primary": "#3b82f6",
+        "secondary": "#93c5fd",
+        "accent": "#1d4ed8",
+        "bg_gradient_end": "#060f1e",
+        "progress": "#3b82f6",
         "icon": "😴",
     },
     3: {  # Hibernate - Purple
         "name": "hibernate",
-        "primary": "#cba6f7",
-        "secondary": "#f5c2e7",
-        "accent": "#b4befe",
-        "bg_gradient_end": "#2a1f35",
-        "progress": "#cba6f7",
+        "primary": "#a855f7",
+        "secondary": "#d8b4fe",
+        "accent": "#7e22ce",
+        "bg_gradient_end": "#0f071a",
+        "progress": "#a855f7",
         "icon": "🌙",
     },
 }
@@ -308,7 +308,7 @@ class ShutdownTimerApp(QMainWindow):
         main_layout.addLayout(header_layout)
 
         # --- Quick Presets Section (Visual Cards) ---
-        presets_group = QGroupBox(f"{ICONS['clock']} Quick Presets")
+        presets_group = QGroupBox("Quick Presets")
         presets_layout = QGridLayout(presets_group)
         presets_layout.setSpacing(12)
 
@@ -327,7 +327,7 @@ class ShutdownTimerApp(QMainWindow):
         main_layout.addWidget(presets_group)
 
         # --- Mode Selection (Radio Buttons in horizontal layout) ---
-        mode_group = QGroupBox(f"{ICONS['timer']} โหมดการตั้งเวลา")
+        mode_group = QGroupBox("โหมดการตั้งเวลา")
         mode_layout = QVBoxLayout(mode_group)
 
         self.mode_button_group = QButtonGroup(self)
