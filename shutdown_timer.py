@@ -509,20 +509,19 @@ class ShutdownTimerApp(QMainWindow):
         """Apply base stylesheet - theme colors will be applied dynamically"""
         base_style = """
             QMainWindow {
-                background-color: #1e1e2e;
+                background-color: #09090b;
             }
             QWidget {
-                background-color: #1e1e2e;
                 color: #cdd6f4;
-                font-family: 'Segoe UI', 'Microsoft Sans Serif', sans-serif;
+                font-family: 'Segoe UI', sans-serif;
                 font-size: 11pt;
             }
             QGroupBox {
-                background-color: rgba(49, 50, 68, 0.6);
-                border: 1px solid rgba(137, 180, 250, 0.3);
+                background-color: rgba(20, 20, 30, 0.45);
+                border: 1px solid rgba(255, 255, 255, 0.06);
                 border-radius: 16px;
                 margin-top: 12px;
-                padding-top: 12px;
+                padding-top: 16px;
                 padding-bottom: 12px;
                 padding-left: 16px;
                 padding-right: 16px;
@@ -532,18 +531,20 @@ class ShutdownTimerApp(QMainWindow):
                 subcontrol-origin: margin;
                 left: 16px;
                 padding: 0 8px;
-                color: #89b4fa;
-                font-size: 12pt;
+                color: #3b82f6;
+                font-size: 11pt;
+                font-weight: bold;
+                letter-spacing: 0.5px;
             }
             QLabel {
                 color: #cdd6f4;
                 background-color: transparent;
             }
             QComboBox, QDateTimeEdit {
-                background-color: rgba(49, 50, 68, 0.8);
-                border: 1px solid rgba(137, 180, 250, 0.2);
+                background-color: rgba(0, 0, 0, 0.25);
+                border: 1px solid rgba(255, 255, 255, 0.08);
                 border-radius: 10px;
-                padding: 8px 12px;
+                padding: 6px 12px;
                 color: #cdd6f4;
                 min-width: 80px;
             }
@@ -553,100 +554,95 @@ class ShutdownTimerApp(QMainWindow):
             }
             QComboBox::down-arrow, QDateTimeEdit::down-arrow {
                 image: none;
-                border-left: 5px solid transparent;
-                border-right: 5px solid transparent;
-                border-top: 5px solid #89b4fa;
+                border-left: 4px solid transparent;
+                border-right: 4px solid transparent;
+                border-top: 4px solid #cdd6f4;
             }
             QComboBox:hover, QDateTimeEdit:hover {
-                border-color: rgba(137, 180, 250, 0.5);
+                border-color: rgba(255, 255, 255, 0.15);
+                background-color: rgba(255, 255, 255, 0.02);
             }
             QComboBox QAbstractItemView {
-                background-color: #313244;
-                border: 1px solid #45475a;
+                background-color: #121218;
+                border: 1px solid rgba(255, 255, 255, 0.08);
                 border-radius: 8px;
-                selection-background-color: #585b70;
-                padding: 4px;
+                selection-background-color: rgba(255, 255, 255, 0.05);
+                selection-color: #ffffff;
+                outline: none;
             }
             QRadioButton {
-                color: #cdd6f4;
+                color: #a6adc8;
                 spacing: 8px;
                 font-size: 10pt;
                 background: transparent;
             }
             QRadioButton::indicator {
-                width: 18px;
-                height: 18px;
+                width: 16px;
+                height: 16px;
                 border-radius: 9px;
-                border: 2px solid #89b4fa;
-                background-color: transparent;
+                border: 1px solid rgba(255, 255, 255, 0.15);
+                background-color: rgba(255, 255, 255, 0.02);
             }
             QRadioButton::indicator:checked {
-                background-color: #89b4fa;
-                border: 2px solid #89b4fa;
+                background-color: #3b82f6;
+                border: 4px solid #14141e;
             }
             QRadioButton::indicator:hover {
-                border-color: #b4befe;
+                border-color: rgba(255, 255, 255, 0.3);
             }
             QPushButton {
-                background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
-                    stop:0 rgba(69, 71, 90, 0.9),
-                    stop:1 rgba(49, 50, 68, 0.9));
-                border: 1px solid rgba(137, 180, 250, 0.2);
+                background-color: rgba(255, 255, 255, 0.03);
+                border: 1px solid rgba(255, 255, 255, 0.08);
                 border-radius: 12px;
                 padding: 12px 20px;
                 font-weight: bold;
-                font-size: 12px;
+                font-size: 13px;
                 color: #cdd6f4;
             }
             QPushButton:hover {
-                background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
-                    stop:0 rgba(88, 91, 112, 0.9),
-                    stop:1 rgba(69, 71, 90, 0.9));
-                border-color: rgba(137, 180, 250, 0.4);
+                background-color: rgba(255, 255, 255, 0.06);
+                border-color: rgba(255, 255, 255, 0.15);
             }
             QPushButton:pressed {
-                background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
-                    stop:0 rgba(49, 50, 68, 0.9),
-                    stop:1 rgba(69, 71, 90, 0.9));
+                background-color: rgba(255, 255, 255, 0.02);
             }
             QPushButton:disabled {
-                background-color: #45475a;
-                color: #6c7086;
-                border-color: transparent;
+                background-color: rgba(255, 255, 255, 0.01);
+                color: #585b70;
+                border-color: rgba(255, 255, 255, 0.03);
             }
             QProgressBar {
-                border: 2px solid rgba(137, 180, 250, 0.2);
-                border-radius: 14px;
+                border: 1px solid rgba(255, 255, 255, 0.06);
+                border-radius: 12px;
                 text-align: center;
-                background-color: rgba(49, 50, 68, 0.8);
-                color: #808080;
+                background-color: rgba(0, 0, 0, 0.25);
+                color: #a6adc8;
                 font-weight: bold;
-                font-size: 12px;
+                font-size: 11px;
             }
             QProgressBar::chunk {
                 background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
-                    stop:0 #89b4fa,
-                    stop:0.5 #b4befe,
-                    stop:1 #89b4fa);
+                    stop:0 #3b82f6,
+                    stop:1 #93c5fd);
                 border-radius: 10px;
                 margin: 2px;
             }
             QDateTimeEdit::calendar {
-                background-color: #313244;
-                border: 1px solid #45475a;
+                background-color: #121218;
+                border: 1px solid rgba(255, 255, 255, 0.08);
             }
             QCalendarWidget QWidget {
-                background-color: #313244;
+                background-color: #121218;
                 color: #cdd6f4;
             }
             QCalendarWidget QAbstractItemView:enabled {
-                background-color: #313244;
+                background-color: #121218;
                 color: #cdd6f4;
-                selection-background-color: #89b4fa;
-                selection-color: #1e1e2e;
+                selection-background-color: rgba(255, 255, 255, 0.08);
+                selection-color: #ffffff;
             }
             QCalendarWidget QAbstractItemView:disabled {
-                color: #6c7086;
+                color: #585b70;
             }
         """
         self.setStyleSheet(base_style)
@@ -676,7 +672,7 @@ class ShutdownTimerApp(QMainWindow):
         dynamic_style = f"""
             QMainWindow {{
                 background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
-                    stop:0 #1e1e2e,
+                    stop:0 #09090b,
                     stop:1 {bg_end});
             }}
             QGroupBox::title {{
@@ -685,21 +681,14 @@ class ShutdownTimerApp(QMainWindow):
             QComboBox::down-arrow, QDateTimeEdit::down-arrow {{
                 border-top-color: {primary};
             }}
-            QRadioButton::indicator {{
-                border-color: {primary};
-            }}
             QRadioButton::indicator:checked {{
                 background-color: {primary};
-                border-color: {primary};
-            }}
-            QProgressBar {{
-                border-color: rgba({self.hex_to_rgb(primary)}, 0.3);
+                border: 4px solid #14141e;
             }}
             QProgressBar::chunk {{
                 background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
                     stop:0 {primary},
-                    stop:0.5 {secondary},
-                    stop:1 {primary});
+                    stop:1 {secondary});
             }}
         """
 
@@ -716,98 +705,82 @@ class ShutdownTimerApp(QMainWindow):
         for btn in self.preset_buttons:
             btn.setStyleSheet(f"""
                 QPushButton {{
-                    background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
-                        stop:0 rgba(69, 71, 90, 0.8),
-                        stop:1 rgba(49, 50, 68, 0.8));
-                    border: 2px solid transparent;
+                    background-color: rgba(255, 255, 255, 0.02);
+                    border: 1px solid rgba(255, 255, 255, 0.05);
                     border-radius: 16px;
                     padding: 16px;
                 }}
                 QPushButton:hover {{
-                    border-color: {primary};
-                    background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
-                        stop:0 rgba(88, 91, 112, 0.9),
-                        stop:1 rgba(69, 71, 90, 0.9));
+                    background-color: rgba(255, 255, 255, 0.06);
+                    border-color: rgba({self.hex_to_rgb(primary)}, 0.3);
                 }}
                 QPushButton:pressed {{
-                    background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
-                        stop:0 rgba(49, 50, 68, 0.9),
-                        stop:1 rgba(69, 71, 90, 0.9));
+                    background-color: rgba(255, 255, 255, 0.02);
                 }}
             """)
 
         # Update control buttons with action colors
         self.start_button.setStyleSheet(f"""
             QPushButton {{
-                background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
-                    stop:0 {primary},
-                    stop:1 {accent});
-                border: none;
+                background-color: {primary};
+                border: 1px solid {primary};
                 border-radius: 12px;
                 padding: 12px 24px;
                 font-weight: bold;
                 font-size: 13px;
-                color: #1e1e2e;
+                color: #09090b;
             }}
             QPushButton:hover {{
-                background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
-                    stop:0 {secondary},
-                    stop:1 {primary});
+                background-color: {secondary};
+                border-color: {secondary};
             }}
             QPushButton:pressed {{
-                background: {accent};
+                background-color: {accent};
+                border-color: {accent};
             }}
         """)
 
         self.cancel_button.setStyleSheet(f"""
             QPushButton {{
-                background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
-                    stop:0 #ff6b6b,
-                    stop:0.5 #e53e3e,
-                    stop:1 #9b2335);
-                border: none;
+                background-color: rgba(239, 68, 68, 0.08);
+                border: 1px solid rgba(239, 68, 68, 0.15);
                 border-radius: 12px;
                 padding: 12px 24px;
                 font-weight: bold;
                 font-size: 13px;
-                color: #ffffff;
+                color: #ef4444;
             }}
             QPushButton:hover {{
-                background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
-                    stop:0 #ff8e8e,
-                    stop:0.5 #fc5c5c,
-                    stop:1 #e53e3e);
+                background-color: rgba(239, 68, 68, 0.16);
+                border-color: rgba(239, 68, 68, 0.3);
             }}
             QPushButton:pressed {{
-                background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
-                    stop:0 #e53e3e,
-                    stop:1 #7b1d2a);
+                background-color: rgba(239, 68, 68, 0.05);
             }}
             QPushButton:disabled {{
-                background-color: #45475a;
-                color: #6c7086;
+                background-color: rgba(255, 255, 255, 0.01);
+                color: #585b70;
+                border-color: rgba(255, 255, 255, 0.03);
             }}
         """)
 
         self.clear_button.setStyleSheet(f"""
             QPushButton {{
-                background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
-                    stop:0 #a6adc8,
-                    stop:1 #9399b2);
-                border: none;
+                background-color: rgba(255, 255, 255, 0.02);
+                border: 1px solid rgba(255, 255, 255, 0.08);
                 border-radius: 12px;
                 padding: 12px 24px;
                 font-weight: bold;
                 font-size: 13px;
-                color: #1e1e2e;
+                color: #a1a1aa;
             }}
             QPushButton:hover {{
-                background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
-                    stop:0 #cdd6f4,
-                    stop:1 #a6adc8);
+                background-color: rgba(255, 255, 255, 0.06);
+                border-color: rgba(255, 255, 255, 0.15);
+                color: #f4f4f5;
             }}
             QPushButton:pressed {{
-                background: #b4befe;
+                background-color: rgba(255, 255, 255, 0.02);
             }}
         """)
 
