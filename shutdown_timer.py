@@ -262,7 +262,8 @@ class ShutdownTimerApp(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Windows Shutdown Timer")
-        self.setFixedSize(600, 680)
+        self.setMinimumSize(600, 680)
+        self.resize(600, 680)
 
         # State variables
         self.countdown_timer = QTimer()
