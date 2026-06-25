@@ -22,6 +22,7 @@ ENV/
 
 # Config file (auto-generated at runtime)
 timer_config.json
+window_config.json
 
 # Windows
 Thumbs.db
