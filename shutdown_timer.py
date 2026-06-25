@@ -992,42 +992,48 @@ class ShutdownTimerApp(QMainWindow):
         except Exception as e:
             self.show_toast(f"ไม่สามารถ{action_text}ได้: {e}", "error")
 
-    def cancel_timer(self):
+    def cancel_timer(self, confirm=True):
         """Cancel active timer"""
         if not self.is_timer_active:
-            self.show_toast("ไม่มีการตั้งเวลาอยู่ในขณะนี้", "info")
+            if confirm:
+                self.show_toast("ไม่มีการตั้งเวลาอยู่ในขณะนี้", "info")
             return
 
-        reply = QMessageBox.question(
-            self,
-            "ยืนยันการยกเลิก",
-            "ต้องการยกเลิกการตั้งเวลาหรือไม่?",
-            QMessageBox.Yes | QMessageBox.No,
-            QMessageBox.No,
-        )
+        if confirm:
+            reply = QMessageBox.question(
+                self,
+                "ยืนยันการยกเลิก",
+                "ต้องการยกเลิกการตั้งเวลาหรือไม่?",
+                QMessageBox.Yes | QMessageBox.No,
+                QMessageBox.No,
+            )
+            if reply != QMessageBox.Yes:
+                return
 
-        if reply == QMessageBox.Yes:
-            try:
-                logger.info("🛑 Cancelling scheduled shutdown...")
-                subprocess.run(["shutdown", "/a"], check=True)
-                self.countdown_timer.stop()  # Stop the GUI countdown timer too
-                self.reset_ui_state()
-                self.is_timer_active = False
-                self.status_label.setText("สถานะ: ยกเลิกการตั้งเวลาแล้ว")
-                logger.info("✅ Timer cancelled successfully")
+        try:
+            logger.info("🛑 Cancelling scheduled shutdown...")
+            subprocess.run(["shutdown", "/a"], check=True)
+            self.countdown_timer.stop()  # Stop the GUI countdown timer too
+            self.reset_ui_state()
+            self.is_timer_active = False
+            self.status_label.setText("สถานะ: ยกเลิกการตั้งเวลาแล้ว")
+            logger.info("✅ Timer cancelled successfully")
+            if confirm:
                 self.show_toast("ยกเลิกการตั้งเวลาสำเร็จ", "success")
-                self.save_settings()
-            except subprocess.CalledProcessError as e:
-                logger.error(f"❌ Failed to cancel shutdown: {e}")
+            self.save_settings()
+        except subprocess.CalledProcessError as e:
+            logger.error(f"❌ Failed to cancel shutdown: {e}")
+            if confirm:
                 if e.returncode == 1116:  # ERROR_NO_SHUTDOWN_IN_PROGRESS
                     self.show_toast("ไม่มีการตั้งเวลาให้ยกเลิก", "info")
                 else:
                     self.show_toast(f"ไม่สามารถยกเลิกได้: Code {e.returncode}", "error")
-                self.reset_ui_state()
-            except Exception as e:
-                logger.error(f"💥 Unexpected error during cancel: {e}")
+            self.reset_ui_state()
+        except Exception as e:
+            logger.error(f"💥 Unexpected error during cancel: {e}")
+            if confirm:
                 self.show_toast(f"ไม่สามารถยกเลิกได้: {e}", "error")
-                self.reset_ui_state()
+            self.reset_ui_state()
 
     def update_countdown(self):
         """Update countdown display every second"""
@@ -1234,7 +1240,7 @@ if __name__ == "__main__":
     # Handle keyboard interrupt (Ctrl+C) gracefully
     def handle_signal(sig, frame):
         if 'window' in globals() and window.is_timer_active:
-            window.cancel_timer()
+            window.cancel_timer(confirm=False)
         app.quit()
     
     signal.signal(signal.SIGINT, handle_signal)
