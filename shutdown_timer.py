@@ -390,6 +390,7 @@ class ShutdownTimerApp(QMainWindow):
         self.remaining_seconds = 0
         self.current_theme = ACTION_COLORS[0]
         self.current_toast = None
+        self.current_theme_mode = "dark"
 
         self.init_ui()
         self.load_window_settings()
@@ -1296,6 +1297,7 @@ class ShutdownTimerApp(QMainWindow):
             "height": self.height(),
             "x": self.x(),
             "y": self.y(),
+            "theme": self.current_theme_mode,
         }
         try:
             temp_path = WINDOW_CONFIG_FILE + ".tmp"
@@ -1323,6 +1325,9 @@ class ShutdownTimerApp(QMainWindow):
             if x is not None and y is not None:
                 self.move(x, y)
                 logger.info(f"📂 Window size ({width}x{height}) and position ({x}, {y}) restored")
+            
+            self.current_theme_mode = settings.get("theme", "dark")
+            logger.info(f"📂 Theme mode '{self.current_theme_mode}' loaded")
         except Exception as e:
             logger.error(f"📂❌ Could not load window settings: {e}")
 
