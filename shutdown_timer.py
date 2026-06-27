@@ -179,13 +179,13 @@ class PresetCard(AnimatedButton):
 
         value_label = QLabel(label)
         value_label.setAlignment(Qt.AlignCenter)
-        value_label.setFont(QFont("Segoe UI", 16, QFont.Bold))
+        value_label.setFont(QFont("Segoe UI Variable Display", 16, QFont.Bold))
         value_label.setObjectName("presetValue")
         value_label.setStyleSheet("background: transparent;")
 
         unit_label = QLabel(sublabel)
         unit_label.setAlignment(Qt.AlignCenter)
-        unit_label.setFont(QFont("Segoe UI", 9))
+        unit_label.setFont(QFont("Segoe UI Variable Text", 9))
         unit_label.setObjectName("presetUnit")
         unit_label.setStyleSheet("background: transparent;")
 
@@ -207,7 +207,7 @@ class BentoCard(QFrame):
 
         if title:
             self.title_label = QLabel(title)
-            self.title_label.setFont(QFont("Segoe UI", 9, QFont.Bold))
+            self.title_label.setFont(QFont("Segoe UI Variable Display", 9, QFont.Bold))
             self.title_label.setObjectName("BentoCardTitle")
             self.layout.addWidget(self.title_label)
 
@@ -311,7 +311,7 @@ class Toast(QWidget):
                 color: {cfg['fg']};
                 font-size: 13px;
                 font-weight: bold;
-                font-family: 'Segoe UI', sans-serif;
+                font-family: 'Segoe UI Variable Display', 'Segoe UI Variable Text', 'Segoe UI', -apple-system, sans-serif;
             }}
         """)
 
@@ -397,6 +397,7 @@ class ShutdownTimerApp(QMainWindow):
         self.init_ui()
         self.load_window_settings()
         self.load_settings()
+        self.action_combo.currentIndexChanged.connect(self.update_theme_colors)
         self.apply_styles()
         self.update_theme_colors(self.action_combo.currentIndex())
         logger.info("🚀 Application started with Bento Grid design")
@@ -415,7 +416,7 @@ class ShutdownTimerApp(QMainWindow):
         header_layout.setContentsMargins(4, 0, 4, 4)
 
         self.title_label = QLabel("Windows Shutdown Timer")
-        title_font = QFont("Segoe UI", 16, QFont.Bold)
+        title_font = QFont("Segoe UI Variable Display", 16, QFont.Bold)
         self.title_label.setFont(title_font)
         header_layout.addWidget(self.title_label)
 
@@ -447,7 +448,6 @@ class ShutdownTimerApp(QMainWindow):
         self.action_combo.addItem(f"{ACTION_COLORS[2]['icon']} พักเครื่อง")
         self.action_combo.addItem(f"{ACTION_COLORS[3]['icon']} จำศีล")
         self.action_combo.setMinimumHeight(38)
-        self.action_combo.currentIndexChanged.connect(self.update_theme_colors)
 
         action_layout.addWidget(QLabel("การกระทำ:"))
         action_layout.addWidget(self.action_combo, 1)
@@ -585,7 +585,7 @@ class ShutdownTimerApp(QMainWindow):
         self.status_label = QLabel("สถานะ: ยังไม่มีการตั้งเวลา")
         self.status_label.setObjectName("statusLabel")
         self.status_label.setAlignment(Qt.AlignCenter)
-        self.status_label.setFont(QFont("Segoe UI", 10))
+        self.status_label.setFont(QFont("Segoe UI Variable Text", 10))
         self.status_label.setStyleSheet("background: transparent;")
 
         card_c_layout.addWidget(self.countdown_label)
@@ -653,7 +653,7 @@ class ShutdownTimerApp(QMainWindow):
                 }
                 QWidget {
                     color: #1c1917;
-                    font-family: 'Segoe UI', sans-serif;
+                    font-family: 'Segoe UI Variable Display', 'Segoe UI Variable Text', 'Segoe UI', -apple-system, sans-serif;
                     font-size: 11pt;
                 }
                 #BentoCard {
@@ -792,6 +792,34 @@ class ShutdownTimerApp(QMainWindow):
                     background-color: rgba(0, 0, 0, 0.1);
                     border-color: rgba(0, 0, 0, 0.2);
                 }
+                QMessageBox {
+                    background-color: #faf9f6;
+                    border: 1px solid rgba(0, 0, 0, 0.1);
+                    border-radius: 16px;
+                }
+                QMessageBox QLabel {
+                    color: #1c1917;
+                    font-family: 'Segoe UI Variable Text', 'Segoe UI', -apple-system, sans-serif;
+                    font-size: 11pt;
+                }
+                QMessageBox QPushButton {
+                    background-color: rgba(0, 0, 0, 0.04);
+                    border: 1px solid rgba(0, 0, 0, 0.08);
+                    border-radius: 10px;
+                    padding: 6px 16px;
+                    color: #1c1917;
+                    font-family: 'Segoe UI Variable Display', 'Segoe UI', -apple-system, sans-serif;
+                    font-size: 10pt;
+                    font-weight: bold;
+                    min-width: 80px;
+                }
+                QMessageBox QPushButton:hover {
+                    background-color: rgba(0, 0, 0, 0.08);
+                    border-color: rgba(0, 0, 0, 0.15);
+                }
+                QMessageBox QPushButton:pressed {
+                    background-color: rgba(0, 0, 0, 0.02);
+                }
             """
         else:
             base_style = """
@@ -800,7 +828,7 @@ class ShutdownTimerApp(QMainWindow):
                 }
                 QWidget {
                     color: #e4e4e7;
-                    font-family: 'Segoe UI', sans-serif;
+                    font-family: 'Segoe UI Variable Display', 'Segoe UI Variable Text', 'Segoe UI', -apple-system, sans-serif;
                     font-size: 11pt;
                 }
                 #BentoCard {
@@ -939,8 +967,37 @@ class ShutdownTimerApp(QMainWindow):
                     background-color: rgba(255, 255, 255, 0.12);
                     border-color: rgba(255, 255, 255, 0.25);
                 }
+                QMessageBox {
+                    background-color: #0d0d11;
+                    border: 1px solid rgba(255, 255, 255, 0.12);
+                    border-radius: 16px;
+                }
+                QMessageBox QLabel {
+                    color: #e4e4e7;
+                    font-family: 'Segoe UI Variable Text', 'Segoe UI', -apple-system, sans-serif;
+                    font-size: 11pt;
+                }
+                QMessageBox QPushButton {
+                    background-color: rgba(255, 255, 255, 0.05);
+                    border: 1px solid rgba(255, 255, 255, 0.1);
+                    border-radius: 10px;
+                    padding: 6px 16px;
+                    color: #e4e4e7;
+                    font-family: 'Segoe UI Variable Display', 'Segoe UI', -apple-system, sans-serif;
+                    font-size: 10pt;
+                    font-weight: bold;
+                    min-width: 80px;
+                }
+                QMessageBox QPushButton:hover {
+                    background-color: rgba(255, 255, 255, 0.1);
+                    border-color: rgba(255, 255, 255, 0.2);
+                }
+                QMessageBox QPushButton:pressed {
+                    background-color: rgba(255, 255, 255, 0.02);
+                }
             """
         self.setStyleSheet(base_style)
+        QApplication.instance().setStyleSheet(base_style)
         self.update_theme_button_ui()
 
     def hex_to_rgb(self, hex_color):
