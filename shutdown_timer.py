@@ -180,12 +180,14 @@ class PresetCard(AnimatedButton):
         value_label = QLabel(label)
         value_label.setAlignment(Qt.AlignCenter)
         value_label.setFont(QFont("Segoe UI", 16, QFont.Bold))
-        value_label.setStyleSheet("background: transparent; color: #f4f4f5;")
+        value_label.setObjectName("presetValue")
+        value_label.setStyleSheet("background: transparent;")
 
         unit_label = QLabel(sublabel)
         unit_label.setAlignment(Qt.AlignCenter)
         unit_label.setFont(QFont("Segoe UI", 9))
-        unit_label.setStyleSheet("background: transparent; color: #a1a1aa;")
+        unit_label.setObjectName("presetUnit")
+        unit_label.setStyleSheet("background: transparent;")
 
         layout.addWidget(icon_label)
         layout.addWidget(value_label)
@@ -642,132 +644,295 @@ class ShutdownTimerApp(QMainWindow):
         main_layout.addLayout(grid_layout)
 
     def apply_styles(self):
-        """Apply base stylesheet - theme colors will be applied dynamically"""
-        base_style = """
-            QMainWindow {
-                background-color: #050508;
-            }
-            QWidget {
-                color: #e4e4e7;
-                font-family: 'Segoe UI', sans-serif;
-                font-size: 11pt;
-            }
-            #BentoCard {
-                background-color: rgba(18, 18, 24, 0.45);
-                border: 1px solid rgba(255, 255, 255, 0.04);
-                border-radius: 20px;
-            }
-            #BentoCardTitle {
-                color: rgba(161, 161, 170, 0.6);
-                text-transform: uppercase;
-                letter-spacing: 1px;
-                font-size: 8pt;
-                font-weight: bold;
-                margin-bottom: 2px;
-            }
-            QLabel {
-                color: #e4e4e7;
-                background-color: transparent;
-            }
-            QComboBox, QDateTimeEdit {
-                background-color: rgba(255, 255, 255, 0.03);
-                border: 1px solid rgba(255, 255, 255, 0.06);
-                border-radius: 12px;
-                padding: 8px 14px;
-                color: #f4f4f5;
-                min-width: 80px;
-            }
-            QComboBox:hover, QDateTimeEdit:hover {
-                border-color: rgba(255, 255, 255, 0.15);
-                background-color: rgba(255, 255, 255, 0.05);
-            }
-            QComboBox::drop-down, QDateTimeEdit::drop-down {
-                border: none;
-                width: 30px;
-            }
-            QComboBox::down-arrow, QDateTimeEdit::down-arrow {
-                image: none;
-                border-left: 5px solid transparent;
-                border-right: 5px solid transparent;
-                border-top: 5px solid rgba(255, 255, 255, 0.6);
-                margin-right: 8px;
-            }
-            QComboBox QAbstractItemView {
-                background-color: #0d0d11;
-                border: 1px solid rgba(255, 255, 255, 0.08);
-                border-radius: 12px;
-                padding: 6px;
-                selection-background-color: rgba(255, 255, 255, 0.06);
-                selection-color: #ffffff;
-                outline: none;
-                color: #e4e4e7;
-            }
-            QRadioButton {
-                color: #8a8a93;
-                spacing: 6px;
-                font-size: 10pt;
-                background-color: rgba(255, 255, 255, 0.02);
-                border: 1px solid rgba(255, 255, 255, 0.04);
-                border-radius: 12px;
-                padding: 8px 12px;
-            }
-            QRadioButton::indicator {
-                width: 0px;
-                height: 0px;
-            }
-            QRadioButton:hover {
-                border-color: rgba(255, 255, 255, 0.1);
-                color: #d1d1d6;
-            }
-            AnimatedButton {
-                background-color: rgba(255, 255, 255, 0.03);
-                border: 1px solid rgba(255, 255, 255, 0.06);
-                border-radius: 14px;
-                padding: 12px 18px;
-                font-weight: bold;
-                font-size: 13px;
-                color: #e4e4e7;
-            }
-            AnimatedButton[hovered="true"] {
-                background-color: rgba(255, 255, 255, 0.06);
-            }
-            AnimatedButton[pressed_state="true"] {
-                background-color: rgba(255, 255, 255, 0.01);
-                padding-top: 14px;
-                padding-bottom: 10px;
-            }
-            AnimatedButton:disabled {
-                background-color: rgba(255, 255, 255, 0.01);
-                color: #52525b;
-                border-color: rgba(255, 255, 255, 0.02);
-            }
-            QProgressBar {
-                border: 1px solid rgba(255, 255, 255, 0.04);
-                border-radius: 8px;
-                text-align: center;
-                background-color: rgba(0, 0, 0, 0.4);
-                color: #a1a1aa;
-                font-weight: bold;
-                font-size: 10px;
-            }
-            QProgressBar::chunk {
-                border-radius: 6px;
-                margin: 1px;
-            }
-            QCalendarWidget QWidget {
-                background-color: #0d0d11;
-                color: #e4e4e7;
-            }
-            QCalendarWidget QAbstractItemView:enabled {
-                background-color: #0d0d11;
-                color: #e4e4e7;
-                selection-background-color: rgba(255, 255, 255, 0.08);
-                selection-color: #ffffff;
-            }
-            QCalendarWidget QAbstractItemView:disabled {
-                color: #52525b;
-            }
-        """
+        """Apply base stylesheet based on light or dark theme"""
+        if self.current_theme_mode == "light":
+            base_style = """
+                QMainWindow {
+                    background-color: #faf9f6;
+                }
+                QWidget {
+                    color: #1c1917;
+                    font-family: 'Segoe UI', sans-serif;
+                    font-size: 11pt;
+                }
+                #BentoCard {
+                    background-color: rgba(255, 255, 255, 0.75);
+                    border: 1px solid rgba(0, 0, 0, 0.05);
+                    border-radius: 20px;
+                }
+                #BentoCardTitle {
+                    color: rgba(120, 113, 108, 0.7);
+                    text-transform: uppercase;
+                    letter-spacing: 1px;
+                    font-size: 8pt;
+                    font-weight: bold;
+                    margin-bottom: 2px;
+                }
+                QLabel {
+                    color: #1c1917;
+                    background-color: transparent;
+                }
+                QComboBox, QDateTimeEdit {
+                    background-color: rgba(255, 255, 255, 0.9);
+                    border: 1px solid rgba(0, 0, 0, 0.1);
+                    border-radius: 12px;
+                    padding: 8px 14px;
+                    color: #1c1917;
+                    min-width: 80px;
+                }
+                QComboBox:hover, QDateTimeEdit:hover {
+                    border-color: rgba(0, 0, 0, 0.2);
+                    background-color: rgba(0, 0, 0, 0.02);
+                }
+                QComboBox::drop-down, QDateTimeEdit::drop-down {
+                    border: none;
+                    width: 30px;
+                }
+                QComboBox::down-arrow, QDateTimeEdit::down-arrow {
+                    image: none;
+                    border-left: 5px solid transparent;
+                    border-right: 5px solid transparent;
+                    border-top: 5px solid rgba(0, 0, 0, 0.6);
+                    margin-right: 8px;
+                }
+                QComboBox QAbstractItemView {
+                    background-color: #ffffff;
+                    border: 1px solid rgba(0, 0, 0, 0.1);
+                    border-radius: 12px;
+                    padding: 6px;
+                    selection-background-color: rgba(0, 0, 0, 0.05);
+                    selection-color: #000000;
+                    outline: none;
+                    color: #1c1917;
+                }
+                QRadioButton {
+                    color: #78716c;
+                    spacing: 6px;
+                    font-size: 10pt;
+                    background-color: rgba(0, 0, 0, 0.02);
+                    border: 1px solid rgba(0, 0, 0, 0.04);
+                    border-radius: 12px;
+                    padding: 8px 12px;
+                }
+                QRadioButton::indicator {
+                    width: 0px;
+                    height: 0px;
+                }
+                QRadioButton:hover {
+                    border-color: rgba(0, 0, 0, 0.12);
+                    color: #1c1917;
+                }
+                AnimatedButton {
+                    background-color: rgba(0, 0, 0, 0.02);
+                    border: 1px solid rgba(0, 0, 0, 0.06);
+                    border-radius: 14px;
+                    padding: 12px 18px;
+                    font-weight: bold;
+                    font-size: 13px;
+                    color: #1c1917;
+                }
+                AnimatedButton[hovered="true"] {
+                    background-color: rgba(0, 0, 0, 0.05);
+                }
+                AnimatedButton[pressed_state="true"] {
+                    background-color: rgba(0, 0, 0, 0.01);
+                    padding-top: 14px;
+                    padding-bottom: 10px;
+                }
+                AnimatedButton:disabled {
+                    background-color: rgba(0, 0, 0, 0.01);
+                    color: #a8a29e;
+                    border-color: rgba(0, 0, 0, 0.02);
+                }
+                QProgressBar {
+                    border: 1px solid rgba(0, 0, 0, 0.04);
+                    border-radius: 8px;
+                    text-align: center;
+                    background-color: rgba(0, 0, 0, 0.05);
+                    color: #57534e;
+                    font-weight: bold;
+                    font-size: 10px;
+                }
+                QProgressBar::chunk {
+                    border-radius: 6px;
+                    margin: 1px;
+                }
+                QCalendarWidget QWidget {
+                    background-color: #ffffff;
+                    color: #1c1917;
+                }
+                QCalendarWidget QAbstractItemView:enabled {
+                    background-color: #ffffff;
+                    color: #1c1917;
+                    selection-background-color: rgba(0, 0, 0, 0.06);
+                    selection-color: #000000;
+                }
+                QCalendarWidget QAbstractItemView:disabled {
+                    color: #a8a29e;
+                }
+                #presetValue {
+                    color: #1c1917;
+                }
+                #presetUnit {
+                    color: #78716c;
+                }
+                QPushButton#themeButton {
+                    background-color: rgba(0, 0, 0, 0.03);
+                    border: 1px solid rgba(0, 0, 0, 0.08);
+                    border-radius: 12px;
+                    color: #1c1917;
+                    font-weight: 600;
+                    font-size: 10pt;
+                }
+                QPushButton#themeButton:hover {
+                    background-color: rgba(0, 0, 0, 0.08);
+                    border-color: rgba(0, 0, 0, 0.15);
+                }
+            """
+        else:
+            base_style = """
+                QMainWindow {
+                    background-color: #050508;
+                }
+                QWidget {
+                    color: #e4e4e7;
+                    font-family: 'Segoe UI', sans-serif;
+                    font-size: 11pt;
+                }
+                #BentoCard {
+                    background-color: rgba(18, 18, 24, 0.45);
+                    border: 1px solid rgba(255, 255, 255, 0.04);
+                    border-radius: 20px;
+                }
+                #BentoCardTitle {
+                    color: rgba(161, 161, 170, 0.6);
+                    text-transform: uppercase;
+                    letter-spacing: 1px;
+                    font-size: 8pt;
+                    font-weight: bold;
+                    margin-bottom: 2px;
+                }
+                QLabel {
+                    color: #e4e4e7;
+                    background-color: transparent;
+                }
+                QComboBox, QDateTimeEdit {
+                    background-color: rgba(255, 255, 255, 0.03);
+                    border: 1px solid rgba(255, 255, 255, 0.06);
+                    border-radius: 12px;
+                    padding: 8px 14px;
+                    color: #f4f4f5;
+                    min-width: 80px;
+                }
+                QComboBox:hover, QDateTimeEdit:hover {
+                    border-color: rgba(255, 255, 255, 0.15);
+                    background-color: rgba(255, 255, 255, 0.05);
+                }
+                QComboBox::drop-down, QDateTimeEdit::drop-down {
+                    border: none;
+                    width: 30px;
+                }
+                QComboBox::down-arrow, QDateTimeEdit::down-arrow {
+                    image: none;
+                    border-left: 5px solid transparent;
+                    border-right: 5px solid transparent;
+                    border-top: 5px solid rgba(255, 255, 255, 0.6);
+                    margin-right: 8px;
+                }
+                QComboBox QAbstractItemView {
+                    background-color: #0d0d11;
+                    border: 1px solid rgba(255, 255, 255, 0.08);
+                    border-radius: 12px;
+                    padding: 6px;
+                    selection-background-color: rgba(255, 255, 255, 0.06);
+                    selection-color: #ffffff;
+                    outline: none;
+                    color: #e4e4e7;
+                }
+                QRadioButton {
+                    color: #8a8a93;
+                    spacing: 6px;
+                    font-size: 10pt;
+                    background-color: rgba(255, 255, 255, 0.02);
+                    border: 1px solid rgba(255, 255, 255, 0.04);
+                    border-radius: 12px;
+                    padding: 8px 12px;
+                }
+                QRadioButton::indicator {
+                    width: 0px;
+                    height: 0px;
+                }
+                QRadioButton:hover {
+                    border-color: rgba(255, 255, 255, 0.1);
+                    color: #d1d1d6;
+                }
+                AnimatedButton {
+                    background-color: rgba(255, 255, 255, 0.03);
+                    border: 1px solid rgba(255, 255, 255, 0.06);
+                    border-radius: 14px;
+                    padding: 12px 18px;
+                    font-weight: bold;
+                    font-size: 13px;
+                    color: #e4e4e7;
+                }
+                AnimatedButton[hovered="true"] {
+                    background-color: rgba(255, 255, 255, 0.06);
+                }
+                AnimatedButton[pressed_state="true"] {
+                    background-color: rgba(255, 255, 255, 0.01);
+                    padding-top: 14px;
+                    padding-bottom: 10px;
+                }
+                AnimatedButton:disabled {
+                    background-color: rgba(255, 255, 255, 0.01);
+                    color: #52525b;
+                    border-color: rgba(255, 255, 255, 0.02);
+                }
+                QProgressBar {
+                    border: 1px solid rgba(255, 255, 255, 0.04);
+                    border-radius: 8px;
+                    text-align: center;
+                    background-color: rgba(0, 0, 0, 0.4);
+                    color: #a1a1aa;
+                    font-weight: bold;
+                    font-size: 10px;
+                }
+                QProgressBar::chunk {
+                    border-radius: 6px;
+                    margin: 1px;
+                }
+                QCalendarWidget QWidget {
+                    background-color: #0d0d11;
+                    color: #e4e4e7;
+                }
+                QCalendarWidget QAbstractItemView:enabled {
+                    background-color: #0d0d11;
+                    color: #e4e4e7;
+                    selection-background-color: rgba(255, 255, 255, 0.08);
+                    selection-color: #ffffff;
+                }
+                QCalendarWidget QAbstractItemView:disabled {
+                    color: #52525b;
+                }
+                #presetValue {
+                    color: #f4f4f5;
+                }
+                #presetUnit {
+                    color: #a1a1aa;
+                }
+                QPushButton#themeButton {
+                    background-color: rgba(255, 255, 255, 0.03);
+                    border: 1px solid rgba(255, 255, 255, 0.08);
+                    border-radius: 12px;
+                    color: #e4e4e7;
+                    font-weight: 600;
+                    font-size: 10pt;
+                }
+                QPushButton#themeButton:hover {
+                    background-color: rgba(255, 255, 255, 0.08);
+                    border-color: rgba(255, 255, 255, 0.15);
+                }
+            """
         self.setStyleSheet(base_style)
 
     def hex_to_rgb(self, hex_color):
@@ -784,49 +949,158 @@ class ShutdownTimerApp(QMainWindow):
         primary = self.current_theme["primary"]
         secondary = self.current_theme["secondary"]
         accent = self.current_theme["accent"]
-        bg_end = self.current_theme["bg_gradient_end"]
 
-        # Update countdown color to match theme
-        self.countdown_label.setStyleSheet(
-            f"background: transparent; color: {primary}; letter-spacing: 2px;"
-        )
+        if self.current_theme_mode == "light":
+            light_bg_ends = {
+                0: "#fef2f3",  # Shutdown - light pink
+                1: "#fff7ed",  # Restart - light orange
+                2: "#eff6ff",  # Sleep - light blue
+                3: "#faf5ff",  # Hibernate - light purple
+            }
+            bg_end = light_bg_ends.get(action_index, "#fef2f3")
 
-        # Dynamic stylesheet for action-specific elements
-        dynamic_style = f"""
-            QMainWindow {{
-                background: qradialgradient(cx:0.5, cy:0.5, radius:1.0, fx:0.5, fy:0.5,
-                    stop:0 #050508,
-                    stop:1 {bg_end});
-            }}
-            #BentoCard {{
-                border-color: rgba({self.hex_to_rgb(primary)}, 0.08);
-            }}
-            QComboBox::down-arrow, QDateTimeEdit::down-arrow {{
-                border-top-color: {primary};
-            }}
-            QRadioButton:checked {{
-                background-color: rgba({self.hex_to_rgb(primary)}, 0.12);
-                border-color: rgba({self.hex_to_rgb(primary)}, 0.4);
-                color: #ffffff;
-            }}
-            QProgressBar::chunk {{
-                background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
-                    stop:0 {primary},
-                    stop:1 {secondary});
-            }}
-        """
+            self.countdown_label.setStyleSheet(
+                f"background: transparent; color: {primary}; letter-spacing: 2px;"
+            )
 
-        current_style = self.styleSheet()
-        if "/* DYNAMIC */" in current_style:
-            base = current_style.split("/* DYNAMIC */")[0]
+            dynamic_style = f"""
+                QMainWindow {{
+                    background: qradialgradient(cx:0.5, cy:0.5, radius:1.0, fx:0.5, fy:0.5,
+                        stop:0 #faf9f6,
+                        stop:1 {bg_end});
+                }}
+                #BentoCard {{
+                    border-color: rgba({self.hex_to_rgb(primary)}, 0.12);
+                }}
+                QComboBox::down-arrow, QDateTimeEdit::down-arrow {{
+                    border-top-color: {primary};
+                }}
+                QRadioButton:checked {{
+                    background-color: rgba({self.hex_to_rgb(primary)}, 0.12);
+                    border-color: rgba({self.hex_to_rgb(primary)}, 0.4);
+                    color: #000000;
+                    font-weight: bold;
+                }}
+                QProgressBar::chunk {{
+                    background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
+                        stop:0 {primary},
+                        stop:1 {secondary});
+                }}
+            """
+
+            preset_btn_style = f"""
+                AnimatedButton {{
+                    background-color: rgba(255, 255, 255, 0.8);
+                    border: 1px solid rgba(0, 0, 0, 0.05);
+                    border-radius: 16px;
+                }}
+                AnimatedButton[hovered="true"] {{
+                    background-color: rgba({self.hex_to_rgb(primary)}, 0.06);
+                    border-color: rgba({self.hex_to_rgb(primary)}, 0.35);
+                }}
+                AnimatedButton[pressed_state="true"] {{
+                    background-color: rgba({self.hex_to_rgb(primary)}, 0.02);
+                }}
+            """
+
+            start_btn_style = f"""
+                AnimatedButton {{
+                    background-color: {primary};
+                    border: 1px solid {primary};
+                    border-radius: 12px;
+                    font-weight: bold;
+                    font-size: 13px;
+                    color: #ffffff;
+                }}
+                AnimatedButton[hovered="true"] {{
+                    background-color: {secondary};
+                    border-color: {secondary};
+                }}
+                AnimatedButton[pressed_state="true"] {{
+                    background-color: {accent};
+                    border-color: {accent};
+                    padding-top: 14px;
+                    padding-bottom: 10px;
+                }}
+            """
+
+            cancel_btn_style = f"""
+                AnimatedButton {{
+                    background-color: rgba(239, 68, 68, 0.05);
+                    border: 1px solid rgba(239, 68, 68, 0.15);
+                    border-radius: 12px;
+                    font-weight: bold;
+                    font-size: 13px;
+                    color: #ef4444;
+                }}
+                AnimatedButton[hovered="true"] {{
+                    background-color: rgba(239, 68, 68, 0.12);
+                    border-color: rgba(239, 68, 68, 0.25);
+                }}
+                AnimatedButton[pressed_state="true"] {{
+                    background-color: rgba(239, 68, 68, 0.03);
+                    padding-top: 14px;
+                    padding-bottom: 10px;
+                }}
+                AnimatedButton:disabled {{
+                    background-color: rgba(0, 0, 0, 0.01);
+                    color: #a8a29e;
+                    border-color: rgba(0, 0, 0, 0.02);
+                }}
+            """
+
+            clear_btn_style = f"""
+                AnimatedButton {{
+                    background-color: rgba(0, 0, 0, 0.02);
+                    border: 1px solid rgba(0, 0, 0, 0.06);
+                    border-radius: 12px;
+                    font-weight: bold;
+                    font-size: 13px;
+                    color: #78716c;
+                }}
+                AnimatedButton[hovered="true"] {{
+                    background-color: rgba(0, 0, 0, 0.05);
+                    border-color: rgba(0, 0, 0, 0.12);
+                    color: #1c1917;
+                }}
+                AnimatedButton[pressed_state="true"] {{
+                    background-color: rgba(0, 0, 0, 0.01);
+                    padding-top: 14px;
+                    padding-bottom: 10px;
+                }}
+            """
         else:
-            base = current_style
+            bg_end = self.current_theme["bg_gradient_end"]
 
-        self.setStyleSheet(base + "/* DYNAMIC */" + dynamic_style)
+            self.countdown_label.setStyleSheet(
+                f"background: transparent; color: {primary}; letter-spacing: 2px;"
+            )
 
-        # Update preset cards styles
-        for btn in self.preset_buttons:
-            btn.setStyleSheet(f"""
+            dynamic_style = f"""
+                QMainWindow {{
+                    background: qradialgradient(cx:0.5, cy:0.5, radius:1.0, fx:0.5, fy:0.5,
+                        stop:0 #050508,
+                        stop:1 {bg_end});
+                }}
+                #BentoCard {{
+                    border-color: rgba({self.hex_to_rgb(primary)}, 0.08);
+                }}
+                QComboBox::down-arrow, QDateTimeEdit::down-arrow {{
+                    border-top-color: {primary};
+                }}
+                QRadioButton:checked {{
+                    background-color: rgba({self.hex_to_rgb(primary)}, 0.12);
+                    border-color: rgba({self.hex_to_rgb(primary)}, 0.4);
+                    color: #ffffff;
+                }}
+                QProgressBar::chunk {{
+                    background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
+                        stop:0 {primary},
+                        stop:1 {secondary});
+                }}
+            """
+
+            preset_btn_style = f"""
                 AnimatedButton {{
                     background-color: rgba(255, 255, 255, 0.02);
                     border: 1px solid rgba(255, 255, 255, 0.04);
@@ -839,75 +1113,89 @@ class ShutdownTimerApp(QMainWindow):
                 AnimatedButton[pressed_state="true"] {{
                     background-color: rgba({self.hex_to_rgb(primary)}, 0.02);
                 }}
-            """)
+            """
 
-        # Update control buttons with action colors
-        self.start_button.setStyleSheet(f"""
-            AnimatedButton {{
-                background-color: {primary};
-                border: 1px solid {primary};
-                border-radius: 12px;
-                font-weight: bold;
-                font-size: 13px;
-                color: #050508;
-            }}
-            AnimatedButton[hovered="true"] {{
-                background-color: {secondary};
-                border-color: {secondary};
-            }}
-            AnimatedButton[pressed_state="true"] {{
-                background-color: {accent};
-                border-color: {accent};
-                padding-top: 14px;
-                padding-bottom: 10px;
-            }}
-        """)
+            start_btn_style = f"""
+                AnimatedButton {{
+                    background-color: {primary};
+                    border: 1px solid {primary};
+                    border-radius: 12px;
+                    font-weight: bold;
+                    font-size: 13px;
+                    color: #050508;
+                }}
+                AnimatedButton[hovered="true"] {{
+                    background-color: {secondary};
+                    border-color: {secondary};
+                }}
+                AnimatedButton[pressed_state="true"] {{
+                    background-color: {accent};
+                    border-color: {accent};
+                    padding-top: 14px;
+                    padding-bottom: 10px;
+                }}
+            """
 
-        self.cancel_button.setStyleSheet(f"""
-            AnimatedButton {{
-                background-color: rgba(239, 68, 68, 0.08);
-                border: 1px solid rgba(239, 68, 68, 0.15);
-                border-radius: 12px;
-                font-weight: bold;
-                font-size: 13px;
-                color: #ef4444;
-            }}
-            AnimatedButton[hovered="true"] {{
-                background-color: rgba(239, 68, 68, 0.16);
-                border-color: rgba(239, 68, 68, 0.3);
-            }}
-            AnimatedButton[pressed_state="true"] {{
-                background-color: rgba(239, 68, 68, 0.05);
-                padding-top: 14px;
-                padding-bottom: 10px;
-            }}
-            AnimatedButton:disabled {{
-                background-color: rgba(255, 255, 255, 0.01);
-                color: #52525b;
-                border-color: rgba(255, 255, 255, 0.02);
-            }}
-        """)
+            cancel_btn_style = f"""
+                AnimatedButton {{
+                    background-color: rgba(239, 68, 68, 0.08);
+                    border: 1px solid rgba(239, 68, 68, 0.15);
+                    border-radius: 12px;
+                    font-weight: bold;
+                    font-size: 13px;
+                    color: #ef4444;
+                }}
+                AnimatedButton[hovered="true"] {{
+                    background-color: rgba(239, 68, 68, 0.16);
+                    border-color: rgba(239, 68, 68, 0.3);
+                }}
+                AnimatedButton[pressed_state="true"] {{
+                    background-color: rgba(239, 68, 68, 0.05);
+                    padding-top: 14px;
+                    padding-bottom: 10px;
+                }}
+                AnimatedButton:disabled {{
+                    background-color: rgba(255, 255, 255, 0.01);
+                    color: #52525b;
+                    border-color: rgba(255, 255, 255, 0.02);
+                }}
+            """
 
-        self.clear_button.setStyleSheet(f"""
-            AnimatedButton {{
-                background-color: rgba(255, 255, 255, 0.02);
-                border: 1px solid rgba(255, 255, 255, 0.06);
-                border-radius: 12px;
-                font-weight: bold;
-                font-size: 13px;
-                color: #a1a1aa;
-            }}
-            AnimatedButton[hovered="true"] {{
-                background-color: rgba(255, 255, 255, 0.06);
-                border-color: rgba(255, 255, 255, 0.15);
-                color: #f4f4f5;
-            }}
-            AnimatedButton[pressed_state="true"] {{
-                background-color: rgba(255, 255, 255, 0.02);
-                padding-top: 14px;
-                padding-bottom: 10px;
-            }}
-        """)
+            clear_btn_style = f"""
+                AnimatedButton {{
+                    background-color: rgba(255, 255, 255, 0.02);
+                    border: 1px solid rgba(255, 255, 255, 0.06);
+                    border-radius: 12px;
+                    font-weight: bold;
+                    font-size: 13px;
+                    color: #a1a1aa;
+                }}
+                AnimatedButton[hovered="true"] {{
+                    background-color: rgba(255, 255, 255, 0.06);
+                    border-color: rgba(255, 255, 255, 0.15);
+                    color: #f4f4f5;
+                }}
+                AnimatedButton[pressed_state="true"] {{
+                    background-color: rgba(255, 255, 255, 0.02);
+                    padding-top: 14px;
+                    padding-bottom: 10px;
+                }}
+            """
+
+        current_style = self.styleSheet()
+        if "/* DYNAMIC */" in current_style:
+            base = current_style.split("/* DYNAMIC */")[0]
+        else:
+            base = current_style
+
+        self.setStyleSheet(base + "/* DYNAMIC */" + dynamic_style)
+
+        for btn in self.preset_buttons:
+            btn.setStyleSheet(preset_btn_style)
+
+        self.start_button.setStyleSheet(start_btn_style)
+        self.cancel_button.setStyleSheet(cancel_btn_style)
+        self.clear_button.setStyleSheet(clear_btn_style)
 
     def on_mode_toggled(self, id, checked):
         """Switch time input widget based on selected mode with smooth slide transition"""
