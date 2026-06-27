@@ -738,3 +738,42 @@
   ```bash
   git commit -am "docs: update README with theme system changes"
   ```
+
+---
+
+### Task 5: Theme Toggle Button Initializer & Contrast Patch
+
+**Files:**
+- Modify: [shutdown_timer.py](file:///d:/Windows%20Shutdown%20Timer/shutdown_timer.py)
+
+- [ ] **Step 1: Modify `apply_styles` to call `update_theme_button_ui()`**
+  At the end of `apply_styles()`, add `self.update_theme_button_ui()` to ensure the toggle button's text is loaded immediately when the app starts.
+  ```python
+  # In ShutdownTimerApp.apply_styles:
+  self.setStyleSheet(base_style)
+  self.update_theme_button_ui()
+  ```
+
+- [ ] **Step 2: Update contrast styling of QPushButton#themeButton in base stylesheets**
+  Enhance background and border opacities of `QPushButton#themeButton` in `apply_styles()` for both light and dark CSS strings.
+  - In dark mode CSS:
+    - `background-color`: from `0.03` to `0.06`
+    - `border`: from `0.08` to `0.16`
+    - `hover background-color`: from `0.08` to `0.12`
+    - `hover border-color`: from `0.15` to `0.25`
+  - In light mode CSS:
+    - `background-color`: set to `rgba(0, 0, 0, 0.05)`
+    - `border`: set to `rgba(0, 0, 0, 0.12)`
+    - `hover background-color`: set to `rgba(0, 0, 0, 0.1)`
+    - `hover border-color`: set to `rgba(0, 0, 0, 0.2)`
+
+- [ ] **Step 3: Verify toggle text is visible on first startup**
+  Run: `python shutdown_timer.py`
+  Verify that the button displays "☀️ Light Mode" when opening in dark mode, and "🌙 Dark Mode" when opening in light mode.
+
+- [ ] **Step 4: Re-compile the standalone executable**
+  Run PyInstaller: `pyinstaller --noconfirm --clean "Windows Shutdown Timer.spec"`
+  Verify new build succeeds.
+
+- [ ] **Step 5: Commit changes**
+  Run: `git commit -am "fix: resolve theme toggle visibility bug and update contrast"`
