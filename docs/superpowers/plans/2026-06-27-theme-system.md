@@ -806,3 +806,33 @@
 
 - [ ] **Step 6: Commit changes**
   Run: `git commit -am "fix: enhance dark mode bento card borders and resolve QMessageBox text visibility"`
+
+---
+
+### Task 7: Global QMessageBox QSS Styling & Segoe UI Variable Font Upgrade
+
+**Files:**
+- Modify: [shutdown_timer.py](file:///d:/Windows%20Shutdown%20Timer/shutdown_timer.py)
+
+- [ ] **Step 1: Upgrade to Segoe UI Variable font stack**
+  - Update all `QFont` calls to use `"Segoe UI Variable Display"` (headers, card title, presets values) and `"Segoe UI Variable Text"` (descriptions, units, status label).
+  - Update CSS stylesheets `font-family` to `'Segoe UI Variable Display', 'Segoe UI Variable Text', 'Segoe UI', -apple-system, sans-serif;` for `QWidget`, `QLabel`, `QMessageBox`, etc.
+
+- [ ] **Step 2: Add explicit QMessageBox QSS styling rules**
+  In `apply_styles()`, add styling rules for `QMessageBox`, `QMessageBox QLabel`, and `QMessageBox QPushButton` for both Light and Dark mode stylesheets. Include rounded corners, borders, backgrounds, and appropriate readable text colors.
+
+- [ ] **Step 3: Apply styles to global QApplication instance**
+  In `apply_styles()`, call `QApplication.instance().setStyleSheet(base_style)` right after `self.setStyleSheet(base_style)`.
+
+- [ ] **Step 4: Delay currentIndexChanged signal connection**
+  In `init_ui()`, remove `self.action_combo.currentIndexChanged.connect(...)`. Connect it in `__init__` right after `self.load_settings()`.
+
+- [ ] **Step 5: Verify QMessageBox readability and font aesthetics**
+  Run `python shutdown_timer.py` in both Light and Dark modes. Trigger confirmation dialogs and verify QMessageBox text is fully readable (proper background and white/charcoal text) and that fonts look premium.
+
+- [ ] **Step 6: Re-compile the standalone executable**
+  Run PyInstaller: `pyinstaller --onefile --windowed --name="Windows Shutdown Timer" --icon=icon.ico shutdown_timer.py --noconfirm --clean`
+  Verify new build succeeds.
+
+- [ ] **Step 7: Commit changes**
+  Run: `git commit -am "fix: style QMessageBox globally, upgrade to Segoe UI Variable font stack, and optimize signal connections"`
