@@ -805,7 +805,7 @@ class ShutdownTimerApp(QMainWindow):
                 }
                 #BentoCard {
                     background-color: rgba(18, 18, 24, 0.45);
-                    border: 1px solid rgba(255, 255, 255, 0.04);
+                    border: 1px solid rgba(255, 255, 255, 0.12);
                     border-radius: 20px;
                 }
                 #BentoCardTitle {
@@ -1091,7 +1091,7 @@ class ShutdownTimerApp(QMainWindow):
                         stop:1 {bg_end});
                 }}
                 #BentoCard {{
-                    border-color: rgba({self.hex_to_rgb(primary)}, 0.08);
+                    border-color: rgba({self.hex_to_rgb(primary)}, 0.25);
                 }}
                 QComboBox::down-arrow, QDateTimeEdit::down-arrow {{
                     border-top-color: {primary};
@@ -1257,7 +1257,7 @@ class ShutdownTimerApp(QMainWindow):
         reply = QMessageBox.question(
             self,
             f"ยืนยันการตั้งเวลา",
-            f"ต้องการตั้งเวลา{action_text}ในอีก {time_str} หรือไม่?\n\n**โปรดบันทึกงานของคุณก่อนดำเนินการครับ!**",
+            f"ต้องการตั้งเวลา{action_text}ในอีก {time_str} หรือไม่?\n\nโปรดบันทึกงานของคุณก่อนดำเนินการครับ!",
             QMessageBox.Yes | QMessageBox.No,
             QMessageBox.No,
         )
@@ -1319,7 +1319,7 @@ class ShutdownTimerApp(QMainWindow):
         reply = QMessageBox.question(
             self,
             f"ยืนยันการตั้งเวลา",
-            f"คุณต้องการตั้งเวลา{action_text}หรือไม่?\n\n**โปรดบันทึกงานของคุณก่อนดำเนินการครับ!**",
+            f"คุณต้องการตั้งเวลา{action_text}หรือไม่?\n\nโปรดบันทึกงานของคุณก่อนดำเนินการครับ!",
             QMessageBox.Yes | QMessageBox.No,
             QMessageBox.No,
         )
@@ -1404,7 +1404,7 @@ class ShutdownTimerApp(QMainWindow):
         reply = QMessageBox.question(
             self,
             f"ยืนยันการ{action_text}",
-            f"ต้องการ{action_text}ทันทีหรือไม่?\n\n**โปรดบันทึกงานของคุณก่อนดำเนินการครับ!**",
+            f"ต้องการ{action_text}ทันทีหรือไม่?\n\nโปรดบันทึกงานของคุณก่อนดำเนินการครับ!",
             QMessageBox.Yes | QMessageBox.No,
             QMessageBox.No,
         )
