@@ -15,8 +15,8 @@ The Windows Shutdown Timer application currently features a responsive "Ethereal
 
 ### 3.1 Header Layout
 A horizontal header is added at the top of the main window layout (above the Bento grid layout):
-- **App Title**: `"Windows Shutdown Timer"` (Left-aligned, 16pt Bold, Segoe UI)
-- **Theme Button**: Rounded pill button (Right-aligned, 10pt SemiBold, Segoe UI):
+- **App Title**: `"Windows Shutdown Timer"` (Left-aligned, 16pt Bold, Segoe UI Variable Display)
+- **Theme Button**: Rounded pill button (Right-aligned, 10pt SemiBold, Segoe UI Variable Text):
   - **Icon & Text**:
     - Dark Theme: `☀️ Light` (or `☀️ สว่าง` in Thai)
     - Light Theme: `🌙 Dark` (or `🌙 มืด` in Thai)
@@ -63,12 +63,17 @@ In Light Mode, dropdown popup menus will have:
   - In Dark Mode, increase background opacity to `0.06` and border opacity to `0.16` (hover state: background `0.12`, border `0.25`) to ensure clean contrast on first open.
   - In Light Mode, set background opacity to `0.05` and border opacity to `0.12` (hover state: background `0.1`, border `0.2`).
 
-### 3.7 Bento Card Contrast & QMessageBox Rich Text Fix
+### 3.7 Bento Card Contrast, QMessageBox Global Fix, & Typography Upgrade
 - **Dark Mode Bento Card Borders**:
   - Base border: `rgba(255, 255, 255, 0.12)` (up from `0.04`) for high visual clarity against the `#050508` background.
   - Action-specific glow border: `rgba({primary_rgb}, 0.25)` (up from `0.08`) for clear action-theme context.
-- **QMessageBox Text Visibility**:
-  - Removed double asterisks `**` markdown formatting from all confirmation and dialog messages in `shutdown_timer.py`. This prevents Qt from interpreting the strings as Rich Text (HTML) which defaults to black text, ensuring that dialog text respects the off-white QSS colors in Dark Mode and charcoal QSS colors in Light Mode.
+- **Global QMessageBox Style Fix**:
+  - Set the QSS stylesheet globally on `QApplication.instance()` instead of only on the main window. This ensures all top-level dialogs (such as `QMessageBox` confirmation prompts) inherit the app's stylesheets correctly.
+  - Added explicit style rules for `QMessageBox`, `QMessageBox QLabel`, and `QMessageBox QPushButton` in both light and dark mode stylesheets (with rounded buttons, specific backgrounds `#050508` / `#faf9f6`, and readable text colors).
+- **Segoe UI Variable Typography Upgrade**:
+  - Replaced standard `'Segoe UI'` with a premium optical font stack: `'Segoe UI Variable Display'` (for cards title, value label, headers) and `'Segoe UI Variable Text'` (for descriptions, unit label, toast text, status label) to leverage Windows 11 high-end display typography, with automatic system fallback.
+- **Event Flow Performance Fix**:
+  - Delayed `self.action_combo.currentIndexChanged` signal connection until after startup settings load, preventing redundant style calculations.
 
 ---
 
