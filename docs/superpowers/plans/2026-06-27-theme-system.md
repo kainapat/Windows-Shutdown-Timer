@@ -777,3 +777,32 @@
 
 - [ ] **Step 5: Commit changes**
   Run: `git commit -am "fix: resolve theme toggle visibility bug and update contrast"`
+
+---
+
+### Task 6: Dark Mode Bento Border Opacity & QMessageBox Rich Text Fix
+
+**Files:**
+- Modify: [shutdown_timer.py](file:///d:/Windows%20Shutdown%20Timer/shutdown_timer.py)
+
+- [ ] **Step 1: Increase base Bento Card border opacity in dark mode**
+  In `apply_styles()`, locate the dark mode style definition for `#BentoCard` and change `border: 1px solid rgba(255, 255, 255, 0.04);` to `rgba(255, 255, 255, 0.12)`.
+
+- [ ] **Step 2: Increase active theme glow border opacity in dark mode**
+  In `update_theme_colors()`, locate the block for dark mode styling and change `border-color: rgba({self.hex_to_rgb(primary)}, 0.08);` to `rgba({self.hex_to_rgb(primary)}, 0.25);`.
+
+- [ ] **Step 3: Remove markdown formatting from QMessageBox strings**
+  Locate confirmation dialog strings containing `**โปรดบันทึกงานของคุณก่อนดำเนินการครับ!**` and remove the `**` asterisks so that Qt interprets the strings as Plain Text, avoiding the Windows HTML black-text color bug.
+  - Fix in `start_timer()` confirmation dialog
+  - Fix in `start_preset_timer()` confirmation dialog
+  - Fix in `immediate_action()` confirmation dialog
+
+- [ ] **Step 4: Verify bento card borders and QMessageBox text colors**
+  Run `python shutdown_timer.py` and trigger timer/presets. Verify that bento card borders are clearly visible in dark mode, and that confirmation dialog text is fully readable in both light and dark modes.
+
+- [ ] **Step 5: Re-compile the standalone executable**
+  Run PyInstaller: `pyinstaller --noconfirm --clean "Windows Shutdown Timer.spec"`
+  Verify new build succeeds.
+
+- [ ] **Step 6: Commit changes**
+  Run: `git commit -am "fix: enhance dark mode bento card borders and resolve QMessageBox text visibility"`
