@@ -777,16 +777,16 @@ class ShutdownTimerApp(QMainWindow):
                     color: #78716c;
                 }
                 QPushButton#themeButton {
-                    background-color: rgba(0, 0, 0, 0.03);
-                    border: 1px solid rgba(0, 0, 0, 0.08);
+                    background-color: rgba(0, 0, 0, 0.05);
+                    border: 1px solid rgba(0, 0, 0, 0.12);
                     border-radius: 12px;
                     color: #1c1917;
                     font-weight: 600;
                     font-size: 10pt;
                 }
                 QPushButton#themeButton:hover {
-                    background-color: rgba(0, 0, 0, 0.08);
-                    border-color: rgba(0, 0, 0, 0.15);
+                    background-color: rgba(0, 0, 0, 0.1);
+                    border-color: rgba(0, 0, 0, 0.2);
                 }
             """
         else:
@@ -921,19 +921,20 @@ class ShutdownTimerApp(QMainWindow):
                     color: #a1a1aa;
                 }
                 QPushButton#themeButton {
-                    background-color: rgba(255, 255, 255, 0.03);
-                    border: 1px solid rgba(255, 255, 255, 0.08);
+                    background-color: rgba(255, 255, 255, 0.06);
+                    border: 1px solid rgba(255, 255, 255, 0.16);
                     border-radius: 12px;
                     color: #e4e4e7;
                     font-weight: 600;
                     font-size: 10pt;
                 }
                 QPushButton#themeButton:hover {
-                    background-color: rgba(255, 255, 255, 0.08);
-                    border-color: rgba(255, 255, 255, 0.15);
+                    background-color: rgba(255, 255, 255, 0.12);
+                    border-color: rgba(255, 255, 255, 0.25);
                 }
             """
         self.setStyleSheet(base_style)
+        self.update_theme_button_ui()
 
     def hex_to_rgb(self, hex_color):
         """Convert hex color to RGB tuple string"""
