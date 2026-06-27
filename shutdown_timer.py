@@ -408,6 +408,27 @@ class ShutdownTimerApp(QMainWindow):
         main_layout.setSpacing(14)
         main_layout.setContentsMargins(18, 18, 18, 18)
 
+        # --- Header Layout ---
+        header_layout = QHBoxLayout()
+        header_layout.setContentsMargins(4, 0, 4, 4)
+
+        self.title_label = QLabel("Windows Shutdown Timer")
+        title_font = QFont("Segoe UI", 16, QFont.Bold)
+        self.title_label.setFont(title_font)
+        header_layout.addWidget(self.title_label)
+
+        header_layout.addStretch()
+
+        self.theme_button = QPushButton()
+        self.theme_button.setObjectName("themeButton")
+        self.theme_button.setCursor(Qt.PointingHandCursor)
+        self.theme_button.setFixedWidth(100)
+        self.theme_button.setMinimumHeight(32)
+        self.theme_button.clicked.connect(self.toggle_theme)
+        header_layout.addWidget(self.theme_button)
+
+        main_layout.addLayout(header_layout)
+
         grid_layout = QGridLayout()
         grid_layout.setSpacing(14)
         grid_layout.setColumnStretch(0, 1)
@@ -893,6 +914,26 @@ class ShutdownTimerApp(QMainWindow):
         if not checked:
             return
         self.time_stack.slide_to_index(id)
+
+    def toggle_theme(self):
+        """Switch between light and dark themes"""
+        if self.current_theme_mode == "dark":
+            self.current_theme_mode = "light"
+        else:
+            self.current_theme_mode = "dark"
+            
+        logger.info(f"🌓 Theme toggled to {self.current_theme_mode}")
+        self.update_theme_button_ui()
+        self.apply_styles()
+        self.update_theme_colors(self.action_combo.currentIndex())
+        self.save_window_settings()
+
+    def update_theme_button_ui(self):
+        """Update theme button label based on current theme"""
+        if self.current_theme_mode == "light":
+            self.theme_button.setText("🌙 Dark Mode")
+        else:
+            self.theme_button.setText("☀️ Light Mode")
 
     def start_preset_timer(self, value, unit):
         """Start timer from preset card"""
