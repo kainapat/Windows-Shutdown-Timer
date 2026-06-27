@@ -30,8 +30,8 @@ Below is a comparison of the color tokens for Dark and Light modes:
 | **Window Background** | `#050508` | `#faf9f6` (Warm Cream) |
 | **Window Gradient End** | Action-specific dark color (e.g. `#18060a` for shutdown) | Action-specific pastel color (e.g. `#fef2f3` for shutdown) |
 | **Bento Card Bg** | `rgba(18, 18, 24, 0.45)` | `rgba(255, 255, 255, 0.75)` |
-| **Bento Card Border** | `rgba(255, 255, 255, 0.04)` | `rgba(0, 0, 0, 0.05)` |
-| **Bento Card Glow** | `rgba({primary_rgb}, 0.08)` border highlight | `rgba({primary_rgb}, 0.12)` border highlight |
+| **Bento Card Border** | `rgba(255, 255, 255, 0.12)` | `rgba(0, 0, 0, 0.05)` |
+| **Bento Card Glow** | `rgba({primary_rgb}, 0.25)` border highlight | `rgba({primary_rgb}, 0.12)` border highlight |
 | **Main Typography** | `#e4e4e7` (Zinc 200) | `#1c1917` (Stone 900) |
 | **Card Title Text** | `rgba(161, 161, 170, 0.6)` | `rgba(120, 113, 108, 0.7)` |
 | **Form Inputs Bg** | `rgba(255, 255, 255, 0.03)` | `rgba(255, 255, 255, 0.9)` |
@@ -62,6 +62,13 @@ In Light Mode, dropdown popup menus will have:
 - **Contrast Enhancements**:
   - In Dark Mode, increase background opacity to `0.06` and border opacity to `0.16` (hover state: background `0.12`, border `0.25`) to ensure clean contrast on first open.
   - In Light Mode, set background opacity to `0.05` and border opacity to `0.12` (hover state: background `0.1`, border `0.2`).
+
+### 3.7 Bento Card Contrast & QMessageBox Rich Text Fix
+- **Dark Mode Bento Card Borders**:
+  - Base border: `rgba(255, 255, 255, 0.12)` (up from `0.04`) for high visual clarity against the `#050508` background.
+  - Action-specific glow border: `rgba({primary_rgb}, 0.25)` (up from `0.08`) for clear action-theme context.
+- **QMessageBox Text Visibility**:
+  - Removed double asterisks `**` markdown formatting from all confirmation and dialog messages in `shutdown_timer.py`. This prevents Qt from interpreting the strings as Rich Text (HTML) which defaults to black text, ensuring that dialog text respects the off-white QSS colors in Dark Mode and charcoal QSS colors in Light Mode.
 
 ---
 
