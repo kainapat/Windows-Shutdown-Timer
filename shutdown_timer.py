@@ -398,7 +398,7 @@ class ShutdownTimerApp(QMainWindow):
         self.load_window_settings()
         self.load_settings()
         self.apply_styles()
-        self.update_theme_colors(0)
+        self.update_theme_colors(self.action_combo.currentIndex())
         logger.info("🚀 Application started with Bento Grid design")
 
     def init_ui(self):
@@ -583,9 +583,10 @@ class ShutdownTimerApp(QMainWindow):
         self.progress_bar.setMaximumHeight(16)
 
         self.status_label = QLabel("สถานะ: ยังไม่มีการตั้งเวลา")
+        self.status_label.setObjectName("statusLabel")
         self.status_label.setAlignment(Qt.AlignCenter)
         self.status_label.setFont(QFont("Segoe UI", 10))
-        self.status_label.setStyleSheet("color: #a1a1aa; background: transparent;")
+        self.status_label.setStyleSheet("background: transparent;")
 
         card_c_layout.addWidget(self.countdown_label)
         card_c_layout.addWidget(self.progress_bar)
@@ -776,6 +777,9 @@ class ShutdownTimerApp(QMainWindow):
                 #presetUnit {
                     color: #78716c;
                 }
+                #statusLabel {
+                    color: #78716c;
+                }
                 QPushButton#themeButton {
                     background-color: rgba(0, 0, 0, 0.05);
                     border: 1px solid rgba(0, 0, 0, 0.12);
@@ -918,6 +922,9 @@ class ShutdownTimerApp(QMainWindow):
                     color: #f4f4f5;
                 }
                 #presetUnit {
+                    color: #a1a1aa;
+                }
+                #statusLabel {
                     color: #a1a1aa;
                 }
                 QPushButton#themeButton {
@@ -1212,7 +1219,6 @@ class ShutdownTimerApp(QMainWindow):
             self.current_theme_mode = "dark"
             
         logger.info(f"🌓 Theme toggled to {self.current_theme_mode}")
-        self.update_theme_button_ui()
         self.apply_styles()
         self.update_theme_colors(self.action_combo.currentIndex())
         self.save_window_settings()
@@ -1220,9 +1226,9 @@ class ShutdownTimerApp(QMainWindow):
     def update_theme_button_ui(self):
         """Update theme button label based on current theme"""
         if self.current_theme_mode == "light":
-            self.theme_button.setText("🌙 Dark Mode")
+            self.theme_button.setText("🌙 โหมดมืด")
         else:
-            self.theme_button.setText("☀️ Light Mode")
+            self.theme_button.setText("☀️ โหมดสว่าง")
 
     def start_preset_timer(self, value, unit):
         """Start timer from preset card"""
