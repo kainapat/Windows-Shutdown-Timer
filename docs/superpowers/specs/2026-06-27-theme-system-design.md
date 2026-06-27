@@ -56,6 +56,13 @@ In Light Mode, dropdown popup menus will have:
 - **Cancel Button**: Transparent red background `rgba(239, 68, 68, 0.06)` with a red border and red text `#ef4444`.
 - **Clear Button**: Transparent stone background `rgba(120, 113, 108, 0.06)` with a stone border and stone text `#78716c`.
 
+### 3.6 Theme Toggle Button Visibility Bug Fix
+- **Initial State Bug**: The theme switcher text is set via `update_theme_button_ui()`, which was only called during `toggle_theme()`. This caused the button to appear blank (no icon/text) on initial startup.
+- **Fix**: Call `update_theme_button_ui()` automatically at the end of `apply_styles()`.
+- **Contrast Enhancements**:
+  - In Dark Mode, increase background opacity to `0.06` and border opacity to `0.16` (hover state: background `0.12`, border `0.25`) to ensure clean contrast on first open.
+  - In Light Mode, set background opacity to `0.05` and border opacity to `0.12` (hover state: background `0.1`, border `0.2`).
+
 ---
 
 ## 4. Verification Plan
