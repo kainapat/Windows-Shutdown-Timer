@@ -24,6 +24,7 @@ A lightweight, modern Windows shutdown, restart, sleep, and hibernate scheduler 
 
 ### 3. "Ethereal Glass" Bento Grid Dashboard
 - **Bento Grid Layout**: Organizes the interface into a modern asymmetric grid of cards (Bento boxes) separating setup parameters from active countdowns.
+- **Theme Switcher (Dark/Light Modes)**: Toggle seamlessly between the classic "Ethereal Glass" dark theme and a premium "Warm Premium Cream" light theme. The selected theme mode is stored persistently in `window_config.json` and restored automatically on next launch.
 - **Cinematic Motion**: Implements horizontal slide transitions for input method switching and spring-back click physics on interactive buttons.
 - **Window Geometry & Position Persistence**: Automatically records your custom window dimensions and desktop coordinates on exit, restoring them on the next launch (minimum bounds adjusted to 650x580px for optimal grid rendering).
 - **Monospace Countdown**: Monospace typography prevents digit layout jitter during real-time countdown updates.
@@ -124,6 +125,11 @@ Timer inputs and window dimensions are isolated into separate configuration file
 ---
 
 ## Changelog
+
+### v1.8.0 (June 2026) - Theme Switcher & Warm Premium Cream Light Mode
+- **Theme Toggle Button**: Added an elegant top-level theme toggle switch in the new window header layout.
+- **Warm Premium Cream Light Mode**: Created a high-end editorial light theme featuring soft radial pastel gradients matched to the active shutdown action, dark stone text, and clean card shadows.
+- **Theme Persistence**: Extends window settings to save the chosen theme mode, restoring it dynamically on application start.
 
 ### v1.7.0 (June 2026) - Bento Grid UI & Cinematic Motion Redesign
 - **Asymmetric Bento Grid Layout**: Rearranged the dashboard widgets into concentric Bento Box panels to optimize visual hierarchy.
