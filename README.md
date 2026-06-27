@@ -130,6 +130,8 @@ Timer inputs and window dimensions are isolated into separate configuration file
 - **Theme Toggle Button**: Added an elegant top-level theme toggle switch in the new window header layout.
 - **Warm Premium Cream Light Mode**: Created a high-end editorial light theme featuring soft radial pastel gradients matched to the active shutdown action, dark stone text, and clean card shadows.
 - **Theme Persistence**: Extends window settings to save the chosen theme mode, restoring it dynamically on application start.
+- **Startup Visibility & Contrast Fixes**: Resolved blank button rendering on launch by initializing the toggle button text immediately, and increased QPushButton#themeButton contrast in both modes.
+- **Bento Card Contrast & QMessageBox Fixes**: Enhanced bento card borders contrast (opacity up from 0.04 to 0.12) in dark mode for easier readability, and resolved the Windows QMessageBox dark-text bug by converting messages to plain text.
 
 ### v1.7.0 (June 2026) - Bento Grid UI & Cinematic Motion Redesign
 - **Asymmetric Bento Grid Layout**: Rearranged the dashboard widgets into concentric Bento Box panels to optimize visual hierarchy.
