@@ -563,7 +563,7 @@ class ShutdownTimerApp(QMainWindow):
 
         self.countdown_label = QLabel("--:--:--")
         self.countdown_label.setAlignment(Qt.AlignCenter)
-        available_fonts = QFontDatabase.families()
+        available_fonts = QFontDatabase().families()
         countdown_font_name = "JetBrains Mono" if "JetBrains Mono" in available_fonts else \
                               "Consolas" if "Consolas" in available_fonts else \
                               "Courier New"
@@ -1087,6 +1087,11 @@ class ShutdownTimerApp(QMainWindow):
                     padding-top: 14px;
                     padding-bottom: 10px;
                 }}
+                AnimatedButton:disabled {{
+                    background-color: rgba(0, 0, 0, 0.05);
+                    color: #a8a29e;
+                    border-color: rgba(0, 0, 0, 0.08);
+                }}
             """
 
             cancel_btn_style = f"""
@@ -1198,6 +1203,11 @@ class ShutdownTimerApp(QMainWindow):
                     border-color: {accent};
                     padding-top: 14px;
                     padding-bottom: 10px;
+                }}
+                AnimatedButton:disabled {{
+                    background-color: rgba(255, 255, 255, 0.03);
+                    color: #52525b;
+                    border-color: rgba(255, 255, 255, 0.06);
                 }}
             """
 
