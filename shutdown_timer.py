@@ -44,10 +44,23 @@ from PySide6.QtGui import (
     QFont,
     QColor,
     QFontDatabase,
+    QIcon,
+    QPixmap,
 )
 
 CONFIG_FILE = "timer_config.json"
 WINDOW_CONFIG_FILE = "window_config.json"
+
+
+def resource_path(relative_name: str) -> str:
+    """Return absolute path to a bundled resource.
+
+    Works in two environments:
+    - Development  : resolves relative to the directory that contains this script.
+    - PyInstaller  : resolves relative to sys._MEIPASS (the temp extraction dir).
+    """
+    base = getattr(sys, "_MEIPASS", os.path.dirname(os.path.abspath(__file__)))
+    return os.path.join(base, relative_name)
 
 # Initialize logger
 logger = logging.getLogger(__name__)
@@ -380,6 +393,13 @@ class ShutdownTimerApp(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Windows Shutdown Timer")
+
+        # Set application / taskbar icon (prefer .ico for multi-resolution support)
+        icon_path = resource_path("off.ico")
+        if not os.path.isfile(icon_path):
+            icon_path = resource_path("off.png")
+        if os.path.isfile(icon_path):
+            self.setWindowIcon(QIcon(icon_path))
         self.setMinimumSize(650, 580)
         self.resize(650, 580)
 

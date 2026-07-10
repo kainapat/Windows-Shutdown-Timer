@@ -81,12 +81,14 @@ To compile the application into a standalone executable using PyInstaller:
    pip install pyinstaller
    ```
 
-2. **Generate the build**:
+2. **Generate the build using the included spec file** (recommended):
    ```bash
-   pyinstaller --onefile --windowed --name="Windows Shutdown Timer" --icon=icon.ico shutdown_timer.py
+   pyinstaller "Windows Shutdown Timer.spec" --clean
    ```
 
 3. Find the compiled output in `dist/Windows Shutdown Timer.exe`.
+
+> **Note**: The spec file automatically bundles `off.png` and `off.ico` into the executable so the icon displays correctly at runtime — no extra files needed alongside the `.exe`.
 
 ---
 
@@ -94,13 +96,14 @@ To compile the application into a standalone executable using PyInstaller:
 
 ```
 Windows Shutdown Timer/
-├── shutdown_timer.py          # Primary application source code
-├── requirements.txt           # Dependencies listing
-├── icon.ico                   # Executable application icon
-├── off.png                    # Graphic interface asset
-├── Windows Shutdown Timer.spec # PyInstaller compilation spec sheet
-├── timer_config.json          # Active timer configuration (runtime generated)
-└── window_config.json         # Window size and positioning configs
+├── shutdown_timer.py            # Primary application source code
+├── requirements.txt             # Dependencies listing
+├── off.png                      # Source icon image
+├── off.ico                      # Multi-resolution application icon (16–256 px)
+├── icon.ico                     # Legacy executable icon (kept for reference)
+├── Windows Shutdown Timer.spec  # PyInstaller compilation spec sheet
+├── timer_config.json            # Active timer configuration (runtime generated)
+└── window_config.json           # Window size and positioning configs
 ```
 
 ---
@@ -125,6 +128,11 @@ Timer inputs and window dimensions are isolated into separate configuration file
 ---
 
 ## Changelog
+
+### v1.9.0 (July 2026) - Custom Application Icon
+- **Multi-Resolution Icon**: Converted `off.png` to `off.ico` containing six resolutions (16 × 16, 32 × 32, 48 × 48, 64 × 64, 128 × 128, 256 × 256 px) so Windows always picks the sharpest size for each context (title bar, taskbar, Alt+Tab).
+- **Runtime Icon Loading**: Added `setWindowIcon()` in `ShutdownTimerApp.__init__` via a `resource_path()` helper that resolves paths correctly in both development mode and when frozen by PyInstaller.
+- **Executable Icon Embedding**: Updated `Windows Shutdown Timer.spec` to embed `off.ico` as the exe icon and bundle both `off.ico` and `off.png` as runtime data.
 
 ### v1.8.0 (June 2026) - Theme Switcher & Warm Premium Cream Light Mode
 - **Theme Toggle Button**: Added an elegant top-level theme toggle switch in the new window header layout.
