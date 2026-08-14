@@ -6,11 +6,11 @@
   <h1>Windows Shutdown Timer</h1>
 
   <p>Schedule a shutdown, restart, sleep, or hibernate on Windows.<br/>
-  Built with Python and PySide6. No bloat. No tray agent running in the background.</p>
+  Built with Python and PySide6. No bloat. No background agents.</p>
 
   <br/>
 
-  [![Python](https://img.shields.io/badge/Python-3.12+-4f8ef7?style=flat-square&logo=python&logoColor=white)](https://www.python.org/)&nbsp;
+  [![Python](https://img.shields.io/badge/Python-3.10+-4f8ef7?style=flat-square&logo=python&logoColor=white)](https://www.python.org/)&nbsp;
   [![PySide6](https://img.shields.io/badge/PySide6-6.4+-43b89c?style=flat-square&logo=qt&logoColor=white)](https://doc.qt.io/qtforpython-6/)&nbsp;
   [![Windows](https://img.shields.io/badge/Windows-7%2F8%2F10%2F11-0078D4?style=flat-square&logo=windows&logoColor=white)](https://www.microsoft.com/windows)&nbsp;
   [![License](https://img.shields.io/badge/License-MIT-f5c518?style=flat-square)](LICENSE)
@@ -30,7 +30,7 @@ pip install -r requirements.txt
 python shutdown_timer.py
 ```
 
-> Requires Python 3.12+ on Windows 7 or later.
+> Requires Python 3.10+ on Windows 7 or later.
 
 ---
 
@@ -43,12 +43,18 @@ Pick a power action and a time. The app schedules it and counts down. When the t
 | Mode | How it works |
 |---|---|
 | **Quick preset** | One click — 15 min, 30 min, 1 h, or 2 h from now |
-| **Specific time** | Pick a date and clock time |
-| **Countdown** | Set hours, minutes, seconds up to 24 h |
+| **Specific time** | Pick a date and exact clock time |
+| **Countdown** | Set hours, minutes, seconds |
 
 **The interface**
 
-The UI is built around an asymmetric Bento Grid layout with an "Ethereal Glass" dark theme — OLED black background, per-action glow accents (the color shifts depending on whether you picked Shutdown, Restart, Sleep, or Hibernate), slide transitions between input panels, and spring-back physics on buttons. There's also a Light Mode if you prefer that; the choice is saved.
+The UI features a **Simplified 3-Step Vertical Flow** designed with **Windows 11 Fluent Aesthetics**:
+1. **Hero Countdown Display (Top)**: High-contrast monospace digits (`00:00:00`), glowing progress bar, and real-time status text.
+2. **Step 1 — Select Action**: Quick segmented pill buttons for 🔌 Shutdown, 🔄 Restart, 😴 Sleep, or 🌙 Hibernate. Dynamic color accent shifts per action.
+3. **Step 2 — Set Time**: Elevated Quick Preset chips + Segmented mode switcher ("Count Down" vs "Exact Time") + Spinner numeric inputs.
+4. **Step 3 — System Controls**: Prominent Primary Action button + Cancel/Clear controls.
+
+Available in both **Fluent Dark Mode** (Deep OLED black `#09090b`) and **Fluent Light Mode** (`#f8fafc`). Both modes deliver **100% WCAG AA text contrast** for effortless readability.
 
 Everything is native PySide6. No web renderer, no Electron, no external service.
 
@@ -99,6 +105,17 @@ Windows Shutdown Timer/
 
 ## Changelog
 
+<details open>
+<summary><strong>v2.0.0</strong> &nbsp;·&nbsp; August 2026 &nbsp;·&nbsp; <em>UX/UI Redesign & High Contrast Overhaul</em></summary>
+<br/>
+
+- **3-Step Vertical Flow**: Replaced 5-card Bento grid with a top-to-bottom logical flow (Hero Display -> Step 1 Action -> Step 2 Time & Presets -> Step 3 Controls).
+- **100% WCAG AA Text Contrast**: Solved dark/light text readability issues across all card titles, labels, inputs, and buttons.
+- **Dynamic Action Colors**: Active color accents shift automatically per action (Red for Shutdown, Orange for Restart, Blue for Sleep, Purple for Hibernate).
+- **Quick Preset Chips**: Elevated `15m`, `30m`, `1h`, `2h` chips for instant 1-click scheduling.
+
+</details>
+
 <details>
 <summary><strong>v1.9.0</strong> &nbsp;·&nbsp; July 2026 &nbsp;·&nbsp; <em>Custom Icon</em></summary>
 <br/>
@@ -111,43 +128,7 @@ Converted `off.png` to `off.ico` with six embedded resolutions (16 → 256 px). 
 <summary><strong>v1.8.0</strong> &nbsp;·&nbsp; June 2026 &nbsp;·&nbsp; <em>Light Mode</em></summary>
 <br/>
 
-Added a theme toggle in the window header. The Light Mode ("Warm Premium Cream") uses soft radial pastel gradients matched to the active power action, dark stone text, and clean card shadows. Theme choice persists across sessions. Also fixed blank QPushButton rendering on startup and the Windows QMessageBox dark-text bug.
-
-</details>
-
-<details>
-<summary><strong>v1.7.0</strong> &nbsp;·&nbsp; June 2026 &nbsp;·&nbsp; <em>Bento Grid + Motion</em></summary>
-<br/>
-
-Reworked the layout into an asymmetric Bento Grid. Added `SlidingStackedWidget` for horizontal panel transitions and physics-based compression on button clicks. Background glow color shifts per power action.
-
-</details>
-
-<details>
-<summary><strong>v1.6.0</strong> &nbsp;·&nbsp; June 2026 &nbsp;·&nbsp; <em>Ethereal Glass Theme</em></summary>
-<br/>
-
-New dark theme: OLED black (`#09090b`), dynamic glow accents, concentric glass card borders. Added silent `Ctrl+C` / `Ctrl+Break` handling — aborts the schedule without opening a dialog.
-
-</details>
-
-<details>
-<summary><strong>v1.5.0</strong> &nbsp;·&nbsp; June 2026 &nbsp;·&nbsp; <em>Resizable Window</em></summary>
-<br/>
-
-Window is now resizable above a 600 × 680 px minimum. Size and screen position are saved to `window_config.json` on exit and restored on next launch. Window geometry and timer settings are stored in separate files.
-
-</details>
-
-<details>
-<summary><strong>v1.4.0 – v1.2.0</strong> &nbsp;·&nbsp; March 2026</summary>
-<br/>
-
-**v1.4.0** — Timestamped terminal logs (`HH:MM:SS │ message`). Dead code cleanup.
-
-**v1.3.0** — Emoji indicators in the action dropdown (🔌 🔄 😴 🌙). Monospace font for the countdown to prevent digit-width jitter.
-
-**v1.2.0** — Fixed a QTimer memory leak on window close. Fixed a cross-drive `os.rename` crash by using a local temp file for atomic writes.
+Added a theme toggle in the window header. The Light Mode uses soft pastel styling matched to the active power action. Theme choice persists across sessions.
 
 </details>
 
