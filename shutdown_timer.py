@@ -186,6 +186,7 @@ class PresetCard(AnimatedButton):
 
     def __init__(self, icon, label, sublabel, parent=None):
         super().__init__("", parent)
+        self.setObjectName("presetCard")
         self.setMinimumHeight(66)
         self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
 
@@ -195,19 +196,17 @@ class PresetCard(AnimatedButton):
 
         icon_label = QLabel(icon)
         icon_label.setAlignment(Qt.AlignCenter)
-        icon_label.setStyleSheet("font-size: 16px; background: transparent;")
+        icon_label.setObjectName("presetIcon")
 
         value_label = QLabel(label)
         value_label.setAlignment(Qt.AlignCenter)
         value_label.setFont(QFont("Segoe UI Variable Display", 15, QFont.Bold))
         value_label.setObjectName("presetValue")
-        value_label.setStyleSheet("background: transparent;")
 
         unit_label = QLabel(sublabel)
         unit_label.setAlignment(Qt.AlignCenter)
         unit_label.setFont(QFont("Segoe UI Variable Text", 9))
         unit_label.setObjectName("presetUnit")
-        unit_label.setStyleSheet("background: transparent;")
 
         layout.addWidget(icon_label)
         layout.addWidget(value_label)
@@ -433,6 +432,7 @@ class ShutdownTimerApp(QMainWindow):
     def init_ui(self):
         """Create and arrange widgets in a 3-Step Vertical Flow architecture"""
         central_widget = QWidget()
+        central_widget.setObjectName("centralWidget")
         self.setCentralWidget(central_widget)
 
         main_layout = QVBoxLayout(central_widget)
@@ -444,6 +444,7 @@ class ShutdownTimerApp(QMainWindow):
         header_layout.setContentsMargins(4, 0, 4, 2)
 
         self.title_label = QLabel("Windows Shutdown Timer")
+        self.title_label.setObjectName("appTitle")
         title_font = QFont("Segoe UI Variable Display", 16, QFont.Bold)
         self.title_label.setFont(title_font)
         header_layout.addWidget(self.title_label)
@@ -466,6 +467,7 @@ class ShutdownTimerApp(QMainWindow):
         card_c_layout.setSpacing(10)
 
         self.countdown_label = QLabel("00:00:00")
+        self.countdown_label.setObjectName("countdownLabel")
         self.countdown_label.setAlignment(Qt.AlignCenter)
         available_fonts = QFontDatabase().families()
         countdown_font_name = "JetBrains Mono" if "JetBrains Mono" in available_fonts else \
@@ -474,11 +476,10 @@ class ShutdownTimerApp(QMainWindow):
         countdown_font = QFont(countdown_font_name, 44, QFont.Bold)
         countdown_font.setFixedPitch(True)
         self.countdown_label.setFont(countdown_font)
-        self.countdown_label.setStyleSheet(
-            "background: transparent; color: #e4e4e7; letter-spacing: 2px;"
-        )
+        self.countdown_label.setStyleSheet("background: transparent; letter-spacing: 2px;")
 
         self.progress_bar = QProgressBar()
+        self.progress_bar.setObjectName("progressBar")
         self.progress_bar.setMaximum(100)
         self.progress_bar.setValue(0)
         self.progress_bar.setTextVisible(True)
@@ -490,7 +491,6 @@ class ShutdownTimerApp(QMainWindow):
         self.status_label.setObjectName("statusLabel")
         self.status_label.setAlignment(Qt.AlignCenter)
         self.status_label.setFont(QFont("Segoe UI Variable Text", 10))
-        self.status_label.setStyleSheet("background: transparent;")
 
         card_c_layout.addWidget(self.countdown_label)
         card_c_layout.addWidget(self.progress_bar)
@@ -565,7 +565,9 @@ class ShutdownTimerApp(QMainWindow):
 
         self.mode_button_group = QButtonGroup(self)
         self.radio_timer = QRadioButton("⏱ นับถอยหลัง (Timer)")
+        self.radio_timer.setObjectName("modeRadio")
         self.radio_clock = QRadioButton("📅 ระบุเวลาจริง (Clock)")
+        self.radio_clock.setObjectName("modeRadio")
 
         self.mode_button_group.addButton(self.radio_timer, 0)
         self.mode_button_group.addButton(self.radio_clock, 1)
@@ -596,9 +598,10 @@ class ShutdownTimerApp(QMainWindow):
         h_layout = QVBoxLayout()
         h_layout.setSpacing(2)
         lbl_h = QLabel("ชั่วโมง")
+        lbl_h.setObjectName("timeUnitLabel")
         lbl_h.setAlignment(Qt.AlignCenter)
-        lbl_h.setStyleSheet("font-size: 8.5pt; color: rgba(161, 161, 170, 0.8);")
         self.spin_hours = QSpinBox()
+        self.spin_hours.setObjectName("timeSpinBox")
         self.spin_hours.setRange(0, 24)
         self.spin_hours.setValue(0)
         self.spin_hours.setSuffix(" ชม.")
@@ -611,9 +614,10 @@ class ShutdownTimerApp(QMainWindow):
         m_layout = QVBoxLayout()
         m_layout.setSpacing(2)
         lbl_m = QLabel("นาที")
+        lbl_m.setObjectName("timeUnitLabel")
         lbl_m.setAlignment(Qt.AlignCenter)
-        lbl_m.setStyleSheet("font-size: 8.5pt; color: rgba(161, 161, 170, 0.8);")
         self.spin_minutes = QSpinBox()
+        self.spin_minutes.setObjectName("timeSpinBox")
         self.spin_minutes.setRange(0, 59)
         self.spin_minutes.setValue(30)
         self.spin_minutes.setSuffix(" นาที")
@@ -626,9 +630,10 @@ class ShutdownTimerApp(QMainWindow):
         s_layout = QVBoxLayout()
         s_layout.setSpacing(2)
         lbl_s = QLabel("วินาที")
+        lbl_s.setObjectName("timeUnitLabel")
         lbl_s.setAlignment(Qt.AlignCenter)
-        lbl_s.setStyleSheet("font-size: 8.5pt; color: rgba(161, 161, 170, 0.8);")
         self.spin_seconds = QSpinBox()
+        self.spin_seconds.setObjectName("timeSpinBox")
         self.spin_seconds.setRange(0, 59)
         self.spin_seconds.setValue(0)
         self.spin_seconds.setSuffix(" วิ")
@@ -649,9 +654,10 @@ class ShutdownTimerApp(QMainWindow):
         clock_layout.setAlignment(Qt.AlignCenter)
 
         clock_lbl = QLabel("เวลาเป้าหมาย:")
-        clock_lbl.setStyleSheet("font-size: 9.5pt;")
+        clock_lbl.setObjectName("clockLabel")
 
         self.date_edit = QDateTimeEdit()
+        self.date_edit.setObjectName("dateTimeEdit")
         self.date_edit.setDateTime(QDateTime.currentDateTime().addSecs(3600))
         self.date_edit.setDisplayFormat("ddd d MMM yyyy  HH:mm")
         self.date_edit.setCalendarPopup(True)
@@ -690,6 +696,7 @@ class ShutdownTimerApp(QMainWindow):
         card_controls_layout.setSpacing(8)
 
         self.start_button = AnimatedButton(f"{ICONS['start']} เริ่มนับถอยหลัง")
+        self.start_button.setObjectName("startButton")
         self.start_button.setMinimumHeight(44)
         start_font = QFont("Segoe UI Variable Display", 12, QFont.Bold)
         self.start_button.setFont(start_font)
@@ -699,7 +706,9 @@ class ShutdownTimerApp(QMainWindow):
         controls_row.setSpacing(8)
 
         self.cancel_button = AnimatedButton(f"{ICONS['cancel']} ยกเลิก")
+        self.cancel_button.setObjectName("cancelButton")
         self.clear_button = AnimatedButton("↺ ล้างค่า")
+        self.clear_button.setObjectName("clearButton")
 
         self.cancel_button.setEnabled(False)
         self.cancel_button.setMinimumHeight(38)
@@ -723,53 +732,80 @@ class ShutdownTimerApp(QMainWindow):
         """Apply base stylesheet based on light or dark theme"""
         if self.current_theme_mode == "light":
             base_style = """
-                QMainWindow {
-                    background-color: #faf9f6;
+                QMainWindow, QWidget#centralWidget {
+                    background-color: #f8fafc;
                 }
                 QWidget {
-                    color: #1c1917;
+                    color: #334155;
                     font-family: 'Segoe UI Variable Display', 'Segoe UI Variable Text', 'Segoe UI', -apple-system, sans-serif;
                     font-size: 11pt;
                 }
-                #bentoCard, #BentoCard {
-                    background-color: rgba(255, 255, 255, 0.75);
-                    border: 1px solid rgba(0, 0, 0, 0.06);
-                    border-radius: 18px;
+                QFrame#bentoCard, #bentoCard, #BentoCard {
+                    background-color: #ffffff;
+                    border: 1px solid #e2e8f0;
+                    border-radius: 12px;
                 }
-                #bentoCardTitle, #BentoCardTitle {
-                    color: rgba(120, 113, 108, 0.85);
+                QLabel#bentoCardTitle, #bentoCardTitle, #BentoCardTitle {
+                    color: #1e293b;
+                    font-size: 13px;
+                    font-weight: 600;
                     text-transform: uppercase;
                     letter-spacing: 0.5px;
-                    font-size: 8.5pt;
-                    font-weight: bold;
                     margin-bottom: 2px;
+                    background: transparent;
                 }
                 QLabel {
-                    color: #1c1917;
+                    color: #334155;
                     background-color: transparent;
                 }
-                QComboBox, QDateTimeEdit, QSpinBox {
-                    background-color: rgba(255, 255, 255, 0.9);
-                    border: 1px solid rgba(0, 0, 0, 0.1);
-                    border-radius: 12px;
-                    padding: 6px 12px;
-                    color: #1c1917;
+                QLabel#appTitle {
+                    color: #0f172a;
+                    font-size: 16px;
+                    font-weight: bold;
+                    background: transparent;
+                }
+                QLabel#statusLabel {
+                    color: #64748b;
+                    font-size: 13px;
+                    background: transparent;
+                }
+                QLabel#timeUnitLabel {
+                    color: #64748b;
+                    font-size: 11px;
+                    font-weight: 500;
+                    background: transparent;
+                }
+                QLabel#clockLabel {
+                    color: #334155;
+                    font-size: 13px;
+                    background: transparent;
+                }
+                QSpinBox, QComboBox, QDateTimeEdit {
+                    background-color: #ffffff;
+                    border: 1px solid #cbd5e1;
+                    color: #0f172a;
+                    border-radius: 6px;
+                    padding: 4px 8px;
+                    font-size: 13px;
                     min-width: 60px;
                 }
-                QComboBox:hover, QDateTimeEdit:hover, QSpinBox:hover {
-                    border-color: rgba(0, 0, 0, 0.2);
-                    background-color: rgba(0, 0, 0, 0.02);
+                QSpinBox:hover, QComboBox:hover, QDateTimeEdit:hover {
+                    border-color: #94a3b8;
+                    background-color: #f8fafc;
+                }
+                QSpinBox:focus, QComboBox:focus, QDateTimeEdit:focus {
+                    border-color: #64748b;
                 }
                 QComboBox::drop-down, QDateTimeEdit::drop-down {
                     border: none;
-                    width: 28px;
+                    width: 24px;
                 }
                 QComboBox::down-arrow, QDateTimeEdit::down-arrow {
                     image: none;
-                    border-left: 5px solid transparent;
-                    border-right: 5px solid transparent;
-                    border-top: 5px solid rgba(0, 0, 0, 0.6);
-                    margin-right: 8px;
+                    border-left: 4px solid transparent;
+                    border-right: 4px solid transparent;
+                    border-top: 5px solid #64748b;
+                    margin-right: 6px;
                 }
                 QSpinBox::up-button, QSpinBox::down-button {
                     border: none;
@@ -780,7 +816,7 @@ class ShutdownTimerApp(QMainWindow):
                     image: none;
                     border-left: 4px solid transparent;
                     border-right: 4px solid transparent;
-                    border-bottom: 5px solid rgba(0, 0, 0, 0.6);
+                    border-bottom: 5px solid #64748b;
                     width: 0;
                     height: 0;
                 }
@@ -788,46 +824,51 @@ class ShutdownTimerApp(QMainWindow):
                     image: none;
                     border-left: 4px solid transparent;
                     border-right: 4px solid transparent;
-                    border-top: 5px solid rgba(0, 0, 0, 0.6);
+                    border-top: 5px solid #64748b;
                     width: 0;
                     height: 0;
                 }
+                QSpinBox::up-arrow:hover {
+                    border-bottom-color: #0f172a;
+                }
+                QSpinBox::down-arrow:hover {
+                    border-top-color: #0f172a;
+                }
                 QComboBox QAbstractItemView {
                     background-color: #ffffff;
-                    border: 1px solid rgba(0, 0, 0, 0.1);
-                    border-radius: 12px;
-                    padding: 6px;
-                    selection-background-color: rgba(0, 0, 0, 0.05);
-                    selection-color: #000000;
+                    border: 1px solid #cbd5e1;
+                    border-radius: 8px;
+                    padding: 4px;
+                    color: #0f172a;
+                    selection-background-color: #f1f5f9;
+                    selection-color: #0f172a;
                     outline: none;
-                    color: #1c1917;
                 }
                 QPushButton#actionPill {
-                    background-color: rgba(0, 0, 0, 0.03);
-                    border: 1px solid rgba(0, 0, 0, 0.08);
-                    border-radius: 12px;
+                    background-color: #f1f5f9;
+                    border: 1px solid #cbd5e1;
+                    border-radius: 8px;
                     padding: 8px 12px;
-                    color: #57534e;
+                    color: #475569;
                     font-weight: 600;
+                    font-size: 13px;
                 }
                 QPushButton#actionPill:hover {
-                    background-color: rgba(0, 0, 0, 0.06);
-                    border-color: rgba(0, 0, 0, 0.16);
-                    color: #1c1917;
+                    background-color: #e2e8f0;
+                    border-color: #94a3b8;
+                    color: #0f172a;
                 }
                 QPushButton#actionPill:checked {
-                    background-color: rgba(0, 0, 0, 0.08);
-                    border: 1.5px solid #1c1917;
-                    color: #1c1917;
+                    color: #ffffff;
                     font-weight: bold;
                 }
                 QRadioButton {
-                    color: #78716c;
+                    color: #64748b;
                     spacing: 6px;
-                    font-size: 10pt;
-                    background-color: rgba(0, 0, 0, 0.02);
-                    border: 1px solid rgba(0, 0, 0, 0.05);
-                    border-radius: 12px;
+                    font-size: 12px;
+                    background-color: #ffffff;
+                    border: 1px solid #cbd5e1;
+                    border-radius: 8px;
                     padding: 8px 14px;
                     font-weight: 500;
                 }
@@ -836,43 +877,74 @@ class ShutdownTimerApp(QMainWindow):
                     height: 0px;
                 }
                 QRadioButton:hover {
-                    border-color: rgba(0, 0, 0, 0.15);
-                    color: #1c1917;
+                    border-color: #94a3b8;
+                    color: #0f172a;
                 }
                 QRadioButton:checked {
-                    background-color: rgba(0, 0, 0, 0.08);
-                    border-color: rgba(0, 0, 0, 0.3);
-                    color: #1c1917;
+                    color: #0f172a;
                     font-weight: bold;
+                }
+                AnimatedButton#presetCard, QPushButton#presetCard {
+                    background-color: #ffffff;
+                    border: 1px solid #cbd5e1;
+                    border-radius: 16px;
+                    color: #0f172a;
+                }
+                AnimatedButton#presetCard[hovered="true"], QPushButton#presetCard:hover {
+                    background-color: #f8fafc;
+                    border-color: #94a3b8;
+                }
+                AnimatedButton#presetCard[pressed_state="true"], QPushButton#presetCard:pressed {
+                    background-color: #f1f5f9;
+                }
+                #presetCard QLabel {
+                    background: transparent;
+                }
+                #presetIcon {
+                    font-size: 16px;
+                    background: transparent;
+                }
+                #presetValue {
+                    color: #0f172a;
+                    font-size: 15px;
+                    font-weight: bold;
+                    background: transparent;
+                }
+                #presetUnit {
+                    color: #64748b;
+                    font-size: 9pt;
+                    background: transparent;
                 }
                 AnimatedButton {
-                    background-color: rgba(0, 0, 0, 0.02);
-                    border: 1px solid rgba(0, 0, 0, 0.06);
-                    border-radius: 14px;
-                    padding: 10px 16px;
+                    background-color: #f1f5f9;
+                    border: 1px solid #cbd5e1;
+                    border-radius: 8px;
+                    padding: 8px 14px;
                     font-weight: bold;
                     font-size: 13px;
-                    color: #1c1917;
+                    color: #334155;
                 }
                 AnimatedButton[hovered="true"] {
-                    background-color: rgba(0, 0, 0, 0.05);
+                    background-color: #e2e8f0;
+                    border-color: #94a3b8;
+                    color: #0f172a;
                 }
                 AnimatedButton[pressed_state="true"] {
-                    background-color: rgba(0, 0, 0, 0.01);
-                    padding-top: 12px;
-                    padding-bottom: 8px;
+                    background-color: #cbd5e1;
+                    padding-top: 10px;
+                    padding-bottom: 6px;
                 }
                 AnimatedButton:disabled {
-                    background-color: rgba(0, 0, 0, 0.01);
-                    color: #a8a29e;
-                    border-color: rgba(0, 0, 0, 0.02);
+                    background-color: #f8fafc;
+                    color: #94a3b8;
+                    border-color: #e2e8f0;
                 }
                 QProgressBar {
-                    border: 1px solid rgba(0, 0, 0, 0.04);
+                    border: 1px solid #cbd5e1;
                     border-radius: 7px;
                     text-align: center;
-                    background-color: rgba(0, 0, 0, 0.05);
-                    color: #57534e;
+                    background-color: #e2e8f0;
+                    color: #0f172a;
                     font-weight: bold;
                     font-size: 10px;
                 }
@@ -880,118 +952,143 @@ class ShutdownTimerApp(QMainWindow):
                     border-radius: 5px;
                     margin: 1px;
                 }
+                QPushButton#themeButton {
+                    background-color: #ffffff;
+                    border: 1px solid #cbd5e1;
+                    border-radius: 8px;
+                    color: #0f172a;
+                    font-weight: 600;
+                    font-size: 10pt;
+                    padding: 4px 10px;
+                }
+                QPushButton#themeButton:hover {
+                    background-color: #f1f5f9;
+                    border-color: #94a3b8;
+                    color: #000000;
+                }
                 QCalendarWidget QWidget {
                     background-color: #ffffff;
-                    color: #1c1917;
+                    color: #0f172a;
                 }
                 QCalendarWidget QAbstractItemView:enabled {
                     background-color: #ffffff;
-                    color: #1c1917;
-                    selection-background-color: rgba(0, 0, 0, 0.06);
-                    selection-color: #000000;
+                    color: #0f172a;
+                    selection-background-color: #f1f5f9;
+                    selection-color: #0f172a;
                 }
                 QCalendarWidget QAbstractItemView:disabled {
-                    color: #a8a29e;
+                    color: #94a3b8;
                 }
-                #presetValue {
-                    color: #1c1917;
-                }
-                #presetUnit {
-                    color: #78716c;
-                }
-                #statusLabel {
-                    color: #78716c;
-                }
-                QPushButton#themeButton {
-                    background-color: rgba(0, 0, 0, 0.05);
-                    border: 1px solid rgba(0, 0, 0, 0.12);
-                    border-radius: 12px;
-                    color: #1c1917;
-                    font-weight: 600;
-                    font-size: 10pt;
-                }
-                QPushButton#themeButton:hover {
-                    background-color: rgba(0, 0, 0, 0.1);
-                    border-color: rgba(0, 0, 0, 0.2);
+                QCalendarWidget QSpinBox {
+                    background-color: #ffffff;
+                    color: #0f172a;
                 }
                 QMessageBox {
-                    background-color: #faf9f6;
-                    border: 1px solid rgba(0, 0, 0, 0.1);
-                    border-radius: 16px;
+                    background-color: #ffffff;
+                    border: 1px solid #cbd5e1;
+                    border-radius: 12px;
                 }
                 QMessageBox QLabel {
-                    color: #1c1917;
+                    color: #0f172a;
                     font-family: 'Segoe UI Variable Text', 'Segoe UI', -apple-system, sans-serif;
                     font-size: 11pt;
                 }
                 QMessageBox QPushButton {
-                    background-color: rgba(0, 0, 0, 0.04);
-                    border: 1px solid rgba(0, 0, 0, 0.08);
-                    border-radius: 10px;
+                    background-color: #f1f5f9;
+                    border: 1px solid #cbd5e1;
+                    border-radius: 8px;
                     padding: 6px 16px;
-                    color: #1c1917;
+                    color: #334155;
                     font-family: 'Segoe UI Variable Display', 'Segoe UI', -apple-system, sans-serif;
                     font-size: 10pt;
                     font-weight: bold;
                     min-width: 80px;
                 }
                 QMessageBox QPushButton:hover {
-                    background-color: rgba(0, 0, 0, 0.08);
-                    border-color: rgba(0, 0, 0, 0.15);
+                    background-color: #e2e8f0;
+                    border-color: #94a3b8;
+                    color: #0f172a;
                 }
                 QMessageBox QPushButton:pressed {
-                    background-color: rgba(0, 0, 0, 0.02);
+                    background-color: #cbd5e1;
                 }
             """
         else:
             base_style = """
-                QMainWindow {
-                    background-color: #050508;
+                QMainWindow, QWidget#centralWidget {
+                    background-color: #09090b;
                 }
                 QWidget {
                     color: #e4e4e7;
                     font-family: 'Segoe UI Variable Display', 'Segoe UI Variable Text', 'Segoe UI', -apple-system, sans-serif;
                     font-size: 11pt;
                 }
-                #bentoCard, #BentoCard {
-                    background-color: rgba(18, 18, 24, 0.45);
-                    border: 1px solid rgba(255, 255, 255, 0.12);
-                    border-radius: 18px;
+                QFrame#bentoCard, #bentoCard, #BentoCard {
+                    background-color: #18181b;
+                    border: 1px solid #27272a;
+                    border-radius: 12px;
                 }
-                #bentoCardTitle, #BentoCardTitle {
-                    color: rgba(161, 161, 170, 0.7);
+                QLabel#bentoCardTitle, #bentoCardTitle, #BentoCardTitle {
+                    color: #f4f4f5;
+                    font-size: 13px;
+                    font-weight: 600;
                     text-transform: uppercase;
                     letter-spacing: 0.5px;
-                    font-size: 8.5pt;
-                    font-weight: bold;
                     margin-bottom: 2px;
+                    background: transparent;
                 }
                 QLabel {
                     color: #e4e4e7;
                     background-color: transparent;
                 }
-                QComboBox, QDateTimeEdit, QSpinBox {
-                    background-color: rgba(255, 255, 255, 0.03);
-                    border: 1px solid rgba(255, 255, 255, 0.08);
-                    border-radius: 12px;
-                    padding: 6px 12px;
+                QLabel#appTitle {
                     color: #f4f4f5;
+                    font-size: 16px;
+                    font-weight: bold;
+                    background: transparent;
+                }
+                QLabel#statusLabel {
+                    color: #a1a1aa;
+                    font-size: 13px;
+                    background: transparent;
+                }
+                QLabel#timeUnitLabel {
+                    color: #a1a1aa;
+                    font-size: 11px;
+                    font-weight: 500;
+                    background: transparent;
+                }
+                QLabel#clockLabel {
+                    color: #e4e4e7;
+                    font-size: 13px;
+                    background: transparent;
+                }
+                QSpinBox, QComboBox, QDateTimeEdit {
+                    background-color: #27272a;
+                    border: 1px solid #3f3f46;
+                    color: #f4f4f5;
+                    border-radius: 6px;
+                    padding: 4px 8px;
+                    font-size: 13px;
                     min-width: 60px;
                 }
-                QComboBox:hover, QDateTimeEdit:hover, QSpinBox:hover {
-                    border-color: rgba(255, 255, 255, 0.18);
-                    background-color: rgba(255, 255, 255, 0.06);
+                QSpinBox:hover, QComboBox:hover, QDateTimeEdit:hover {
+                    border-color: #52525b;
+                    background-color: #2e2e33;
+                }
+                QSpinBox:focus, QComboBox:focus, QDateTimeEdit:focus {
+                    border-color: #71717a;
                 }
                 QComboBox::drop-down, QDateTimeEdit::drop-down {
                     border: none;
-                    width: 28px;
+                    width: 24px;
                 }
                 QComboBox::down-arrow, QDateTimeEdit::down-arrow {
                     image: none;
-                    border-left: 5px solid transparent;
-                    border-right: 5px solid transparent;
-                    border-top: 5px solid rgba(255, 255, 255, 0.6);
-                    margin-right: 8px;
+                    border-left: 4px solid transparent;
+                    border-right: 4px solid transparent;
+                    border-top: 5px solid #a1a1aa;
+                    margin-right: 6px;
                 }
                 QSpinBox::up-button, QSpinBox::down-button {
                     border: none;
@@ -1002,7 +1099,7 @@ class ShutdownTimerApp(QMainWindow):
                     image: none;
                     border-left: 4px solid transparent;
                     border-right: 4px solid transparent;
-                    border-bottom: 5px solid rgba(255, 255, 255, 0.7);
+                    border-bottom: 5px solid #a1a1aa;
                     width: 0;
                     height: 0;
                 }
@@ -1010,46 +1107,51 @@ class ShutdownTimerApp(QMainWindow):
                     image: none;
                     border-left: 4px solid transparent;
                     border-right: 4px solid transparent;
-                    border-top: 5px solid rgba(255, 255, 255, 0.7);
+                    border-top: 5px solid #a1a1aa;
                     width: 0;
                     height: 0;
                 }
+                QSpinBox::up-arrow:hover {
+                    border-bottom-color: #ffffff;
+                }
+                QSpinBox::down-arrow:hover {
+                    border-top-color: #ffffff;
+                }
                 QComboBox QAbstractItemView {
-                    background-color: #0d0d11;
-                    border: 1px solid rgba(255, 255, 255, 0.08);
-                    border-radius: 12px;
-                    padding: 6px;
-                    selection-background-color: rgba(255, 255, 255, 0.06);
+                    background-color: #18181b;
+                    border: 1px solid #3f3f46;
+                    border-radius: 8px;
+                    padding: 4px;
+                    color: #f4f4f5;
+                    selection-background-color: #27272a;
                     selection-color: #ffffff;
                     outline: none;
-                    color: #e4e4e7;
                 }
                 QPushButton#actionPill {
-                    background-color: rgba(255, 255, 255, 0.03);
-                    border: 1px solid rgba(255, 255, 255, 0.08);
-                    border-radius: 12px;
+                    background-color: #27272a;
+                    border: 1px solid #3f3f46;
+                    border-radius: 8px;
                     padding: 8px 12px;
                     color: #a1a1aa;
                     font-weight: 600;
+                    font-size: 13px;
                 }
                 QPushButton#actionPill:hover {
-                    background-color: rgba(255, 255, 255, 0.07);
-                    border-color: rgba(255, 255, 255, 0.2);
+                    background-color: #3f3f46;
+                    border-color: #52525b;
                     color: #f4f4f5;
                 }
                 QPushButton#actionPill:checked {
-                    background-color: rgba(255, 255, 255, 0.1);
-                    border: 1.5px solid #ffffff;
                     color: #ffffff;
                     font-weight: bold;
                 }
                 QRadioButton {
-                    color: #8a8a93;
+                    color: #a1a1aa;
                     spacing: 6px;
-                    font-size: 10pt;
-                    background-color: rgba(255, 255, 255, 0.02);
-                    border: 1px solid rgba(255, 255, 255, 0.05);
-                    border-radius: 12px;
+                    font-size: 12px;
+                    background-color: #27272a;
+                    border: 1px solid #3f3f46;
+                    border-radius: 8px;
                     padding: 8px 14px;
                     font-weight: 500;
                 }
@@ -1058,43 +1160,74 @@ class ShutdownTimerApp(QMainWindow):
                     height: 0px;
                 }
                 QRadioButton:hover {
-                    border-color: rgba(255, 255, 255, 0.15);
-                    color: #d1d1d6;
+                    border-color: #52525b;
+                    color: #f4f4f5;
                 }
                 QRadioButton:checked {
-                    background-color: rgba(255, 255, 255, 0.08);
-                    border-color: rgba(255, 255, 255, 0.3);
                     color: #ffffff;
                     font-weight: bold;
                 }
+                AnimatedButton#presetCard, QPushButton#presetCard {
+                    background-color: #27272a;
+                    border: 1px solid #3f3f46;
+                    border-radius: 16px;
+                    color: #f4f4f5;
+                }
+                AnimatedButton#presetCard[hovered="true"], QPushButton#presetCard:hover {
+                    background-color: #323238;
+                    border-color: #52525b;
+                }
+                AnimatedButton#presetCard[pressed_state="true"], QPushButton#presetCard:pressed {
+                    background-color: #1f1f23;
+                }
+                #presetCard QLabel {
+                    background: transparent;
+                }
+                #presetIcon {
+                    font-size: 16px;
+                    background: transparent;
+                }
+                #presetValue {
+                    color: #f4f4f5;
+                    font-size: 15px;
+                    font-weight: bold;
+                    background: transparent;
+                }
+                #presetUnit {
+                    color: #a1a1aa;
+                    font-size: 9pt;
+                    background: transparent;
+                }
                 AnimatedButton {
-                    background-color: rgba(255, 255, 255, 0.03);
-                    border: 1px solid rgba(255, 255, 255, 0.06);
-                    border-radius: 14px;
-                    padding: 10px 16px;
+                    background-color: #27272a;
+                    border: 1px solid #3f3f46;
+                    border-radius: 8px;
+                    padding: 8px 14px;
                     font-weight: bold;
                     font-size: 13px;
                     color: #e4e4e7;
                 }
                 AnimatedButton[hovered="true"] {
-                    background-color: rgba(255, 255, 255, 0.06);
+                    background-color: #3f3f46;
+                    border-color: #52525b;
+                    color: #ffffff;
                 }
                 AnimatedButton[pressed_state="true"] {
-                    background-color: rgba(255, 255, 255, 0.01);
-                    padding-top: 12px;
-                    padding-bottom: 8px;
+                    background-color: #1f1f23;
+                    padding-top: 10px;
+                    padding-bottom: 6px;
                 }
                 AnimatedButton:disabled {
-                    background-color: rgba(255, 255, 255, 0.01);
+                    background-color: #1f1f23;
                     color: #52525b;
-                    border-color: rgba(255, 255, 255, 0.02);
+                    border-color: #27272a;
                 }
                 QProgressBar {
-                    border: 1px solid rgba(255, 255, 255, 0.04);
+                    border: 1px solid #3f3f46;
                     border-radius: 7px;
                     text-align: center;
-                    background-color: rgba(0, 0, 0, 0.4);
-                    color: #a1a1aa;
+                    background-color: #27272a;
+                    color: #f4f4f5;
                     font-weight: bold;
                     font-size: 10px;
                 }
@@ -1102,67 +1235,64 @@ class ShutdownTimerApp(QMainWindow):
                     border-radius: 5px;
                     margin: 1px;
                 }
+                QPushButton#themeButton {
+                    background-color: #27272a;
+                    border: 1px solid #3f3f46;
+                    border-radius: 8px;
+                    color: #f4f4f5;
+                    font-weight: 600;
+                    font-size: 10pt;
+                    padding: 4px 10px;
+                }
+                QPushButton#themeButton:hover {
+                    background-color: #3f3f46;
+                    border-color: #52525b;
+                    color: #ffffff;
+                }
                 QCalendarWidget QWidget {
-                    background-color: #0d0d11;
-                    color: #e4e4e7;
+                    background-color: #18181b;
+                    color: #f4f4f5;
                 }
                 QCalendarWidget QAbstractItemView:enabled {
-                    background-color: #0d0d11;
-                    color: #e4e4e7;
-                    selection-background-color: rgba(255, 255, 255, 0.08);
+                    background-color: #18181b;
+                    color: #f4f4f5;
+                    selection-background-color: #27272a;
                     selection-color: #ffffff;
                 }
                 QCalendarWidget QAbstractItemView:disabled {
                     color: #52525b;
                 }
-                #presetValue {
+                QCalendarWidget QSpinBox {
+                    background-color: #27272a;
                     color: #f4f4f5;
                 }
-                #presetUnit {
-                    color: #a1a1aa;
-                }
-                #statusLabel {
-                    color: #a1a1aa;
-                }
-                QPushButton#themeButton {
-                    background-color: rgba(255, 255, 255, 0.06);
-                    border: 1px solid rgba(255, 255, 255, 0.16);
-                    border-radius: 12px;
-                    color: #e4e4e7;
-                    font-weight: 600;
-                    font-size: 10pt;
-                }
-                QPushButton#themeButton:hover {
-                    background-color: rgba(255, 255, 255, 0.12);
-                    border-color: rgba(255, 255, 255, 0.25);
-                }
                 QMessageBox {
-                    background-color: #0d0d11;
-                    border: 1px solid rgba(255, 255, 255, 0.12);
-                    border-radius: 16px;
+                    background-color: #18181b;
+                    border: 1px solid #3f3f46;
+                    border-radius: 12px;
                 }
                 QMessageBox QLabel {
-                    color: #e4e4e7;
+                    color: #f4f4f5;
                     font-family: 'Segoe UI Variable Text', 'Segoe UI', -apple-system, sans-serif;
                     font-size: 11pt;
                 }
                 QMessageBox QPushButton {
-                    background-color: rgba(255, 255, 255, 0.05);
-                    border: 1px solid rgba(255, 255, 255, 0.1);
-                    border-radius: 10px;
+                    background-color: #27272a;
+                    border: 1px solid #3f3f46;
+                    border-radius: 8px;
                     padding: 6px 16px;
-                    color: #e4e4e7;
+                    color: #f4f4f5;
                     font-family: 'Segoe UI Variable Display', 'Segoe UI', -apple-system, sans-serif;
                     font-size: 10pt;
                     font-weight: bold;
                     min-width: 80px;
                 }
                 QMessageBox QPushButton:hover {
-                    background-color: rgba(255, 255, 255, 0.1);
-                    border-color: rgba(255, 255, 255, 0.2);
+                    background-color: #3f3f46;
+                    border-color: #52525b;
                 }
                 QMessageBox QPushButton:pressed {
-                    background-color: rgba(255, 255, 255, 0.02);
+                    background-color: #1f1f23;
                 }
             """
         self.setStyleSheet(base_style)
@@ -1204,29 +1334,34 @@ class ShutdownTimerApp(QMainWindow):
 
             dynamic_style = f"""
                 QMainWindow {{
-                    background: qradialgradient(cx:0.5, cy:0.5, radius:1.0, fx:0.5, fy:0.5,
-                        stop:0 #faf9f6,
+                    background: qradialgradient(cx:0.5, cy:0.3, radius:1.0, fx:0.5, fy:0.3,
+                        stop:0 #f8fafc,
                         stop:1 {bg_end});
                 }}
-                #bentoCard, #BentoCard {{
-                    border-color: rgba({self.hex_to_rgb(primary)}, 0.12);
+                QFrame#bentoCard, #bentoCard, #BentoCard {{
+                    border-color: rgba({self.hex_to_rgb(primary)}, 0.18);
                 }}
                 QComboBox::down-arrow, QDateTimeEdit::down-arrow {{
                     border-top-color: {primary};
                 }}
-                QPushButton#actionPill:checked {{
-                    background-color: rgba({self.hex_to_rgb(primary)}, 0.14);
-                    border: 1.5px solid {primary};
-                    color: #1c1917;
+                QPushButton#actionPill:checked, QPushButton#actionPillActive {{
+                    background-color: {primary};
+                    border: 1px solid {primary};
+                    color: #ffffff;
                     font-weight: bold;
+                }}
+                QPushButton#actionPill:checked:hover, QPushButton#actionPillActive:hover {{
+                    background-color: {secondary};
+                    border-color: {secondary};
+                    color: #ffffff;
                 }}
                 QRadioButton:checked {{
                     background-color: rgba({self.hex_to_rgb(primary)}, 0.12);
-                    border-color: rgba({self.hex_to_rgb(primary)}, 0.5);
-                    color: #000000;
+                    border: 1.5px solid {primary};
+                    color: #0f172a;
                     font-weight: bold;
                 }}
-                QProgressBar::chunk {{
+                QProgressBar#progressBar::chunk, QProgressBar::chunk {{
                     background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
                         stop:0 {primary},
                         stop:1 {secondary});
@@ -1234,89 +1369,113 @@ class ShutdownTimerApp(QMainWindow):
             """
 
             preset_btn_style = f"""
-                AnimatedButton {{
-                    background-color: rgba(255, 255, 255, 0.8);
-                    border: 1px solid rgba(0, 0, 0, 0.05);
-                    border-radius: 14px;
+                AnimatedButton#presetCard, QPushButton#presetCard {{
+                    background-color: #ffffff;
+                    border: 1px solid #cbd5e1;
+                    border-radius: 16px;
                 }}
-                AnimatedButton[hovered="true"] {{
-                    background-color: rgba({self.hex_to_rgb(primary)}, 0.06);
-                    border-color: rgba({self.hex_to_rgb(primary)}, 0.35);
+                AnimatedButton#presetCard[hovered="true"], QPushButton#presetCard:hover {{
+                    background-color: rgba({self.hex_to_rgb(primary)}, 0.05);
+                    border-color: {primary};
                 }}
-                AnimatedButton[pressed_state="true"] {{
-                    background-color: rgba({self.hex_to_rgb(primary)}, 0.02);
+                AnimatedButton#presetCard[pressed_state="true"], QPushButton#presetCard:pressed {{
+                    background-color: rgba({self.hex_to_rgb(primary)}, 0.1);
+                }}
+                #presetCard QLabel {{
+                    background: transparent;
+                }}
+                #presetIcon {{
+                    font-size: 16px;
+                    background: transparent;
+                }}
+                #presetValue {{
+                    color: #0f172a;
+                    font-size: 15px;
+                    font-weight: bold;
+                    background: transparent;
+                }}
+                #presetUnit {{
+                    color: #64748b;
+                    font-size: 9pt;
+                    background: transparent;
                 }}
             """
 
             start_btn_style = f"""
-                AnimatedButton {{
+                QPushButton#startButton, AnimatedButton#startButton, AnimatedButton {{
                     background-color: {primary};
                     border: 1px solid {primary};
-                    border-radius: 12px;
+                    border-radius: 8px;
                     font-weight: bold;
                     font-size: 14px;
                     color: #ffffff;
+                    padding: 10px 16px;
                 }}
-                AnimatedButton[hovered="true"] {{
+                QPushButton#startButton:hover, AnimatedButton#startButton[hovered="true"], AnimatedButton[hovered="true"] {{
                     background-color: {secondary};
                     border-color: {secondary};
+                    color: #ffffff;
                 }}
-                AnimatedButton[pressed_state="true"] {{
+                QPushButton#startButton:pressed, AnimatedButton#startButton[pressed_state="true"], AnimatedButton[pressed_state="true"] {{
                     background-color: {accent};
                     border-color: {accent};
                     padding-top: 12px;
                     padding-bottom: 8px;
+                    color: #ffffff;
                 }}
-                AnimatedButton:disabled {{
-                    background-color: rgba(0, 0, 0, 0.05);
-                    color: #a8a29e;
-                    border-color: rgba(0, 0, 0, 0.08);
+                QPushButton#startButton:disabled, AnimatedButton#startButton:disabled, AnimatedButton:disabled {{
+                    background-color: #e2e8f0;
+                    color: #94a3b8;
+                    border: 1px solid #cbd5e1;
                 }}
             """
 
             cancel_btn_style = f"""
-                AnimatedButton {{
-                    background-color: rgba(239, 68, 68, 0.05);
-                    border: 1px solid rgba(239, 68, 68, 0.15);
-                    border-radius: 12px;
+                QPushButton#cancelButton, AnimatedButton#cancelButton, AnimatedButton {{
+                    background-color: rgba(220, 38, 38, 0.08);
+                    border: 1px solid rgba(220, 38, 38, 0.25);
+                    border-radius: 8px;
                     font-weight: bold;
                     font-size: 13px;
-                    color: #ef4444;
+                    color: #dc2626;
+                    padding: 8px 14px;
                 }}
-                AnimatedButton[hovered="true"] {{
-                    background-color: rgba(239, 68, 68, 0.12);
-                    border-color: rgba(239, 68, 68, 0.25);
+                QPushButton#cancelButton:hover, AnimatedButton#cancelButton[hovered="true"], AnimatedButton[hovered="true"] {{
+                    background-color: rgba(220, 38, 38, 0.16);
+                    border-color: rgba(220, 38, 38, 0.45);
+                    color: #b91c1c;
                 }}
-                AnimatedButton[pressed_state="true"] {{
-                    background-color: rgba(239, 68, 68, 0.03);
-                    padding-top: 12px;
-                    padding-bottom: 8px;
+                QPushButton#cancelButton:pressed, AnimatedButton#cancelButton[pressed_state="true"], AnimatedButton[pressed_state="true"] {{
+                    background-color: rgba(220, 38, 38, 0.04);
+                    padding-top: 10px;
+                    padding-bottom: 6px;
                 }}
-                AnimatedButton:disabled {{
-                    background-color: rgba(0, 0, 0, 0.01);
-                    color: #a8a29e;
-                    border-color: rgba(0, 0, 0, 0.02);
+                QPushButton#cancelButton:disabled, AnimatedButton#cancelButton:disabled, AnimatedButton:disabled {{
+                    background-color: #f8fafc;
+                    color: #94a3b8;
+                    border: 1px solid #e2e8f0;
                 }}
             """
 
             clear_btn_style = f"""
-                AnimatedButton {{
-                    background-color: rgba(0, 0, 0, 0.02);
-                    border: 1px solid rgba(0, 0, 0, 0.06);
-                    border-radius: 12px;
+                QPushButton#clearButton, AnimatedButton#clearButton, AnimatedButton {{
+                    background-color: #f1f5f9;
+                    border: 1px solid #cbd5e1;
+                    border-radius: 8px;
                     font-weight: bold;
                     font-size: 13px;
-                    color: #78716c;
+                    color: #334155;
+                    padding: 8px 14px;
                 }}
-                AnimatedButton[hovered="true"] {{
-                    background-color: rgba(0, 0, 0, 0.05);
-                    border-color: rgba(0, 0, 0, 0.12);
-                    color: #1c1917;
+                QPushButton#clearButton:hover, AnimatedButton#clearButton[hovered="true"], AnimatedButton[hovered="true"] {{
+                    background-color: #e2e8f0;
+                    border-color: #94a3b8;
+                    color: #0f172a;
                 }}
-                AnimatedButton[pressed_state="true"] {{
-                    background-color: rgba(0, 0, 0, 0.01);
-                    padding-top: 12px;
-                    padding-bottom: 8px;
+                QPushButton#clearButton:pressed, AnimatedButton#clearButton[pressed_state="true"], AnimatedButton[pressed_state="true"] {{
+                    background-color: #cbd5e1;
+                    padding-top: 10px;
+                    padding-bottom: 6px;
                 }}
             """
         else:
@@ -1328,29 +1487,34 @@ class ShutdownTimerApp(QMainWindow):
 
             dynamic_style = f"""
                 QMainWindow {{
-                    background: qradialgradient(cx:0.5, cy:0.5, radius:1.0, fx:0.5, fy:0.5,
-                        stop:0 #050508,
+                    background: qradialgradient(cx:0.5, cy:0.3, radius:1.0, fx:0.5, fy:0.3,
+                        stop:0 #09090b,
                         stop:1 {bg_end});
                 }}
-                #bentoCard, #BentoCard {{
+                QFrame#bentoCard, #bentoCard, #BentoCard {{
                     border-color: rgba({self.hex_to_rgb(primary)}, 0.25);
                 }}
                 QComboBox::down-arrow, QDateTimeEdit::down-arrow {{
                     border-top-color: {primary};
                 }}
-                QPushButton#actionPill:checked {{
+                QPushButton#actionPill:checked, QPushButton#actionPillActive {{
+                    background-color: {primary};
+                    border: 1px solid {primary};
+                    color: #ffffff;
+                    font-weight: bold;
+                }}
+                QPushButton#actionPill:checked:hover, QPushButton#actionPillActive:hover {{
+                    background-color: {secondary};
+                    border-color: {secondary};
+                    color: #ffffff;
+                }}
+                QRadioButton:checked {{
                     background-color: rgba({self.hex_to_rgb(primary)}, 0.2);
                     border: 1.5px solid {primary};
                     color: #ffffff;
                     font-weight: bold;
                 }}
-                QRadioButton:checked {{
-                    background-color: rgba({self.hex_to_rgb(primary)}, 0.15);
-                    border-color: rgba({self.hex_to_rgb(primary)}, 0.5);
-                    color: #ffffff;
-                    font-weight: bold;
-                }}
-                QProgressBar::chunk {{
+                QProgressBar#progressBar::chunk, QProgressBar::chunk {{
                     background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
                         stop:0 {primary},
                         stop:1 {secondary});
@@ -1358,89 +1522,113 @@ class ShutdownTimerApp(QMainWindow):
             """
 
             preset_btn_style = f"""
-                AnimatedButton {{
-                    background-color: rgba(255, 255, 255, 0.02);
-                    border: 1px solid rgba(255, 255, 255, 0.04);
-                    border-radius: 14px;
+                AnimatedButton#presetCard, QPushButton#presetCard {{
+                    background-color: #27272a;
+                    border: 1px solid #3f3f46;
+                    border-radius: 16px;
                 }}
-                AnimatedButton[hovered="true"] {{
-                    background-color: rgba({self.hex_to_rgb(primary)}, 0.05);
-                    border-color: rgba({self.hex_to_rgb(primary)}, 0.3);
+                AnimatedButton#presetCard[hovered="true"], QPushButton#presetCard:hover {{
+                    background-color: #323238;
+                    border-color: {primary};
                 }}
-                AnimatedButton[pressed_state="true"] {{
-                    background-color: rgba({self.hex_to_rgb(primary)}, 0.02);
+                AnimatedButton#presetCard[pressed_state="true"], QPushButton#presetCard:pressed {{
+                    background-color: #1f1f23;
+                }}
+                #presetCard QLabel {{
+                    background: transparent;
+                }}
+                #presetIcon {{
+                    font-size: 16px;
+                    background: transparent;
+                }}
+                #presetValue {{
+                    color: #f4f4f5;
+                    font-size: 15px;
+                    font-weight: bold;
+                    background: transparent;
+                }}
+                #presetUnit {{
+                    color: #a1a1aa;
+                    font-size: 9pt;
+                    background: transparent;
                 }}
             """
 
             start_btn_style = f"""
-                AnimatedButton {{
+                QPushButton#startButton, AnimatedButton#startButton, AnimatedButton {{
                     background-color: {primary};
                     border: 1px solid {primary};
-                    border-radius: 12px;
+                    border-radius: 8px;
                     font-weight: bold;
                     font-size: 14px;
-                    color: #050508;
+                    color: #ffffff;
+                    padding: 10px 16px;
                 }}
-                AnimatedButton[hovered="true"] {{
+                QPushButton#startButton:hover, AnimatedButton#startButton[hovered="true"], AnimatedButton[hovered="true"] {{
                     background-color: {secondary};
                     border-color: {secondary};
+                    color: #ffffff;
                 }}
-                AnimatedButton[pressed_state="true"] {{
+                QPushButton#startButton:pressed, AnimatedButton#startButton[pressed_state="true"], AnimatedButton[pressed_state="true"] {{
                     background-color: {accent};
                     border-color: {accent};
                     padding-top: 12px;
                     padding-bottom: 8px;
+                    color: #ffffff;
                 }}
-                AnimatedButton:disabled {{
-                    background-color: rgba(255, 255, 255, 0.03);
+                QPushButton#startButton:disabled, AnimatedButton#startButton:disabled, AnimatedButton:disabled {{
+                    background-color: #27272a;
                     color: #52525b;
-                    border-color: rgba(255, 255, 255, 0.06);
+                    border: 1px solid #3f3f46;
                 }}
             """
 
             cancel_btn_style = f"""
-                AnimatedButton {{
-                    background-color: rgba(239, 68, 68, 0.08);
-                    border: 1px solid rgba(239, 68, 68, 0.15);
-                    border-radius: 12px;
+                QPushButton#cancelButton, AnimatedButton#cancelButton, AnimatedButton {{
+                    background-color: rgba(239, 68, 68, 0.12);
+                    border: 1px solid rgba(239, 68, 68, 0.35);
+                    border-radius: 8px;
                     font-weight: bold;
                     font-size: 13px;
-                    color: #ef4444;
+                    color: #f87171;
+                    padding: 8px 14px;
                 }}
-                AnimatedButton[hovered="true"] {{
-                    background-color: rgba(239, 68, 68, 0.16);
-                    border-color: rgba(239, 68, 68, 0.3);
+                QPushButton#cancelButton:hover, AnimatedButton#cancelButton[hovered="true"], AnimatedButton[hovered="true"] {{
+                    background-color: rgba(239, 68, 68, 0.22);
+                    border-color: rgba(239, 68, 68, 0.55);
+                    color: #fca5a5;
                 }}
-                AnimatedButton[pressed_state="true"] {{
-                    background-color: rgba(239, 68, 68, 0.05);
-                    padding-top: 12px;
-                    padding-bottom: 8px;
+                QPushButton#cancelButton:pressed, AnimatedButton#cancelButton[pressed_state="true"], AnimatedButton[pressed_state="true"] {{
+                    background-color: rgba(239, 68, 68, 0.08);
+                    padding-top: 10px;
+                    padding-bottom: 6px;
                 }}
-                AnimatedButton:disabled {{
-                    background-color: rgba(255, 255, 255, 0.01);
+                QPushButton#cancelButton:disabled, AnimatedButton#cancelButton:disabled, AnimatedButton:disabled {{
+                    background-color: #1f1f23;
                     color: #52525b;
-                    border-color: rgba(255, 255, 255, 0.02);
+                    border: 1px solid #27272a;
                 }}
             """
 
             clear_btn_style = f"""
-                AnimatedButton {{
-                    background-color: rgba(255, 255, 255, 0.02);
-                    border: 1px solid rgba(255, 255, 255, 0.06);
-                    border-radius: 12px;
+                QPushButton#clearButton, AnimatedButton#clearButton, AnimatedButton {{
+                    background-color: #27272a;
+                    border: 1px solid #3f3f46;
+                    border-radius: 8px;
                     font-weight: bold;
                     font-size: 13px;
-                    color: #a1a1aa;
+                    color: #e4e4e7;
+                    padding: 8px 14px;
                 }}
-                AnimatedButton[hovered="true"] {{
-                    background-color: rgba(255, 255, 255, 0.06);
-                    border-color: rgba(255, 255, 255, 0.15);
-                    color: #f4f4f5;
+                QPushButton#clearButton:hover, AnimatedButton#clearButton[hovered="true"], AnimatedButton[hovered="true"] {{
+                    background-color: #3f3f46;
+                    border-color: #52525b;
+                    color: #ffffff;
                 }}
-                AnimatedButton[pressed_state="true"] {{
-                    background-color: rgba(255, 255, 255, 0.02);
-                    padding-top: 12px;
-                    padding-bottom: 8px;
+                QPushButton#clearButton:pressed, AnimatedButton#clearButton[pressed_state="true"], AnimatedButton[pressed_state="true"] {{
+                    background-color: #222226;
+                    padding-top: 10px;
+                    padding-bottom: 6px;
                 }}
             """
 
