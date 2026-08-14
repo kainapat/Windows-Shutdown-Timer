@@ -733,7 +733,7 @@ class ShutdownTimerApp(QMainWindow):
         if self.current_theme_mode == "light":
             base_style = """
                 QMainWindow, QWidget#centralWidget {
-                    background-color: #f8fafc;
+                    background-color: #e9edf0;
                 }
                 QWidget {
                     color: #334155;
@@ -741,8 +741,8 @@ class ShutdownTimerApp(QMainWindow):
                     font-size: 11pt;
                 }
                 QFrame#bentoCard, #bentoCard, #BentoCard {
-                    background-color: #ffffff;
-                    border: 1px solid #e2e8f0;
+                    background-color: #f8fafc;
+                    border: 1px solid #d1d5db;
                     border-radius: 12px;
                 }
                 QLabel#bentoCardTitle, #bentoCardTitle, #BentoCardTitle {
@@ -791,7 +791,7 @@ class ShutdownTimerApp(QMainWindow):
                 }
                 QSpinBox:hover, QComboBox:hover, QDateTimeEdit:hover {
                     border-color: #94a3b8;
-                    background-color: #f8fafc;
+                    background-color: #ffffff;
                 }
                 QSpinBox:focus, QComboBox:focus, QDateTimeEdit:focus {
                     border-color: #64748b;
@@ -840,12 +840,12 @@ class ShutdownTimerApp(QMainWindow):
                     border-radius: 8px;
                     padding: 4px;
                     color: #0f172a;
-                    selection-background-color: #f1f5f9;
+                    selection-background-color: #e2e8f0;
                     selection-color: #0f172a;
                     outline: none;
                 }
                 QPushButton#actionPill {
-                    background-color: #f1f5f9;
+                    background-color: #e2e8f0;
                     border: 1px solid #cbd5e1;
                     border-radius: 8px;
                     padding: 8px 12px;
@@ -854,7 +854,7 @@ class ShutdownTimerApp(QMainWindow):
                     font-size: 13px;
                 }
                 QPushButton#actionPill:hover {
-                    background-color: #e2e8f0;
+                    background-color: #cbd5e1;
                     border-color: #94a3b8;
                     color: #0f172a;
                 }
@@ -863,10 +863,10 @@ class ShutdownTimerApp(QMainWindow):
                     font-weight: bold;
                 }
                 QRadioButton {
-                    color: #64748b;
+                    color: #475569;
                     spacing: 6px;
                     font-size: 12px;
-                    background-color: #ffffff;
+                    background-color: #f1f5f9;
                     border: 1px solid #cbd5e1;
                     border-radius: 8px;
                     padding: 8px 14px;
@@ -879,23 +879,25 @@ class ShutdownTimerApp(QMainWindow):
                 QRadioButton:hover {
                     border-color: #94a3b8;
                     color: #0f172a;
+                    background-color: #e2e8f0;
                 }
                 QRadioButton:checked {
                     color: #0f172a;
                     font-weight: bold;
+                    background-color: #ffffff;
                 }
                 AnimatedButton#presetCard, QPushButton#presetCard {
                     background-color: #ffffff;
-                    border: 1px solid #cbd5e1;
+                    border: 1px solid #d1d5db;
                     border-radius: 16px;
                     color: #0f172a;
                 }
                 AnimatedButton#presetCard[hovered="true"], QPushButton#presetCard:hover {
-                    background-color: #f8fafc;
+                    background-color: #f1f5f9;
                     border-color: #94a3b8;
                 }
                 AnimatedButton#presetCard[pressed_state="true"], QPushButton#presetCard:pressed {
-                    background-color: #f1f5f9;
+                    background-color: #e2e8f0;
                 }
                 #presetCard QLabel {
                     background: transparent;
