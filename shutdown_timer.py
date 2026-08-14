@@ -73,39 +73,43 @@ logger.addHandler(_handler)
 ACTION_COLORS = {
     0: {  # Shutdown - Red Accent
         "name": "shutdown",
-        "primary": "#ff5277",
-        "secondary": "#ff94ab",
-        "accent": "#ff2a54",
+        "primary": "#ff3b5c",
+        "secondary": "#ff8599",
+        "accent": "#e6002e",
         "bg_gradient_end": "#18060a",
-        "progress": "#ff5277",
+        "progress": "#ff3b5c",
         "icon": "🔌",
+        "label": "ปิดเครื่อง",
     },
     1: {  # Restart - Orange Accent
         "name": "restart",
-        "primary": "#ff9130",
-        "secondary": "#ffc28d",
-        "accent": "#e07310",
+        "primary": "#ff9500",
+        "secondary": "#ffc470",
+        "accent": "#d67d00",
         "bg_gradient_end": "#180c05",
-        "progress": "#ff9130",
+        "progress": "#ff9500",
         "icon": "🔄",
+        "label": "รีสตาร์ท",
     },
     2: {  # Sleep - Blue Accent
         "name": "sleep",
-        "primary": "#3a86ff",
-        "secondary": "#8eb7ff",
-        "accent": "#1d63d8",
+        "primary": "#007aff",
+        "secondary": "#70b4ff",
+        "accent": "#0056b3",
         "bg_gradient_end": "#050c18",
-        "progress": "#3a86ff",
+        "progress": "#007aff",
         "icon": "😴",
+        "label": "พักเครื่อง",
     },
     3: {  # Hibernate - Purple Accent
         "name": "hibernate",
         "primary": "#a855f7",
         "secondary": "#d8b4fe",
         "accent": "#7e22ce",
-        "bg_gradient_end": "#0e0518",
+        "bg_gradient_end": "#120518",
         "progress": "#a855f7",
         "icon": "🌙",
+        "label": "จำศีล",
     },
 }
 
@@ -212,16 +216,17 @@ class BentoCard(QFrame):
 
     def __init__(self, title="", parent=None):
         super().__init__(parent)
-        self.setObjectName("BentoCard")
+        self.setObjectName("bentoCard")
         
         self.layout = QVBoxLayout(self)
         self.layout.setContentsMargins(16, 16, 16, 16)
-        self.layout.setSpacing(10)
+        self.layout.setSpacing(12)
 
         if title:
             self.title_label = QLabel(title)
-            self.title_label.setFont(QFont("Segoe UI Variable Display", 9, QFont.Bold))
-            self.title_label.setObjectName("BentoCardTitle")
+            self.title_label.setObjectName("bentoCardTitle")
+            font = QFont("Segoe UI Variable Display", 11, QFont.DemiBold)
+            self.title_label.setFont(font)
             self.layout.addWidget(self.title_label)
 
         shadow = QGraphicsDropShadowEffect(self)
@@ -676,12 +681,12 @@ class ShutdownTimerApp(QMainWindow):
                     font-family: 'Segoe UI Variable Display', 'Segoe UI Variable Text', 'Segoe UI', -apple-system, sans-serif;
                     font-size: 11pt;
                 }
-                #BentoCard {
+                #bentoCard, #BentoCard {
                     background-color: rgba(255, 255, 255, 0.75);
                     border: 1px solid rgba(0, 0, 0, 0.05);
                     border-radius: 20px;
                 }
-                #BentoCardTitle {
+                #bentoCardTitle, #BentoCardTitle {
                     color: rgba(120, 113, 108, 0.7);
                     text-transform: uppercase;
                     letter-spacing: 1px;
@@ -851,12 +856,12 @@ class ShutdownTimerApp(QMainWindow):
                     font-family: 'Segoe UI Variable Display', 'Segoe UI Variable Text', 'Segoe UI', -apple-system, sans-serif;
                     font-size: 11pt;
                 }
-                #BentoCard {
+                #bentoCard, #BentoCard {
                     background-color: rgba(18, 18, 24, 0.45);
                     border: 1px solid rgba(255, 255, 255, 0.12);
                     border-radius: 20px;
                 }
-                #BentoCardTitle {
+                #bentoCardTitle, #BentoCardTitle {
                     color: rgba(161, 161, 170, 0.6);
                     text-transform: uppercase;
                     letter-spacing: 1px;
@@ -1054,7 +1059,7 @@ class ShutdownTimerApp(QMainWindow):
                         stop:0 #faf9f6,
                         stop:1 {bg_end});
                 }}
-                #BentoCard {{
+                #bentoCard, #BentoCard {{
                     border-color: rgba({self.hex_to_rgb(primary)}, 0.12);
                 }}
                 QComboBox::down-arrow, QDateTimeEdit::down-arrow {{
@@ -1172,7 +1177,7 @@ class ShutdownTimerApp(QMainWindow):
                         stop:0 #050508,
                         stop:1 {bg_end});
                 }}
-                #BentoCard {{
+                #bentoCard, #BentoCard {{
                     border-color: rgba({self.hex_to_rgb(primary)}, 0.25);
                 }}
                 QComboBox::down-arrow, QDateTimeEdit::down-arrow {{
