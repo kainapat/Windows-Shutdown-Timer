@@ -6,7 +6,7 @@
   <h1>Windows Shutdown Timer</h1>
 
   <p>Schedule a shutdown, restart, sleep, or hibernate on Windows.<br/>
-  Built with Python and PySide6. No bloat. No background agents.</p>
+  Built with Python and PySide6. Bilingual Eng(TH) interface. No bloat. No background agents.</p>
 
   <br/>
 
@@ -42,21 +42,26 @@ Pick a power action and a time. The app schedules it and counts down. When the t
 
 | Mode | How it works |
 |---|---|
-| **Quick preset** | One click — 15 min, 30 min, 1 h, or 2 h from now |
-| **Specific time** | Pick a date and exact clock time |
-| **Countdown** | Set hours, minutes, seconds |
+| **Quick preset** | One click — 15 Min (15 นาที), 30 Min (30 นาที), 1 Hr (1 ชม.), or 2 Hrs (2 ชม.) from now |
+| **Clock (ระบุเวลาจริง)** | Pick a date and exact clock time using calendar popup |
+| **Timer (นับถอยหลัง)** | Set hours, minutes, and seconds (`hr`, `min`, `sec`) |
 
 **The interface**
 
-The UI features a **Simplified 3-Step Vertical Flow** designed with **Windows 11 Fluent Aesthetics**:
-1. **Hero Countdown Display (Top)**: High-contrast monospace digits (`00:00:00`), glowing progress bar, and real-time status text.
-2. **Step 1 — Select Action**: Quick segmented pill buttons for 🔌 Shutdown, 🔄 Restart, 😴 Sleep, or 🌙 Hibernate. Dynamic color accent shifts per action.
-3. **Step 2 — Set Time**: Elevated Quick Preset chips + Segmented mode switcher ("Count Down" vs "Exact Time") + Spinner numeric inputs.
-4. **Step 3 — System Controls**: Prominent Primary Action button + Cancel/Clear controls.
+The UI features a **Simplified 3-Step Vertical Flow** designed with **Windows 11 Fluent & Bento Aesthetics**:
+1. **Hero Countdown Display (Top)**: High-contrast monospace digits (`00:00:00`), live progress bar (`Remaining / เหลือ`), and real-time bilingual status indicator.
+2. **Step 1 — Select Action (เลือกการกระทำ)**: Segmented pill buttons for `Shutdown (ปิดเครื่อง)`, `Restart (รีสตาร์ท)`, `Sleep (พักเครื่อง)`, or `Hibernate (จำศีล)` with dynamic color accent switching.
+3. **Step 2 — Set Time (กำหนดเวลา)**: Elevated Quick Preset cards + Segmented mode switcher (`Timer / นับถอยหลัง` vs `Clock / ระบุเวลาจริง`) + Smooth sliding numerical inputs.
+4. **Step 3 — Controls (เริ่มการทำงาน)**: Prominent `▶ Start Countdown (เริ่มนับถอยหลัง)` button with `✕ Cancel (ยกเลิก)` and `↺ Reset (ล้างค่า)` controls.
 
-Available in both **Fluent Dark Mode** (Deep OLED black `#09090b`) and **Fluent Light Mode** (`#f8fafc`). Both modes deliver **100% WCAG AA text contrast** for effortless readability.
+**Themes & Typography**
 
-Everything is native PySide6. No web renderer, no Electron, no external service.
+- **Soft Slate Grey Light Mode**: Gentle, glare-free matte slate canvas (`#d8dce2`), soft cards (`#e8ecf1`), and crisp input borders to eliminate eye strain.
+- **Fluent Dark Mode**: Deep OLED black (`#09090b`) with refined dark grey cards (`#18181b`).
+- **Modern Loopless Typography**: Clean sans-serif font stack prioritizing **IBM Plex Sans Thai**, **Kanit**, **Leelawadee UI**, and **Segoe UI Variable Display**.
+- **Full Bilingual Eng(TH) Support**: English labels accompanied by clear Thai terminology across all cards, buttons, units, dialogs, and toast notifications.
+
+Everything is native PySide6. No web renderer, no Electron, no external background service.
 
 ---
 
@@ -78,14 +83,14 @@ A few reliability details: config is written atomically (temp file → rename) t
 
 ## Building a Standalone `.exe`
 
-The included PyInstaller spec bundles the icon assets. Run:
+The included PyInstaller spec bundles all icon assets into a single standalone executable. Run:
 
 ```bash
 pip install pyinstaller
 pyinstaller "Windows Shutdown Timer.spec" --clean
 ```
 
-Output lands at `dist/Windows Shutdown Timer.exe`. The icon (`off.ico`, six resolutions from 16 to 256 px) is embedded in the executable itself.
+Output lands at `dist/Windows Shutdown Timer.exe`. The multi-resolution icon (`off.ico`, resolutions from 16 to 256 px) is embedded directly inside the executable.
 
 ---
 
@@ -98,7 +103,7 @@ Windows Shutdown Timer/
 ├── off.png / off.ico             # App icon — source PNG and multi-res ICO
 ├── Windows Shutdown Timer.spec   # PyInstaller spec
 ├── timer_config.json             # Runtime — cleared on exit
-└── window_config.json            # Window size, position, and theme
+└── window_config.json            # Window size, position, and theme mode
 ```
 
 ---
@@ -106,6 +111,18 @@ Windows Shutdown Timer/
 ## Changelog
 
 <details open>
+<summary><strong>v2.1.0</strong> &nbsp;·&nbsp; August 2026 &nbsp;·&nbsp; <em>Soft Slate Grey Light Mode & Bilingual Loopless UI</em></summary>
+<br/>
+
+- **Soft Slate Grey Light Mode**: Overhauled Light Theme to a soft matte slate grey palette (`#d8dce2` canvas, `#e8ecf1` bento cards) to eliminate harsh white glare and eye strain.
+- **Modern Loopless Typography**: Integrated modern Thai loopless font hierarchy prioritizing `'IBM Plex Sans Thai'`, `'Kanit'`, `'Leelawadee UI'`, and `'Segoe UI Variable'`.
+- **Complete Eng(TH) Bilingual Layout**: Updated all UI card headers, action buttons, mode switches, time units, status messages, confirmation dialogs, and toast alerts to bilingual Eng(TH) format.
+- **Dynamic Action-Tinted Gradients**: Soft radial accents tuned specifically for both Light (Soft Slate) and Dark modes.
+- **Layout Robustness**: Added `QLayout.SetMinimumSize` constraint to guarantee responsive card sizing without widget overlap.
+
+</details>
+
+<details>
 <summary><strong>v2.0.0</strong> &nbsp;·&nbsp; August 2026 &nbsp;·&nbsp; <em>UX/UI Redesign & High Contrast Overhaul</em></summary>
 <br/>
 

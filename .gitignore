@@ -28,3 +28,6 @@ window_config.json
 Thumbs.db
 ehthumbs.db
 Desktop.ini
+
+# Scratch / Verification files
+scratch/
