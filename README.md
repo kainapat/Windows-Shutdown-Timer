@@ -94,6 +94,21 @@ Output lands at `dist/Windows Shutdown Timer.exe`. The multi-resolution icon (`o
 
 ---
 
+## Architecture & Diagrams
+
+The project includes four self-contained, accessible architecture diagrams located in the [`diagram/`](diagram/) directory:
+
+| Diagram | File | Description |
+|---|---|---|
+| **Component Diagram** | [`diagram/component-diagram.html`](diagram/component-diagram.html) | 3-Tier internal architecture (Presentation, Core Controller, OS & Storage) |
+| **Context Diagram (Level 0)** | [`diagram/context-diagram.html`](diagram/context-diagram.html) | System boundary and interaction with User, Windows OS, and Local Config |
+| **Data Flow Diagram (DFD)** | [`diagram/data-flow-diagram.html`](diagram/data-flow-diagram.html) | 5-stage data & state lifecycle across 4 architectural roles |
+| **Sequence Diagram** | [`diagram/sequence-diagram.html`](diagram/sequence-diagram.html) | Chronological request/response trace with `ALT` branching (completion vs cancel) |
+
+> Open any `.html` file in a web browser to view the diagram with full editorial styling and interactive accessibility.
+
+---
+
 ## Project Layout
 
 ```
@@ -103,7 +118,12 @@ Windows Shutdown Timer/
 ├── off.png / off.ico             # App icon — source PNG and multi-res ICO
 ├── Windows Shutdown Timer.spec   # PyInstaller spec
 ├── timer_config.json             # Runtime — cleared on exit
-└── window_config.json            # Window size, position, and theme mode
+├── window_config.json            # Window size, position, and theme mode
+└── diagram/                      # Standalone Architecture & System Diagrams (HTML)
+    ├── component-diagram.html    # 3-Tier Component Architecture
+    ├── context-diagram.html      # Level 0 System Context
+    ├── data-flow-diagram.html    # 5-Stage Data Flow Diagram (DFD)
+    └── sequence-diagram.html     # Execution & Cancellation Sequence
 ```
 
 ---
@@ -111,6 +131,16 @@ Windows Shutdown Timer/
 ## Changelog
 
 <details open>
+<summary><strong>v2.2.0</strong> &nbsp;·&nbsp; August 2026 &nbsp;·&nbsp; <em>Comprehensive Architecture & System Diagrams</em></summary>
+<br/>
+
+- **System Architecture Diagrams**: Added 4 interactive editorial diagrams (`Component`, `Context`, `Data Flow`, and `Sequence`) in [`diagram/`](diagram/) built with standalone Accessible SVG and 4px-grid alignment.
+- **Strict Specification Compliance**: All diagrams passed `diagram-design` taste gate with WCAG AA contrast and right-angle orthogonal routing.
+- **Git Hygiene**: Configured `.gitignore` to exclude local agent skills while tracking diagrams.
+
+</details>
+
+<details>
 <summary><strong>v2.1.0</strong> &nbsp;·&nbsp; August 2026 &nbsp;·&nbsp; <em>Soft Slate Grey Light Mode & Bilingual Loopless UI</em></summary>
 <br/>
 
