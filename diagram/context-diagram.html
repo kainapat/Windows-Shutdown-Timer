@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Windows Shutdown Timer · Context Diagram</title>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --color-paper: #f5f5f5; --color-paper-2: #ececec;
+      --color-ink: #2d3142; --color-muted: #4f5d75; --color-soft: #7a8399;
+      --color-rule: rgba(45,49,66,0.12);
+      --color-accent: #eb6c36; --color-accent-tint: rgba(235,108,54,0.08);
+      --color-link: #2e5aa8;
+      --font-sans: 'Geist', system-ui, sans-serif;
+      --font-serif: 'Instrument Serif', serif;
+      --font-mono: 'Geist Mono', ui-monospace, monospace;
+    }
+    body { font-family: var(--font-sans); background: var(--color-paper); min-height: 100vh; padding: 3rem 2rem; color: var(--color-ink); }
+    .container { max-width: 1200px; margin: 0 auto; }
+    .header { margin-bottom: 2.5rem; }
+    .header-eyebrow { font-family: var(--font-mono); font-size: 0.66rem; font-weight: 500; letter-spacing: 0.18em; text-transform: uppercase; color: var(--color-muted); margin-bottom: 0.75rem; }
+    h1 { font-family: var(--font-serif); font-size: clamp(1.75rem, 3vw + 1rem, 2.5rem); font-weight: 400; letter-spacing: -0.02em; line-height: 1.1; margin-bottom: 0.5rem; }
+    .subtitle { font-size: 1rem; line-height: 1.55; color: var(--color-muted); max-width: 68ch; }
+    .diagram-container { background: var(--color-paper-2); border-radius: 8px; border: 1px solid var(--color-rule); padding: 1.5rem; overflow-x: auto; }
+    svg { width: 100%; min-width: 960px; display: block; }
+    .cards { display: grid; grid-template-columns: 1.1fr 1fr 0.9fr; gap: 1rem; margin-top: 1.5rem; }
+    @media (max-width: 820px) { .cards { grid-template-columns: 1fr; } }
+    .card { background: #fff; border-radius: 6px; border: 1px solid var(--color-rule); padding: 1.25rem; }
+    .card .eyebrow { font-family: var(--font-mono); font-size: 0.5rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--color-muted); margin-bottom: 0.5rem; }
+    .card-header { display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.875rem; padding-bottom: 0.875rem; border-bottom: 1px solid rgba(45,49,66,0.08); }
+    .card-dot { width: 7px; height: 7px; border-radius: 50%; }
+    .card-dot.ink { background: var(--color-ink); } .card-dot.muted { background: var(--color-muted); } .card-dot.coral { background: var(--color-accent); }
+    .card h3 { font-size: 0.875rem; font-weight: 600; letter-spacing: -0.005em; }
+    .card p, .card ul { color: var(--color-muted); font-size: 0.8125rem; line-height: 1.55; list-style: none; }
+    .card li { margin-bottom: 0.3rem; padding-left: 0.875rem; position: relative; }
+    .card li::before { content: '—'; position: absolute; left: 0; color: rgba(45,49,66,0.25); font-size: 0.75rem; }
+    .footer { margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid rgba(45,49,66,0.10); font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.06em; color: var(--color-soft); display: flex; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <p class="header-eyebrow">Architecture · Context Diagram (Level 0)</p>
+      <h1>System Context &amp; External Boundaries</h1>
+      <p class="subtitle">Level 0 Context model illustrating the boundary of the Windows Shutdown Timer application and its high-level data and command exchanges with operators, the Windows OS subsystem, and persistent storage.</p>
+    </div>
+
+    <div class="diagram-container">
+      <svg viewBox="0 0 1060 520" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="context-diagram-title context-diagram-desc">
+        <title id="context-diagram-title">Windows Shutdown Timer Context Diagram</title>
+        <desc id="context-diagram-desc">System context diagram showing external actors interacting with Windows Shutdown Timer system boundary, Windows Power Subsystem, and Local Storage.</desc>
+        <defs>
+          <marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#4f5d75"/></marker>
+          <marker id="arrow-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#eb6c36"/></marker>
+          <marker id="arrow-link" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#2e5aa8"/></marker>
+        </defs>
+
+        <rect width="100%" height="100%" fill="#f5f5f5"/>
+
+        <!-- External Boundary Zone: Environment -->
+        <rect x="36" y="64" width="988" height="368" rx="8"
+              fill="rgba(45,49,66,0.02)" stroke="rgba(45,49,66,0.10)" stroke-width="0.8" stroke-dasharray="4,4"/>
+        <rect x="444" y="68" width="172" height="12" rx="2" fill="#f5f5f5"/>
+        <text x="530" y="77" fill="rgba(45,49,66,0.40)" font-size="7" font-family="'Geist Mono', monospace"
+              text-anchor="middle" letter-spacing="0.14em">DESKTOP RUNTIME ENVIRONMENT</text>
+
+        <!-- Connectors (drawn before nodes) -->
+        <!-- User -> System (Input / Triggers) -->
+        <line x1="200" y1="216" x2="388" y2="216" stroke="#2d3142" stroke-width="1.2" marker-end="url(#arrow)"/>
+        <!-- System -> User (Feedback / Display) -->
+        <line x1="388" y1="248" x2="200" y2="248" stroke="#4f5d75" stroke-width="1" stroke-dasharray="4,3" marker-end="url(#arrow)"/>
+
+        <!-- System -> Windows OS Subsystem -->
+        <path d="M 672,216 H 768 Q 776,216 776,208 V 164 Q 776,156 784,156 H 824"
+              fill="none" stroke="#eb6c36" stroke-width="1.4" marker-end="url(#arrow-accent)"/>
+
+        <!-- System -> Local Configuration Storage -->
+        <path d="M 672,248 H 768 Q 776,248 776,256 V 300 Q 776,308 784,308 H 824"
+              fill="none" stroke="#2e5aa8" stroke-width="1.2" marker-end="url(#arrow-link)"/>
+
+        <!-- Connector Labels -->
+        <rect x="244" y="196" width="100" height="12" rx="2" fill="#f5f5f5"/>
+        <text x="294" y="205" fill="#2d3142" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">ACTION &amp; SCHEDULE</text>
+
+        <rect x="244" y="258" width="100" height="12" rx="2" fill="#f5f5f5"/>
+        <text x="294" y="267" fill="#4f5d75" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">COUNTDOWN &amp; TOAST</text>
+
+        <rect x="732" y="146" width="76" height="12" rx="2" fill="#f5f5f5"/>
+        <text x="770" y="155" fill="#eb6c36" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">SHUTDOWN /A/S/R</text>
+
+        <rect x="732" y="318" width="76" height="12" rx="2" fill="#f5f5f5"/>
+        <text x="770" y="327" fill="#2e5aa8" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">CONFIG READ/WRITE</text>
+
+        <!-- Node 1: External Actor: User -->
+        <rect x="56" y="192" width="144" height="88" rx="6" fill="#f5f5f5"/>
+        <rect x="56" y="192" width="144" height="88" rx="6" fill="rgba(79,93,117,0.10)" stroke="#7a8399" stroke-width="1"/>
+        <rect x="64" y="200" width="32" height="12" rx="2" fill="transparent" stroke="rgba(122,131,153,0.40)" stroke-width="0.8"/>
+        <text x="80" y="209" fill="#7a8399" font-size="7" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">ACTOR</text>
+        <text x="128" y="234" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Desktop User</text>
+        <text x="128" y="252" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">Operator · Mouse/Touch</text>
+        <text x="128" y="268" fill="#7a8399" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle">GUI Interactions</text>
+
+        <!-- Central Focal System: Windows Shutdown Timer System Boundary -->
+        <rect x="388" y="160" width="284" height="144" rx="8" fill="#f5f5f5"/>
+        <rect x="388" y="160" width="284" height="144" rx="8" fill="rgba(235,108,54,0.08)" stroke="#eb6c36" stroke-width="1.4"/>
+        <rect x="396" y="168" width="44" height="12" rx="2" fill="transparent" stroke="rgba(235,108,54,0.50)" stroke-width="0.8"/>
+        <text x="418" y="177" fill="#eb6c36" font-size="7" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">SYSTEM</text>
+        <text x="660" y="292" fill="rgba(235,108,54,0.12)" font-size="28" font-weight="600" font-family="'Geist Mono', monospace" text-anchor="end">0.0</text>
+        <text x="530" y="214" fill="#2d3142" font-size="14" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Windows Shutdown Timer</text>
+        <text x="530" y="234" fill="#4f5d75" font-size="9.5" font-family="'Geist Mono', monospace" text-anchor="middle">PySide6 Desktop Application</text>
+        <text x="530" y="254" fill="#4f5d75" font-size="8.5" font-family="'Geist Mono', monospace" text-anchor="middle">3-Step Bento · State Engine</text>
+        <text x="530" y="272" fill="#eb6c36" font-size="8.5" font-family="'Geist Mono', monospace" text-anchor="middle">Context Boundary</text>
+
+        <!-- Node 3: External System: Windows Power Subsystem -->
+        <rect x="824" y="112" width="180" height="88" rx="6" fill="#f5f5f5"/>
+        <rect x="824" y="112" width="180" height="88" rx="6" fill="rgba(79,93,117,0.10)" stroke="#7a8399" stroke-width="1"/>
+        <rect x="832" y="120" width="28" height="12" rx="2" fill="transparent" stroke="rgba(122,131,153,0.40)" stroke-width="0.8"/>
+        <text x="846" y="129" fill="#7a8399" font-size="7" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">EXEC</text>
+        <text x="914" y="150" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Windows Subsystem</text>
+        <text x="914" y="168" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">shutdown.exe · powrprof</text>
+        <text x="914" y="184" fill="#7a8399" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle">OS Power Management</text>
+
+        <!-- Node 4: External Storage: Local Configuration Storage -->
+        <rect x="824" y="264" width="180" height="88" rx="6" fill="#f5f5f5"/>
+        <rect x="824" y="264" width="180" height="88" rx="6" fill="rgba(45,49,66,0.05)" stroke="#4f5d75" stroke-width="1"/>
+        <rect x="832" y="272" width="28" height="12" rx="2" fill="transparent" stroke="rgba(79,93,117,0.50)" stroke-width="0.8"/>
+        <text x="846" y="281" fill="#4f5d75" font-size="7" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">STORE</text>
+        <text x="914" y="302" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Local Storage</text>
+        <text x="914" y="320" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">timer_config.json</text>
+        <text x="914" y="336" fill="#7a8399" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle">window_config.json</text>
+
+        <!-- Legend Strip -->
+        <line x1="36" y1="452" x2="1024" y2="452" stroke="rgba(45,49,66,0.10)" stroke-width="0.8"/>
+        <text x="36" y="468" fill="#4f5d75" font-size="8" font-family="'Geist Mono', monospace" letter-spacing="0.18em">LEGEND</text>
+
+        <rect x="36" y="480" width="14" height="10" rx="2" fill="rgba(235,108,54,0.08)" stroke="#eb6c36" stroke-width="1"/>
+        <text x="56" y="488" fill="#4f5d75" font-size="8.5" font-family="'Geist', sans-serif">Core System Boundary</text>
+
+        <rect x="220" y="480" width="14" height="10" rx="2" fill="rgba(79,93,117,0.10)" stroke="#7a8399" stroke-width="1"/>
+        <text x="240" y="488" fill="#4f5d75" font-size="8.5" font-family="'Geist', sans-serif">External Actor / Subsystem</text>
+
+        <rect x="420" y="480" width="14" height="10" rx="2" fill="rgba(45,49,66,0.05)" stroke="#4f5d75" stroke-width="1"/>
+        <text x="440" y="488" fill="#4f5d75" font-size="8.5" font-family="'Geist', sans-serif">File Storage</text>
+
+        <line x1="570" y1="485" x2="598" y2="485" stroke="#eb6c36" stroke-width="1.4" marker-end="url(#arrow-accent)"/>
+        <text x="606" y="488" fill="#4f5d75" font-size="8.5" font-family="'Geist', sans-serif">OS Command Trigger</text>
+
+        <line x1="750" y1="485" x2="778" y2="485" stroke="#2e5aa8" stroke-width="1.2" marker-end="url(#arrow-link)"/>
+        <text x="786" y="488" fill="#4f5d75" font-size="8.5" font-family="'Geist', sans-serif">Atomic File I/O</text>
+
+        <line x1="900" y1="485" x2="928" y2="485" stroke="#4f5d75" stroke-width="1" stroke-dasharray="4,3" marker-end="url(#arrow)"/>
+        <text x="936" y="488" fill="#4f5d75" font-size="8.5" font-family="'Geist', sans-serif">Visual Feedback Loop</text>
+      </svg>
+    </div>
+
+    <div class="cards">
+      <div class="card">
+        <p class="eyebrow">OPERATOR BOUNDARY</p>
+        <div class="card-header"><span class="card-dot ink"></span><h3>User Interaction Loop</h3></div>
+        <p>The desktop operator initiates shutdown actions via preset chips or customized timers, receiving immediate visual countdown cues and animated toast alerts.</p>
+      </div>
+      <div class="card">
+        <p class="eyebrow">SYSTEM BOUNDARY</p>
+        <div class="card-header"><span class="card-dot coral"></span><h3>Windows Shutdown Timer</h3></div>
+        <p>A self-contained desktop system encapsulating the 3-step Bento UI, 1-second interval ticking engine, and safety verification guards (72h duration cap).</p>
+      </div>
+      <div class="card">
+        <p class="eyebrow">ENVIRONMENT</p>
+        <div class="card-header"><span class="card-dot muted"></span><h3>Windows Native &amp; Disk</h3></div>
+        <p>Delegates actual power actions to the OS executable layer while maintaining atomic JSON configuration state across restarts and crashes.</p>
+      </div>
+    </div>
+
+    <div class="footer">
+      <span>Windows Shutdown Timer · Context Diagram</span>
+      <span>Level 0 Architecture · PySide6 Desktop Integration</span>
+    </div>
+  </div>
+</body>
+</html>

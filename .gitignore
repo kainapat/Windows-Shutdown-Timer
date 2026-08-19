@@ -31,3 +31,9 @@ Desktop.ini
 
 # Scratch / Verification files
 scratch/
+
+# Agent Skills
+.agents/
+.agents/skills/diagram-design/
+skills-lock.json
+
