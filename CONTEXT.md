@@ -23,3 +23,8 @@ _Avoid_: Date text field, manual date input
 **Preset**:
 A one-click shortcut button (15 Min, 30 Min, 1 Hr, 2 Hrs) that sets a pre-configured duration and initiates scheduling with confirmation.
 _Avoid_: Quick button, template, shortcut pill
+
+**Language Mode**:
+A user-selectable UI localization state (English or Thai) that dynamically switches all interface text without parenthetical bilingual stacking.
+_Avoid_: Dual-language text, bilingual labels, translated string in parentheses
+
