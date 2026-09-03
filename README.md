@@ -43,15 +43,15 @@ Pick a power action and a time. The app schedules it and counts down. When the t
 | Mode | How it works |
 |---|---|
 | **Quick preset** | One click — 15 Min (15 นาที), 30 Min (30 นาที), 1 Hr (1 ชม.), or 2 Hrs (2 ชม.) from now |
-| **Clock (ระบุเวลาจริง)** | Pick a date and exact clock time using calendar popup |
-| **Timer (นับถอยหลัง)** | Set hours, minutes, and seconds (`hr`, `min`, `sec`) |
+| **Clock (ระบุเวลาจริง)** | Clickable date picker (calendar popup) + discrete hour (`00`–`23`) and minute (`00`–`59`) dropdowns |
+| **Timer (นับถอยหลัง)** | Clickable discrete dropdowns for hours (`0`–`24 hr`), minutes (`0`–`59 min`), and seconds (`0`–`59 sec`) |
 
 **The interface**
 
 The UI features a **Simplified 3-Step Vertical Flow** designed with **Windows 11 Fluent & Bento Aesthetics**:
 1. **Hero Countdown Display (Top)**: High-contrast monospace digits (`00:00:00`), live progress bar (`Remaining / เหลือ`), and real-time bilingual status indicator.
 2. **Step 1 — Select Action (เลือกการกระทำ)**: Segmented pill buttons for `Shutdown (ปิดเครื่อง)`, `Restart (รีสตาร์ท)`, `Sleep (พักเครื่อง)`, or `Hibernate (จำศีล)` with dynamic color accent switching.
-3. **Step 2 — Set Time (กำหนดเวลา)**: Elevated Quick Preset cards + Segmented mode switcher (`Timer / นับถอยหลัง` vs `Clock / ระบุเวลาจริง`) + Smooth sliding numerical inputs.
+3. **Step 2 — Set Time (กำหนดเวลา)**: Elevated Quick Preset cards + Segmented mode switcher (`Timer / นับถอยหลัง` vs `Clock / ระบุเวลาจริง`) + Symmetrical 3-column point-and-click dropdown time pickers (no manual typing required).
 4. **Step 3 — Controls (เริ่มการทำงาน)**: Prominent `▶ Start Countdown (เริ่มนับถอยหลัง)` button with `✕ Cancel (ยกเลิก)` and `↺ Reset (ล้างค่า)` controls.
 
 **Themes & Typography**
@@ -131,6 +131,17 @@ Windows Shutdown Timer/
 ## Changelog
 
 <details open>
+<summary><strong>v2.3.0</strong> &nbsp;·&nbsp; September 2026 &nbsp;·&nbsp; <em>Clickable Dropdown Time Selectors & Symmetrical Layout</em></summary>
+<br/>
+
+- **Clickable Dropdown Time Selectors**: Replaced manual text-typing inputs (`QSpinBox` and `QDateTimeEdit`) with discrete, point-and-click `QComboBox` dropdowns and a `QDateEdit` calendar popup.
+- **Symmetrical 3-Column Layout**: Aligned both `Timer` (Hours, Minutes, Seconds) and `Clock` (Date calendar, Hours, Minutes) into a visually balanced 3-column layout with smooth mode-sliding transitions.
+- **Smart Presets & Defaults**: Auto-syncs dropdowns when Quick Presets are clicked, and defaults Clock mode to `now + 1 hour` to prevent past-time errors.
+- **Backward-Compatible Proxy Layer**: Built `SpinBoxProxy` and `DateTimeProxy` adapters guaranteeing 100% compatibility with legacy scripts and configs.
+
+</details>
+
+<details>
 <summary><strong>v2.2.0</strong> &nbsp;·&nbsp; August 2026 &nbsp;·&nbsp; <em>Comprehensive Architecture & System Diagrams</em></summary>
 <br/>
 

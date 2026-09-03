@@ -17,6 +17,7 @@ from PySide6.QtWidgets import (
     QLabel,
     QPushButton,
     QComboBox,
+    QDateEdit,
     QDateTimeEdit,
     QMessageBox,
     QRadioButton,
@@ -362,6 +363,68 @@ class SlidingStackedWidget(QStackedWidget):
         self.anim_group.start()
 
 
+class SpinBoxProxy:
+    """Proxy providing QSpinBox API compatibility over a QComboBox."""
+
+    def __init__(self, combo: QComboBox, max_val: int = 59):
+        self._combo = combo
+        self._max_val = max_val
+
+    def value(self) -> int:
+        return self._combo.currentIndex()
+
+    def setValue(self, val: int):
+        safe_val = max(0, min(int(val), self._max_val))
+        self._combo.setCurrentIndex(safe_val)
+
+    def setRange(self, min_val: int, max_val: int):
+        self._max_val = max_val
+
+    def __getattr__(self, name):
+        return getattr(self._combo, name)
+
+
+class DateTimeProxy:
+    """Proxy providing QDateTimeEdit API compatibility over QDateEdit and Hour/Minute QComboBoxes."""
+
+    def __init__(self, date_picker: QDateEdit, hour_combo: QComboBox, min_combo: QComboBox):
+        self._date_picker = date_picker
+        self._hour_combo = hour_combo
+        self._min_combo = min_combo
+
+    def dateTime(self) -> QDateTime:
+        d = self._date_picker.date()
+        h = self._hour_combo.currentIndex()
+        m = self._min_combo.currentIndex()
+        return QDateTime(d, QTime(h, m, 0))
+
+    def date(self) -> QDate:
+        return self._date_picker.date()
+
+    def time(self) -> QTime:
+        h = self._hour_combo.currentIndex()
+        m = self._min_combo.currentIndex()
+        return QTime(h, m, 0)
+
+    def setDateTime(self, dt: QDateTime):
+        if isinstance(dt, QDateTime) and dt.isValid():
+            self._date_picker.setDate(dt.date())
+            self._hour_combo.setCurrentIndex(max(0, min(dt.time().hour(), 23)))
+            self._min_combo.setCurrentIndex(max(0, min(dt.time().minute(), 59)))
+
+    def setDate(self, d: QDate):
+        if isinstance(d, QDate) and d.isValid():
+            self._date_picker.setDate(d)
+
+    def setTime(self, t: QTime):
+        if isinstance(t, QTime) and t.isValid():
+            self._hour_combo.setCurrentIndex(max(0, min(t.hour(), 23)))
+            self._min_combo.setCurrentIndex(max(0, min(t.minute(), 59)))
+
+    def __getattr__(self, name):
+        return getattr(self._date_picker, name)
+
+
 class Toast(QWidget):
     """Modern toast notification with cinematic entry & exit animation"""
 
@@ -646,96 +709,128 @@ class ShutdownTimerApp(QMainWindow):
         # Sub-layout C: Time Inputs (Sliding Stacked Widget)
         self.time_stack = SlidingStackedWidget()
 
-        # Page 0: Timer mode with SpinBoxes
+        # Page 0: Timer mode with Dropdowns (3-column layout)
         self.timer_page = QWidget()
         timer_input_layout = QHBoxLayout(self.timer_page)
         timer_input_layout.setContentsMargins(4, 2, 4, 2)
         timer_input_layout.setSpacing(10)
 
-        # Hours SpinBox
+        # Hours Dropdown
         h_layout = QVBoxLayout()
         h_layout.setSpacing(2)
         lbl_h = QLabel("Hours (ชั่วโมง)")
         lbl_h.setObjectName("timeUnitLabel")
         lbl_h.setAlignment(Qt.AlignCenter)
-        self.spin_hours = QSpinBox()
-        self.spin_hours.setObjectName("timeSpinBox")
-        self.spin_hours.setRange(0, 24)
-        self.spin_hours.setValue(0)
-        self.spin_hours.setSuffix(" hr")
-        self.spin_hours.setAlignment(Qt.AlignCenter)
-        self.spin_hours.setMinimumHeight(38)
+        self.hours_combo = QComboBox()
+        self.hours_combo.setObjectName("timeComboBox")
+        self.hours_combo.addItems([f"{i} hr" for i in range(25)])
+        self.hours_combo.setCurrentIndex(0)
+        self.hours_combo.setMinimumHeight(38)
         h_layout.addWidget(lbl_h)
-        h_layout.addWidget(self.spin_hours)
+        h_layout.addWidget(self.hours_combo)
 
-        # Minutes SpinBox
+        # Minutes Dropdown
         m_layout = QVBoxLayout()
         m_layout.setSpacing(2)
         lbl_m = QLabel("Minutes (นาที)")
         lbl_m.setObjectName("timeUnitLabel")
         lbl_m.setAlignment(Qt.AlignCenter)
-        self.spin_minutes = QSpinBox()
-        self.spin_minutes.setObjectName("timeSpinBox")
-        self.spin_minutes.setRange(0, 59)
-        self.spin_minutes.setValue(30)
-        self.spin_minutes.setSuffix(" min")
-        self.spin_minutes.setAlignment(Qt.AlignCenter)
-        self.spin_minutes.setMinimumHeight(38)
+        self.minutes_combo = QComboBox()
+        self.minutes_combo.setObjectName("timeComboBox")
+        self.minutes_combo.addItems([f"{i} min" for i in range(60)])
+        self.minutes_combo.setCurrentIndex(30)
+        self.minutes_combo.setMinimumHeight(38)
         m_layout.addWidget(lbl_m)
-        m_layout.addWidget(self.spin_minutes)
+        m_layout.addWidget(self.minutes_combo)
 
-        # Seconds SpinBox
+        # Seconds Dropdown
         s_layout = QVBoxLayout()
         s_layout.setSpacing(2)
         lbl_s = QLabel("Seconds (วินาที)")
         lbl_s.setObjectName("timeUnitLabel")
         lbl_s.setAlignment(Qt.AlignCenter)
-        self.spin_seconds = QSpinBox()
-        self.spin_seconds.setObjectName("timeSpinBox")
-        self.spin_seconds.setRange(0, 59)
-        self.spin_seconds.setValue(0)
-        self.spin_seconds.setSuffix(" sec")
-        self.spin_seconds.setAlignment(Qt.AlignCenter)
-        self.spin_seconds.setMinimumHeight(38)
+        self.seconds_combo = QComboBox()
+        self.seconds_combo.setObjectName("timeComboBox")
+        self.seconds_combo.addItems([f"{i} sec" for i in range(60)])
+        self.seconds_combo.setCurrentIndex(0)
+        self.seconds_combo.setMinimumHeight(38)
         s_layout.addWidget(lbl_s)
-        s_layout.addWidget(self.spin_seconds)
+        s_layout.addWidget(self.seconds_combo)
 
         timer_input_layout.addLayout(h_layout)
         timer_input_layout.addLayout(m_layout)
         timer_input_layout.addLayout(s_layout)
 
-        # Page 1: Clock mode with QDateTimeEdit
+        # Compatibility proxies for legacy spinbox access
+        self.spin_hours = SpinBoxProxy(self.hours_combo, 24)
+        self.spin_minutes = SpinBoxProxy(self.minutes_combo, 59)
+        self.spin_seconds = SpinBoxProxy(self.seconds_combo, 59)
+
+        # Page 1: Clock mode with Date picker + Hour/Minute dropdowns (Symmetrical 3-column layout)
         self.clock_page = QWidget()
         clock_layout = QHBoxLayout(self.clock_page)
         clock_layout.setContentsMargins(4, 2, 4, 2)
         clock_layout.setSpacing(10)
-        clock_layout.setAlignment(Qt.AlignCenter)
 
-        clock_lbl = QLabel("Target Time (เวลาเป้าหมาย):")
-        clock_lbl.setObjectName("clockLabel")
+        # Column 1: Date Picker with Calendar Popup
+        date_col_layout = QVBoxLayout()
+        date_col_layout.setSpacing(2)
+        lbl_date = QLabel("Date (วันที่)")
+        lbl_date.setObjectName("timeUnitLabel")
+        lbl_date.setAlignment(Qt.AlignCenter)
+        self.date_picker = QDateEdit()
+        self.date_picker.setObjectName("datePicker")
+        self.date_picker.setCalendarPopup(True)
+        self.date_picker.setDisplayFormat("ddd d MMM yyyy")
+        self.date_picker.setMinimumHeight(38)
+        self.date_picker.setAlignment(Qt.AlignCenter)
+        date_col_layout.addWidget(lbl_date)
+        date_col_layout.addWidget(self.date_picker)
 
-        self.date_edit = QDateTimeEdit()
-        self.date_edit.setObjectName("dateTimeEdit")
-        self.date_edit.setDateTime(QDateTime.currentDateTime().addSecs(3600))
-        self.date_edit.setDisplayFormat("ddd d MMM yyyy  HH:mm")
-        self.date_edit.setCalendarPopup(True)
-        self.date_edit.setMinimumHeight(38)
-        self.date_edit.setMinimumWidth(220)
+        # Column 2: Hours Dropdown
+        clock_h_layout = QVBoxLayout()
+        clock_h_layout.setSpacing(2)
+        lbl_clock_h = QLabel("Hours (ชั่วโมง)")
+        lbl_clock_h.setObjectName("timeUnitLabel")
+        lbl_clock_h.setAlignment(Qt.AlignCenter)
+        self.time_hours_combo = QComboBox()
+        self.time_hours_combo.setObjectName("timeComboBox")
+        self.time_hours_combo.addItems([f"{i:02d}" for i in range(24)])
+        self.time_hours_combo.setMinimumHeight(38)
+        clock_h_layout.addWidget(lbl_clock_h)
+        clock_h_layout.addWidget(self.time_hours_combo)
 
-        clock_layout.addWidget(clock_lbl)
-        clock_layout.addWidget(self.date_edit)
+        # Column 3: Minutes Dropdown
+        clock_m_layout = QVBoxLayout()
+        clock_m_layout.setSpacing(2)
+        lbl_clock_m = QLabel("Minutes (นาที)")
+        lbl_clock_m.setObjectName("timeUnitLabel")
+        lbl_clock_m.setAlignment(Qt.AlignCenter)
+        self.time_minutes_combo = QComboBox()
+        self.time_minutes_combo.setObjectName("timeComboBox")
+        self.time_minutes_combo.addItems([f"{i:02d}" for i in range(60)])
+        self.time_minutes_combo.setMinimumHeight(38)
+        clock_m_layout.addWidget(lbl_clock_m)
+        clock_m_layout.addWidget(self.time_minutes_combo)
+
+        clock_layout.addLayout(date_col_layout)
+        clock_layout.addLayout(clock_h_layout)
+        clock_layout.addLayout(clock_m_layout)
+
+        # Initialize Clock default to now + 1 hour
+        init_dt = QDateTime.currentDateTime().addSecs(3600)
+        self.date_picker.setDate(init_dt.date())
+        self.time_hours_combo.setCurrentIndex(init_dt.time().hour())
+        self.time_minutes_combo.setCurrentIndex(init_dt.time().minute())
+
+        # Compatibility proxy for QDateTimeEdit access
+        self.date_edit = DateTimeProxy(self.date_picker, self.time_hours_combo, self.time_minutes_combo)
 
         # Legacy widget aliases to ensure full backward compatibility
         self.datetime_page = self.clock_page
         self.hours_page = self.timer_page
         self.minutes_page = self.timer_page
         self.seconds_page = self.timer_page
-
-        self.time_hours_combo = QComboBox()
-        self.time_minutes_combo = QComboBox()
-        self.hours_combo = QComboBox()
-        self.minutes_combo = QComboBox()
-        self.seconds_combo = QComboBox()
 
         self.time_stack.addWidget(self.timer_page)
         self.time_stack.addWidget(self.clock_page)
@@ -839,7 +934,7 @@ class ShutdownTimerApp(QMainWindow):
                     font-weight: 500;
                     background: transparent;
                 }
-                QSpinBox, QComboBox, QDateTimeEdit {
+                QSpinBox, QComboBox, QDateTimeEdit, QDateEdit {
                     background-color: #f8fafc;
                     border: 1px solid #94a3b8;
                     color: #0f172a;
@@ -848,19 +943,19 @@ class ShutdownTimerApp(QMainWindow):
                     font-size: 13px;
                     min-width: 60px;
                 }
-                QSpinBox:hover, QComboBox:hover, QDateTimeEdit:hover {
+                QSpinBox:hover, QComboBox:hover, QDateTimeEdit:hover, QDateEdit:hover {
                     border-color: #64748b;
                     background-color: #ffffff;
                 }
-                QSpinBox:focus, QComboBox:focus, QDateTimeEdit:focus {
+                QSpinBox:focus, QComboBox:focus, QDateTimeEdit:focus, QDateEdit:focus {
                     border-color: #334155;
                     background-color: #ffffff;
                 }
-                QComboBox::drop-down, QDateTimeEdit::drop-down {
+                QComboBox::drop-down, QDateTimeEdit::drop-down, QDateEdit::drop-down {
                     border: none;
                     width: 24px;
                 }
-                QComboBox::down-arrow, QDateTimeEdit::down-arrow {
+                QComboBox::down-arrow, QDateTimeEdit::down-arrow, QDateEdit::down-arrow {
                     image: none;
                     border-left: 4px solid transparent;
                     border-right: 4px solid transparent;
@@ -903,6 +998,20 @@ class ShutdownTimerApp(QMainWindow):
                     selection-background-color: #dbe0e6;
                     selection-color: #0f172a;
                     outline: none;
+                }
+                QComboBox QAbstractItemView QScrollBar:vertical {
+                    background: transparent;
+                    width: 6px;
+                    margin: 2px 0 2px 0;
+                }
+                QComboBox QAbstractItemView QScrollBar::handle:vertical {
+                    background: #cbd5e1;
+                    border-radius: 3px;
+                    min-height: 20px;
+                }
+                QComboBox QAbstractItemView QScrollBar::add-line:vertical,
+                QComboBox QAbstractItemView QScrollBar::sub-line:vertical {
+                    height: 0px;
                 }
                 QPushButton#actionPill {
                     background-color: #dbe0e6;
@@ -1124,7 +1233,7 @@ class ShutdownTimerApp(QMainWindow):
                     font-size: 13px;
                     background: transparent;
                 }
-                QSpinBox, QComboBox, QDateTimeEdit {
+                QSpinBox, QComboBox, QDateTimeEdit, QDateEdit {
                     background-color: #27272a;
                     border: 1px solid #3f3f46;
                     color: #f4f4f5;
@@ -1133,18 +1242,18 @@ class ShutdownTimerApp(QMainWindow):
                     font-size: 13px;
                     min-width: 60px;
                 }
-                QSpinBox:hover, QComboBox:hover, QDateTimeEdit:hover {
+                QSpinBox:hover, QComboBox:hover, QDateTimeEdit:hover, QDateEdit:hover {
                     border-color: #52525b;
                     background-color: #2e2e33;
                 }
-                QSpinBox:focus, QComboBox:focus, QDateTimeEdit:focus {
+                QSpinBox:focus, QComboBox:focus, QDateTimeEdit:focus, QDateEdit:focus {
                     border-color: #71717a;
                 }
-                QComboBox::drop-down, QDateTimeEdit::drop-down {
+                QComboBox::drop-down, QDateTimeEdit::drop-down, QDateEdit::drop-down {
                     border: none;
                     width: 24px;
                 }
-                QComboBox::down-arrow, QDateTimeEdit::down-arrow {
+                QComboBox::down-arrow, QDateTimeEdit::down-arrow, QDateEdit::down-arrow {
                     image: none;
                     border-left: 4px solid transparent;
                     border-right: 4px solid transparent;
@@ -1187,6 +1296,20 @@ class ShutdownTimerApp(QMainWindow):
                     selection-background-color: #27272a;
                     selection-color: #ffffff;
                     outline: none;
+                }
+                QComboBox QAbstractItemView QScrollBar:vertical {
+                    background: transparent;
+                    width: 6px;
+                    margin: 2px 0 2px 0;
+                }
+                QComboBox QAbstractItemView QScrollBar::handle:vertical {
+                    background: #3f3f46;
+                    border-radius: 3px;
+                    min-height: 20px;
+                }
+                QComboBox QAbstractItemView QScrollBar::add-line:vertical,
+                QComboBox QAbstractItemView QScrollBar::sub-line:vertical {
+                    height: 0px;
                 }
                 QPushButton#actionPill {
                     background-color: #27272a;
@@ -1714,10 +1837,31 @@ class ShutdownTimerApp(QMainWindow):
             self.action_buttons[index].setChecked(True)
         self.update_theme_colors(index)
 
+    @property
+    def target_clock_datetime(self) -> QDateTime:
+        """Return QDateTime representing current selection in Clock mode"""
+        if hasattr(self, "date_picker") and hasattr(self, "time_hours_combo") and hasattr(self, "time_minutes_combo"):
+            d = self.date_picker.date()
+            h = self.time_hours_combo.currentIndex()
+            m = self.time_minutes_combo.currentIndex()
+            return QDateTime(d, QTime(h, m, 0))
+        return QDateTime.currentDateTime().addSecs(3600)
+
+    def reset_clock_to_default(self):
+        """Reset clock date and time dropdowns to current time + 1 hour"""
+        if hasattr(self, "date_picker") and hasattr(self, "time_hours_combo") and hasattr(self, "time_minutes_combo"):
+            init_dt = QDateTime.currentDateTime().addSecs(3600)
+            self.date_picker.setDate(init_dt.date())
+            self.time_hours_combo.setCurrentIndex(init_dt.time().hour())
+            self.time_minutes_combo.setCurrentIndex(init_dt.time().minute())
+
     def on_mode_toggled(self, id, checked):
         """Switch time input widget based on selected mode with smooth slide transition"""
         if not checked or not hasattr(self, "time_stack"):
             return
+        if id == 1:  # Clock mode
+            if self.target_clock_datetime.toPython() <= datetime.now():
+                self.reset_clock_to_default()
         self.time_stack.slide_to_index(id)
 
     def toggle_theme(self):
@@ -1762,17 +1906,19 @@ class ShutdownTimerApp(QMainWindow):
             self.target_shutdown_time = datetime.now() + timedelta(minutes=value)
             time_str_en = f"{value} mins"
             time_str_th = f"{value} นาที"
-            self.spin_hours.setValue(0)
-            self.spin_minutes.setValue(value)
-            self.spin_seconds.setValue(0)
+            self.radio_timer.setChecked(True)
+            self.hours_combo.setCurrentIndex(0)
+            self.minutes_combo.setCurrentIndex(min(value, 59))
+            self.seconds_combo.setCurrentIndex(0)
         else:  # hours
             self.target_shutdown_time = datetime.now() + timedelta(hours=value)
             unit_en_str = "hour" if value == 1 else "hours"
             time_str_en = f"{value} {unit_en_str}"
             time_str_th = f"{value} ชั่วโมง"
-            self.spin_hours.setValue(value)
-            self.spin_minutes.setValue(0)
-            self.spin_seconds.setValue(0)
+            self.radio_timer.setChecked(True)
+            self.hours_combo.setCurrentIndex(min(value, 24))
+            self.minutes_combo.setCurrentIndex(0)
+            self.seconds_combo.setCurrentIndex(0)
 
         time_combined = f"{time_str_en} ({time_str_th})"
 
@@ -1860,18 +2006,18 @@ class ShutdownTimerApp(QMainWindow):
 
         try:
             mode_index = self.mode_button_group.checkedId()
-            if mode_index == 0:  # Timer mode (SpinBoxes)
-                hours = self.spin_hours.value()
-                minutes = self.spin_minutes.value()
-                seconds = self.spin_seconds.value()
+            if mode_index == 0:  # Timer mode (Dropdowns)
+                hours = self.hours_combo.currentIndex()
+                minutes = self.minutes_combo.currentIndex()
+                seconds = self.seconds_combo.currentIndex()
                 if hours == 0 and minutes == 0 and seconds == 0:
                     self.show_toast("Please specify a duration greater than 0 (กรุณาระบุระยะเวลานับถอยหลังมากกว่า 0)", "warning")
                     return
                 self.target_shutdown_time = datetime.now() + timedelta(
                     hours=hours, minutes=minutes, seconds=seconds
                 )
-            else:  # Clock / DateTime mode
-                target_dt = self.date_edit.dateTime()
+            else:  # Clock mode (Date picker + Hour/Minute dropdowns)
+                target_dt = self.target_clock_datetime
                 self.target_shutdown_time = target_dt.toPython()
 
             if self.target_shutdown_time <= datetime.now():
@@ -2052,10 +2198,10 @@ class ShutdownTimerApp(QMainWindow):
 
     def clear_fields(self):
         """Clear all fields and delete config"""
-        self.date_edit.setDateTime(QDateTime.currentDateTime().addSecs(3600))
-        self.spin_hours.setValue(0)
-        self.spin_minutes.setValue(30)
-        self.spin_seconds.setValue(0)
+        self.reset_clock_to_default()
+        self.hours_combo.setCurrentIndex(0)
+        self.minutes_combo.setCurrentIndex(30)
+        self.seconds_combo.setCurrentIndex(0)
         self.radio_timer.setChecked(True)
         self.action_combo.setCurrentIndex(0)
         self.status_label.setText("Status: Ready / Idle (สถานะ: ยังไม่ได้เริ่มนับถอยหลัง)")
@@ -2073,10 +2219,12 @@ class ShutdownTimerApp(QMainWindow):
         self.target_shutdown_time = None
         self.total_seconds = 0
         self.remaining_seconds = 0
-        self.progress_bar.setValue(0)
-        self.countdown_label.setText("00:00:00")
         self.cancel_button.setEnabled(False)
         self.start_button.setEnabled(True)
+        self.progress_bar.setValue(0)
+        self.progress_bar.setFormat("%p%")
+        self.status_label.setText("Status: Ready / Idle (สถานะ: ยังไม่ได้เริ่มนับถอยหลัง)")
+        self.countdown_label.setText("00:00:00")
 
     def closeEvent(self, event):
         """Called when closing the application"""
@@ -2099,16 +2247,19 @@ class ShutdownTimerApp(QMainWindow):
         settings = {
             "action": self.action_combo.currentIndex(),
             "mode": self.mode_button_group.checkedId(),
-            "datetime": self.date_edit.dateTime().toString(Qt.ISODate),
-            "spin_hours": self.spin_hours.value(),
-            "spin_minutes": self.spin_minutes.value(),
-            "spin_seconds": self.spin_seconds.value(),
+            "datetime": self.target_clock_datetime.toString(Qt.ISODate),
+            "timer_hours": self.hours_combo.currentIndex(),
+            "timer_minutes": self.minutes_combo.currentIndex(),
+            "timer_seconds": self.seconds_combo.currentIndex(),
             # Legacy compatibility
-            "date": self.date_edit.date().toString(Qt.ISODate),
-            "time": self.date_edit.time().toString("HH:mm"),
-            "hours": self.spin_hours.value(),
-            "minutes": self.spin_minutes.value(),
-            "seconds": self.spin_seconds.value(),
+            "spin_hours": self.hours_combo.currentIndex(),
+            "spin_minutes": self.minutes_combo.currentIndex(),
+            "spin_seconds": self.seconds_combo.currentIndex(),
+            "date": self.date_picker.date().toString(Qt.ISODate),
+            "time": f"{self.time_hours_combo.currentText()}:{self.time_minutes_combo.currentText()}",
+            "hours": self.hours_combo.currentIndex(),
+            "minutes": self.minutes_combo.currentIndex(),
+            "seconds": self.seconds_combo.currentIndex(),
         }
         try:
             temp_path = CONFIG_FILE + ".tmp"
@@ -2147,23 +2298,27 @@ class ShutdownTimerApp(QMainWindow):
             if "datetime" in settings:
                 dt = QDateTime.fromString(settings["datetime"], Qt.ISODate)
                 if dt.isValid():
-                    self.date_edit.setDateTime(dt)
+                    self.date_picker.setDate(dt.date())
+                    self.time_hours_combo.setCurrentIndex(max(0, min(dt.time().hour(), 23)))
+                    self.time_minutes_combo.setCurrentIndex(max(0, min(dt.time().minute(), 59)))
             elif "date" in settings:
                 d = QDate.fromString(settings.get("date", ""), Qt.ISODate)
                 t_str = settings.get("time", "00:00")
                 t_parts = t_str.split(":")
-                t = QTime(int(t_parts[0]), int(t_parts[1])) if len(t_parts) == 2 else QTime(0, 0)
                 if d.isValid():
-                    self.date_edit.setDateTime(QDateTime(d, t))
+                    self.date_picker.setDate(d)
+                if len(t_parts) == 2:
+                    h = max(0, min(int(t_parts[0]), 23))
+                    m = max(0, min(int(t_parts[1]), 59))
+                    self.time_hours_combo.setCurrentIndex(h)
+                    self.time_minutes_combo.setCurrentIndex(m)
 
-            if "spin_hours" in settings:
-                self.spin_hours.setValue(settings.get("spin_hours", 0))
-                self.spin_minutes.setValue(settings.get("spin_minutes", 30))
-                self.spin_seconds.setValue(settings.get("spin_seconds", 0))
-            else:
-                self.spin_hours.setValue(settings.get("hours", 0))
-                self.spin_minutes.setValue(settings.get("minutes", 30))
-                self.spin_seconds.setValue(settings.get("seconds", 0))
+            h = settings.get("timer_hours", settings.get("spin_hours", settings.get("hours", 0)))
+            m = settings.get("timer_minutes", settings.get("spin_minutes", settings.get("minutes", 30)))
+            s = settings.get("timer_seconds", settings.get("spin_seconds", settings.get("seconds", 0)))
+            self.hours_combo.setCurrentIndex(max(0, min(int(h), 24)))
+            self.minutes_combo.setCurrentIndex(max(0, min(int(m), 59)))
+            self.seconds_combo.setCurrentIndex(max(0, min(int(s), 59)))
 
         except Exception as e:
             logger.error(f"📂❌ Could not load settings: {e}")
