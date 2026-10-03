@@ -65,6 +65,8 @@ python shutdown_timer.py
 
 ## Architecture at a Glance
 
+The architecture view now separates ownership explicitly: **Desktop User** is an external actor, **PySide6 UI / Scheduler Controller / Countdown Engine / Settings Repository / Windows Power Gateway** are responsibilities inside the desktop application, and **Microsoft Windows** is the external platform that performs the final power operation.
+
 <p align="center">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="./diagram/architecture-diagram-dark.svg">
@@ -98,14 +100,32 @@ The app delegates power operations to Windows directly — no driver and no back
 Runtime flow for a scheduled Shutdown / Restart:
 
 ```text
-User
+Desktop User
   → PySide6 UI
   → Scheduler Controller
+  → confirm scheduled action
   → validate Timer / Clock target (future, non-zero, max 72h)
-  → abort previous Windows shutdown request
-  → shutdown.exe /s|/r /t <seconds>
-  → QTimer countdown + status/progress updates
-  → atomic JSON settings write
+  → Windows Power Gateway
+      → shutdown /a
+      → shutdown /s|/r /t <seconds>
+  → Microsoft Windows
+  → start 1-second QTimer countdown
+  → save timer settings with atomic JSON replacement
+  → update status / progress in the UI
+```
+
+Runtime flow for immediate Sleep / Hibernate:
+
+```text
+Desktop User
+  → PySide6 UI
+  → Scheduler Controller
+  → branch before Timer / Clock validation
+  → confirm immediate action
+  → Windows Power Gateway
+      → rundll32.exe powrprof.dll,SetSuspendState ...
+  → Microsoft Windows
+  → update executing status in the UI
 ```
 
 A few reliability details:
@@ -135,15 +155,38 @@ Output lands at `dist/Windows Shutdown Timer.exe`.
 
 ### Archify source artifact
 
-The repository includes an Archify-generated HTML artifact with node focus, verified source links, Node Finder, Semantic Lens, PATH Route Probe, deep links, Light/Dark themes, and canonical exports.
+The repository includes an Archify-generated interactive runtime architecture artifact with **7 semantic nodes** across the application and Windows platform boundaries. It supports node focus, verified source links, Node Finder, Semantic Lens, PATH Route Probe, deep links, Light/Dark themes, and canonical exports.
+
+The primary authored route is:
+
+```text
+Desktop User
+  → PySide6 UI
+  → Scheduler Controller
+  → Windows Power Gateway
+  → Microsoft Windows
+```
+
+Countdown and Settings Repository remain separate responsibilities connected to the controller/UI rather than being treated as external platform services.
 
 > GitHub displays repository HTML files as source. The Archify artifact is available at [`diagram/interactive/index.html`](diagram/interactive/index.html), with repository evidence pinned in [`diagram/interactive/candidate.json`](diagram/interactive/candidate.json).
 
+### Diagram Guide
+
+Each diagram answers a different architecture question. The set intentionally avoids using one diagram type to explain everything.
+
+| Diagram | Standard / style | Scope | What it answers |
+|---|---|---|---|
+| **Architecture** | Layered runtime architecture | Actor → application responsibilities → Windows platform | Where runtime responsibility lives |
+| **Component** | C4-style component view | Logical components inside the PySide6 desktop application | Which component depends on which |
+| **Context** | DFD Context / Level 0 | Whole app as one process + external entities | What crosses the application boundary |
+| **Data Flow** | DFD Level 1 | Processes 1.0–5.0, D1/D2 stores, external entities | How requests, state, preferences, and results move |
+| **Sequence** | UML interaction | Start flow with scheduled vs immediate alt branches | What happens over time when the user presses Start |
+| **System Context** | C4 Level 1 | User, Windows Shutdown Timer, Microsoft Windows | Where the software system sits in its environment |
+
 ### Diagram Gallery
 
-These SVG previews render directly in the README and automatically switch between Light and Dark variants with the viewer's GitHub theme. The images themselves are intentionally not links.
-
-The set now has distinct responsibilities: **Architecture** is the layered runtime view, **Component** is a C4-style logical component view, **Context** is DFD Context / Level 0, **Data Flow** is DFD Level 1, **Sequence** is the UML interaction trace, and **System Context** is C4 Level 1.
+These SVG previews render directly in the README and automatically switch between Light and Dark variants with the viewer's GitHub theme. The images themselves are intentionally not links, so clicking a diagram does not jump to a GitHub code view.
 
 <p align="center">
   <picture>
@@ -227,6 +270,24 @@ The set now has distinct responsibilities: **Architecture** is the layered runti
 
 > The **Architecture** hero above plus these five focused views form the complete static diagram set. Matching SVG, PNG, and HTML artifacts live in [`diagram/`](diagram/).
 
+### Diagram Verification
+
+The static diagram set is generated from [`diagram/generate_diagrams.py`](diagram/generate_diagrams.py) at a shared **1280 × 720** canvas. Light and Dark variants use the same structural geometry.
+
+The repository includes two repeatable checks:
+
+- [`verify_geometry.py`](diagram/verify_geometry.py) — detects text collisions, label-mask/node overlap, connector intrusion through non-endpoint nodes, and canvas overflow.
+- [`verify_render_match.py`](diagram/verify_render_match.py) — verifies browser-rendered HTML, standalone SVG, and exported PNG remain visually aligned.
+
+The current set is designed around these invariants:
+
+- no text overlaps another label, node, border, connector, or legend;
+- no connector is clipped or routed through an unrelated node;
+- DFD Context and DFD Level 1 keep the same external actors and boundary flows;
+- the UML Sequence follows the real scheduled/immediate branches in `shutdown_timer.py`;
+- C4-style views keep application responsibilities separate from Microsoft Windows;
+- README previews use SVG and switch Light/Dark automatically with the GitHub theme.
+
 ### Architecture Decisions
 
 - [ADR 0001 — Clickable Dropdown Time Selectors](docs/adr/0001-dropdown-time-selectors.md)
@@ -285,6 +346,18 @@ Runtime-generated `timer_config.json` and `window_config.json` are intentionally
 ## Changelog
 
 <details open>
+<summary><strong>Documentation Update</strong> &nbsp;·&nbsp; October 2026 &nbsp;·&nbsp; <em>Standards-Aligned Architecture Diagram Set</em></summary>
+<br/>
+
+- **Six purpose-specific diagrams**: Layered Architecture, C4-style Component, DFD Context / Level 0, DFD Level 1, UML Sequence, and C4 System Context / Level 1.
+- **Theme-aware SVG README previews**: Light and Dark SVGs switch automatically with the GitHub theme while keeping identical geometry.
+- **Runtime-aligned semantics**: Windows Power Gateway, Settings Repository, scheduled Shutdown/Restart, and immediate Sleep/Hibernate paths now match the real code paths.
+- **Geometry QA**: Added `diagram/verify_geometry.py` to catch text overlap, connector intrusion, mask collisions, and viewBox overflow.
+- **Interactive architecture sync**: Archify topology now mirrors the corrected runtime boundaries and source-backed relationships.
+
+</details>
+
+<details>
 <summary><strong>v2.4.0</strong> &nbsp;·&nbsp; September 2026 &nbsp;·&nbsp; <em>Raycast / Linear Precision Redesign & Eye-Comfort Palette</em></summary>
 <br/>
 
