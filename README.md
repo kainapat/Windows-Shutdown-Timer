@@ -143,6 +143,8 @@ The repository includes an Archify-generated HTML artifact with node focus, veri
 
 These SVG previews render directly in the README and automatically switch between Light and Dark variants with the viewer's GitHub theme. The images themselves are intentionally not links.
 
+The set now has distinct responsibilities: **Architecture** is the layered runtime view, **Component** is a C4-style logical component view, **Context** is DFD Context / Level 0, **Data Flow** is DFD Level 1, **Sequence** is the UML interaction trace, and **System Context** is C4 Level 1.
+
 <p align="center">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="./diagram/component-diagram-dark.svg">
@@ -237,10 +239,11 @@ These SVG previews render directly in the README and automatically switch betwee
 cd diagram
 python generate_diagrams.py
 python export_png.py
+python verify_geometry.py
 python verify_render_match.py
 ```
 
-`export_png.py` uses Playwright with an installed Chrome/Edge executable. `verify_render_match.py` checks that browser-rendered HTML, standalone SVG, and PNG exports stay visually aligned.
+`export_png.py` uses Playwright with an installed Chrome/Edge executable. `verify_geometry.py` checks text collisions, label-mask/node overlap, connector intrusion, and canvas overflow. `verify_render_match.py` checks that browser-rendered HTML, standalone SVG, and PNG exports stay visually aligned.
 
 ---
 
@@ -268,6 +271,7 @@ Windows Shutdown Timer/
     ├── system-context-diagram-{light,dark}.{html,svg,png}
     ├── generate_diagrams.py
     ├── export_png.py
+    ├── verify_geometry.py
     ├── verify_render_match.py
     └── interactive/
         ├── candidate.json           # Archify source with repository evidence

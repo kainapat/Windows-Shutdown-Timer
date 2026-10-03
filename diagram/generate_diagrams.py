@@ -2,7 +2,7 @@ from pathlib import Path
 import html, re
 
 OUT = Path(__file__).resolve().parent
-VIEW_W, VIEW_H = 1280, 820
+VIEW_W, VIEW_H = 1280, 720
 
 THEMES = {
     "light": dict(
@@ -27,7 +27,7 @@ def txt(x,y,s,c,size=12,weight=400,anchor="middle",family="sans",italic=False,tr
     attrs = f' x="{x}" y="{y}" fill="{c}" font-family="{fam}" font-size="{size}" font-weight="{weight}" text-anchor="{anchor}"'
     if italic: attrs += ' font-style="italic"'
     if tracking: attrs += f' letter-spacing="{tracking}"'
-    return f'<text{attrs}>{E(s)}</text>'
+    return f'<text data-role="text"{attrs}>{E(s)}</text>'
 
 def node(x,y,w,h,title,sub,tag,c,kind="normal"):
     fill, stroke, sw, dash = c["surface"], c["rule"], 1, ""
@@ -36,7 +36,7 @@ def node(x,y,w,h,title,sub,tag,c,kind="normal"):
     elif kind=="store": fill,stroke = c["surface2"],c["muted"]
     elif kind=="optional": fill,stroke,dash = c["wash"],c["soft"],' stroke-dasharray="4,3"'
     out = [f'<rect x="{x}" y="{y}" width="{w}" height="{h}" rx="6" fill="{c["paper"]}"/>',
-           f'<rect x="{x}" y="{y}" width="{w}" height="{h}" rx="6" fill="{fill}" stroke="{stroke}" stroke-width="{sw}"{dash}/>']
+           f'<rect data-role="node" x="{x}" y="{y}" width="{w}" height="{h}" rx="6" fill="{fill}" stroke="{stroke}" stroke-width="{sw}"{dash}/>']
     out += [f'<rect x="{x+10}" y="{y+8}" width="36" height="14" rx="2" fill="none" stroke="{stroke}" stroke-opacity=".45" stroke-width=".8"/>',
             txt(x+28,y+18,tag,stroke,8,600,family="mono",tracking=".08em"),
             txt(x+w/2,y+48,title,c["ink"],16,600),
@@ -44,19 +44,19 @@ def node(x,y,w,h,title,sub,tag,c,kind="normal"):
     return "".join(out)
 
 def zone(x,y,w,h,label,c):
-    return (f'<rect x="{x}" y="{y}" width="{w}" height="{h}" rx="8" fill="{c["wash"]}" stroke="{c["line"]}" stroke-width=".8"/>'
+    return (f'<rect data-role="zone" x="{x}" y="{y}" width="{w}" height="{h}" rx="8" fill="{c["wash"]}" stroke="{c["line"]}" stroke-width=".8"/>'
             + f'<rect x="{x+16}" y="{y+8}" width="{max(84,len(label)*8)}" height="16" rx="2" fill="{c["paper"]}"/>'
             + txt(x+24,y+20,label,c["soft"],8,600,"start","mono",tracking=".14em"))
 
 def h_arrow(x1,y,x2,label,c,style="muted",dash=False):
     color = c["accent"] if style=="accent" else c["link"] if style=="link" else c["muted"]
     marker = "arr-accent" if style=="accent" else "arr-link" if style=="link" else "arr"
-    line = f'<line x1="{x1}" y1="{y}" x2="{x2}" y2="{y}" stroke="{color}" stroke-width="{1.4 if style=="accent" else 1.2}"'
+    line = f'<line data-role="connector" x1="{x1}" y1="{y}" x2="{x2}" y2="{y}" stroke="{color}" stroke-width="{1.4 if style=="accent" else 1.2}"'
     if dash: line += ' stroke-dasharray="5,4"'
     line += f' marker-end="url(#{marker})"/>'
     if label:
         w=max(68,len(label)*7); mx=(x1+x2)/2
-        line += f'<rect x="{mx-w/2}" y="{y-25}" width="{w}" height="14" rx="2" fill="{c["paper"]}"/>'
+        line += f'<rect data-role="label-mask" x="{mx-w/2}" y="{y-25}" width="{w}" height="14" rx="2" fill="{c["paper"]}"/>'
         line += txt(mx,y-15,label.upper(),color,8,500,family="mono",tracking=".06em")
     return line
 
@@ -66,24 +66,24 @@ def elbow(x1,y1,x2,y2,label,c,style="muted",mid=None,dash=False):
     m = mid if mid is not None else (x1+x2)//2
     sy = 8 if y2>y1 else -8
     d=f'M {x1},{y1} H {m-8} Q {m},{y1} {m},{y1+sy} V {y2-sy} Q {m},{y2} {m+8},{y2} H {x2}'
-    out=f'<path d="{d}" fill="none" stroke="{color}" stroke-width="{1.4 if style=="accent" else 1.2}"'
+    out=f'<path data-role="connector" d="{d}" fill="none" stroke="{color}" stroke-width="{1.4 if style=="accent" else 1.2}"'
     if dash: out += ' stroke-dasharray="5,4"'
     out += f' marker-end="url(#{marker})"/>'
     if label:
         w=max(68,len(label)*7); ly=(y1+y2)/2
-        out += f'<rect x="{m+10}" y="{ly-10}" width="{w}" height="14" rx="2" fill="{c["paper"]}"/>'
+        out += f'<rect data-role="label-mask" x="{m+10}" y="{ly-10}" width="{w}" height="14" rx="2" fill="{c["paper"]}"/>'
         out += txt(m+14,ly,label.upper(),color,8,500,"start","mono",tracking=".06em")
     return out
 
 def v_arrow(x,y1,y2,label,c,style="muted",dash=False,label_side="right"):
     color = c["accent"] if style=="accent" else c["link"] if style=="link" else c["muted"]
     marker = "arr-accent" if style=="accent" else "arr-link" if style=="link" else "arr"
-    out=f'<line x1="{x}" y1="{y1}" x2="{x}" y2="{y2}" stroke="{color}" stroke-width="{1.4 if style=="accent" else 1.2}"'
+    out=f'<line data-role="connector" x1="{x}" y1="{y1}" x2="{x}" y2="{y2}" stroke="{color}" stroke-width="{1.4 if style=="accent" else 1.2}"'
     if dash: out += ' stroke-dasharray="5,4"'
     out += f' marker-end="url(#{marker})"/>'
     if label:
         w=max(68,len(label)*7); lx=x+12 if label_side=="right" else x-w-12; ly=(y1+y2)/2
-        out += f'<rect x="{lx}" y="{ly-10}" width="{w}" height="14" rx="2" fill="{c["paper"]}"/>'
+        out += f'<rect data-role="label-mask" x="{lx}" y="{ly-10}" width="{w}" height="14" rx="2" fill="{c["paper"]}"/>'
         out += txt(lx+4,ly,label.upper(),color,8,500,"start","mono",tracking=".06em")
     return out
 
@@ -95,7 +95,7 @@ def defs(c):
 </defs>'''
 
 def legend(c, items):
-    y=660; out=[f'<line x1="40" y1="{y}" x2="1240" y2="{y}" stroke="{c["line"]}" stroke-width=".8"/>',
+    y=588; out=[f'<line x1="40" y1="{y}" x2="1240" y2="{y}" stroke="{c["line"]}" stroke-width=".8"/>',
                 txt(40,y+24,"LEGEND",c["muted"],8,600,"start","mono",tracking=".18em")]
     x=140
     for kind,label in items:
@@ -107,143 +107,269 @@ def legend(c, items):
         x += max(164, len(label)*8+64)
     return "".join(out)
 
+def dfd_entity(x,y,w,h,title,sub,c):
+    out=[f'<rect data-role="node" x="{x}" y="{y}" width="{w}" height="{h}" rx="2" fill="{c["surface"]}" stroke="{c["muted"]}" stroke-width="1.2"/>']
+    out += [txt(x+w/2,y+32,title,c["ink"],14,600),txt(x+w/2,y+52,sub,c["muted"],9,400,family="mono")]
+    return "".join(out)
+
+def dfd_process(x,y,w,h,num,title,sub,c,focal=False):
+    stroke=c["accent"] if focal else c["muted"]; fill=c["accent_tint"] if focal else c["surface"]
+    out=[f'<rect data-role="node" x="{x}" y="{y}" width="{w}" height="{h}" rx="18" fill="{fill}" stroke="{stroke}" stroke-width="{1.4 if focal else 1.1}"/>',
+         f'<rect x="{x+12}" y="{y+10}" width="42" height="18" rx="2" fill="{c["paper"]}" stroke="{stroke}" stroke-opacity=".5" stroke-width=".8"/>',
+         txt(x+33,y+23,num,stroke,8,600,family="mono"),
+         txt(x+w/2,y+43,title,c["ink"],13,600),
+         txt(x+w/2,y+61,sub,c["muted"],8,400,family="mono")]
+    return "".join(out)
+
+def dfd_store(x,y,w,h,code,title,sub,c):
+    out=[f'<path data-role="node" d="M {x+14},{y} H {x+w} V {y+h} H {x+14} M {x+14},{y} V {y+h}" fill="{c["surface2"]}" stroke="{c["muted"]}" stroke-width="1.1"/>',
+         f'<rect x="{x}" y="{y}" width="36" height="{h}" fill="{c["paper"]}" stroke="{c["muted"]}" stroke-width="1.1"/>',
+         txt(x+18,y+h/2+3,code,c["muted"],8,600,family="mono"),
+         txt(x+48,y+24,title,c["ink"],12,600,"start"),
+         txt(x+48,y+42,sub,c["muted"],8,400,"start","mono")]
+    return "".join(out)
+
+def seq_message(x1,x2,y,label,c,kind="call",style="muted"):
+    color=c["accent"] if style=="accent" else c["link"] if style=="link" else c["muted"]
+    dash=' stroke-dasharray="5,4"' if kind=="return" else ""
+    out=f'<line data-role="connector" x1="{x1}" y1="{y}" x2="{x2}" y2="{y}" stroke="{color}" stroke-width="{1.4 if style=="accent" else 1.1}"{dash} marker-end="url(#{"arr-accent" if style=="accent" else "arr-link" if style=="link" else "arr"})"/>'
+    w=max(72,len(label)*6.2); mx=(x1+x2)/2
+    out += f'<rect data-role="label-mask" x="{mx-w/2}" y="{y-20}" width="{w}" height="12" rx="2" fill="{c["paper"]}"/>'
+    out += txt(mx,y-11,label.upper(),color,8,500,family="mono",tracking=".04em")
+    return out
+
+def seq_self(x,y,label,c,style="muted"):
+    color=c["accent"] if style=="accent" else c["muted"]
+    out=f'<path data-role="connector" d="M {x},{y} H {x+54} V {y+18} H {x+8}" fill="none" stroke="{color}" stroke-width="1.1" marker-end="url(#{"arr-accent" if style=="accent" else "arr"})"/>'
+    w=max(76,len(label)*6.2)
+    out += f'<rect data-role="label-mask" x="{x+62}" y="{y+1}" width="{w}" height="12" rx="2" fill="{c["paper"]}"/>'
+    out += txt(x+66,y+10,label.upper(),color,8,500,"start","mono",tracking=".04em")
+    return out
+
 def architecture_body(c):
-    out=[zone(36,52,428,520,"PRESENTATION",c),zone(484,52,292,520,"APPLICATION CORE",c),zone(796,52,448,520,"WINDOWS PLATFORM",c)]
-    out += [h_arrow(224,208,264,"UI EVENTS",c),h_arrow(444,208,520,"REQUEST",c),
-            h_arrow(720,208,836,"POWER CMD",c,"accent"),h_arrow(1016,208,1060,"NATIVE",c,"link"),
-            v_arrow(354,256,360,"SELECTION",c),v_arrow(620,256,360,"TICK",c),
-            h_arrow(444,408,520,"TARGET",c),h_arrow(720,408,836,"SAVE",c)]
-    out += [node(64,160,160,96,"Desktop User","mouse · keyboard","EXT",c,"external"),
-            node(264,160,180,96,"PySide6 UI","widgets · dialogs","UI",c),
-            node(264,360,180,96,"Timer / Clock State","mode · action · time","STATE",c,"store"),
-            node(520,160,200,96,"Scheduler Controller","start_timer()","CORE",c,"focal"),
-            node(520,360,200,96,"Countdown Engine","QTimer · target time","TIMER",c),
-            node(836,160,180,96,"Windows Adapter","subprocess.run","OS",c),
-            node(836,360,180,96,"Config Store","atomic JSON","FILE",c,"store"),
-            node(1060,160,160,96,"Windows OS","shutdown · powrprof","EXT",c,"external")]
-    out.append(legend(c,[("focal","Scheduling decision"),("link","OS boundary"),("external","External actor/system")]))
+    # Zones own runtime responsibilities; external actor and platform stay outside the app.
+    out=[zone(236,48,252,420,"PRESENTATION",c),
+         zone(508,48,484,420,"APPLICATION / INFRASTRUCTURE",c),
+         zone(1012,48,228,420,"EXTERNAL PLATFORM",c)]
+
+    # Connectors first so nodes mask their endpoints cleanly.
+    out += [h_arrow(200,194,272,"USE",c,"link"),
+            h_arrow(452,194,548,"START / CANCEL",c),
+            v_arrow(362,242,334,"SELECTION",c),
+            elbow(452,382,548,238,"SELECTED INPUT",c,mid=500),
+            v_arrow(648,242,334,"COUNTDOWN",c),
+            elbow(748,194,816,382,"SAVE SETTINGS",c,mid=782),
+            h_arrow(748,194,816,"POWER",c,"accent"),
+            h_arrow(956,194,1050,"NATIVE CALL",c,"link")]
+
+    out += [node(40,146,160,96,"Desktop User","mouse · keyboard","PERSON",c,"external"),
+            node(272,146,180,96,"PySide6 UI","widgets · dialogs","UI",c),
+            node(272,334,180,96,"Timer / Clock State","action · mode · target","STATE",c,"store"),
+            node(548,146,200,96,"Scheduler Controller","start · validate · cancel","CORE",c,"focal"),
+            node(548,334,200,96,"Countdown Engine","QTimer · remaining time","TIMER",c),
+            node(816,146,140,96,"Power Gateway","subprocess.run","GATE",c),
+            node(816,334,140,96,"Settings Repository","atomic JSON","REPO",c,"store"),
+            node(1050,146,160,96,"Microsoft Windows","shutdown · powrprof","SYSTEM",c,"external")]
+
+    out.append(txt(750,444,"Logical runtime responsibilities; all internal components execute in one desktop process.",c["soft"],12,400,family="serif",italic=True))
+    out.append(legend(c,[("focal","Core scheduling"),("link","External boundary"),("external","External actor/system")]))
     return "".join(out)
 
 def context_body(c):
-    out=[zone(356,88,568,472,"SYSTEM BOUNDARY",c)]
-    out += [h_arrow(244,260,436,"CONFIGURE",c,"link"),
-            h_arrow(844,260,1040,"POWER ACTION",c,"accent"),
-            v_arrow(640,356,468,"READ / WRITE",c),
-            h_arrow(844,420,1040,"STATUS",c,dash=True)]
-    out += [node(64,212,180,96,"Desktop User","select · start · cancel","EXT",c,"external"),
-            node(436,196,408,160,"Windows Shutdown Timer","local PySide6 desktop utility","SYS",c,"focal"),
-            node(540,468,200,96,"Local Config","timer / window JSON","FILE",c,"store"),
-            node(1040,196,180,96,"Windows OS","shutdown.exe · powrprof","EXT",c,"external"),
-            node(1040,372,180,96,"System State","shutdown · restart · sleep","STATE",c,"external")]
-    out.append(txt(640,392,"No service, driver, web backend, or network dependency.",c["soft"],12,400,family="serif",italic=True))
-    out.append(legend(c,[("focal","System under review"),("link","User interaction"),("external","External dependency")]))
+    # DFD Context / Level 0: one process, external entities only, no internal store.
+    out=[]
+
+    # Distinct ports keep bidirectional flows visually separate.
+    out += [h_arrow(220,206,430,"CONTROL REQUEST",c,"link"),
+            h_arrow(430,314,220,"UI FEEDBACK",c,dash=True),
+            h_arrow(850,206,1060,"POWER COMMAND",c,"accent"),
+            h_arrow(1060,314,850,"COMMAND RESULT",c,dash=True)]
+
+    out += [dfd_entity(40,180,180,160,"Desktop User","external entity",c),
+            dfd_process(430,154,420,200,"0","Windows Shutdown Timer","single system process",c,True),
+            dfd_entity(1060,180,180,160,"Microsoft Windows","external system",c)]
+
+    out.append(txt(640,396,"Control request = action/time/start/cancel · UI feedback = confirmation/status/countdown/error.",c["soft"],12,400,family="serif",italic=True))
+    out.append(txt(640,418,"DFD Context / Level 0 · internal components and data stores intentionally omitted.",c["soft"],12,400,family="serif",italic=True))
+    out.append(legend(c,[("focal","Process 0"),("link","External input"),("muted","External output / result")]))
     return "".join(out)
 
 def component_body(c):
-    out=[zone(64,72,1152,508,"SHUTDOWN_TIMER.PY · MONOLITHIC MODULE",c)]
-    out += [h_arrow(300,196,388,"SIGNALS",c),h_arrow(588,196,684,"CALL",c),
-            h_arrow(884,196,980,"SUBPROCESS",c,"accent"),
-            v_arrow(488,244,360,"STYLE / TEXT",c,dash=True),
-            v_arrow(784,244,360,"COUNTDOWN",c),
-            h_arrow(588,408,684,"STATE",c),h_arrow(884,408,980,"JSON",c)]
-    out += [node(100,148,200,96,"Main Window","ShutdownTimerApp","UI",c),
-            node(388,148,200,96,"Input & Mode Adapters","SpinBoxProxy · DateTimeProxy","ADAPT",c),
-            node(684,148,200,96,"Scheduling Logic","validate · route · cancel","CORE",c,"focal"),
-            node(980,148,200,96,"Windows Power Adapter","shutdown.exe · rundll32","OS",c),
-            node(388,360,200,96,"Theme & Localization","QSS · EN / TH · SVG","UI",c),
-            node(684,360,200,96,"Countdown State","QTimer · remaining time","STATE",c,"store"),
-            node(980,360,200,96,"Persistence","timer + window config","FILE",c,"store")]
-    out.append(txt(640,520,"Logical components are currently co-located in one 2,022-line Python module.",c["soft"],12,400,family="serif",italic=True))
-    out.append(legend(c,[("focal","Core orchestration"),("muted","Internal dependency"),("external","Platform boundary")]))
+    # C4-style logical component view inside one PySide6 desktop application container.
+    out=[zone(36,44,996,430,"WINDOWS SHUTDOWN TIMER · PYSIDE6 DESKTOP APPLICATION",c)]
+
+    # Primary top-row dependencies.
+    out += [h_arrow(250,178,430,"START / CANCEL",c),
+            h_arrow(630,178,760,"POWER REQUEST",c,"accent"),
+            h_arrow(940,178,1080,"NATIVE COMMAND",c,"link")]
+
+    # Focused internal dependencies with dedicated corridors.
+    out += [v_arrow(160,226,334,"THEME / TEXT",c,dash=True),
+            elbow(250,206,300,382,"LEGACY ACCESS",c,mid=274,dash=True),
+            v_arrow(630,226,334,"START / STOP",c),
+            elbow(630,206,780,382,"SAVE TIMER",c,mid=744)]
+
+    # Main Window also owns window-preference load/save; route below the component row.
+    window_cfg = (
+        f'<path data-role="connector" d="M 250,206 H 262 Q 270,206 270,214 V 454 Q 270,462 278,462 '
+        f'H 862 Q 870,462 870,454 V 430" fill="none" stroke="{c["muted"]}" '
+        f'stroke-width="1" stroke-dasharray="5,4" marker-end="url(#arr)"/>'
+        f'<rect data-role="label-mask" x="510" y="438" width="122" height="14" rx="2" fill="{c["paper"]}"/>'
+        + txt(571,448,"LOAD / SAVE WINDOW",c["muted"],8,500,family="mono",tracking=".04em")
+    )
+    out.append(window_cfg)
+
+    out += [node(70,130,180,96,"Main Window","ShutdownTimerApp","UI",c),
+            node(430,130,200,96,"Scheduler Controller","validate · route · cancel","CORE",c,"focal"),
+            node(760,130,180,96,"Power Gateway","shutdown · rundll32","GATE",c),
+            node(70,334,180,96,"Theme & Localization","QSS · EN / TH · SVG","I18N",c),
+            node(300,334,180,96,"Compatibility Adapters","SpinBoxProxy · DateTimeProxy","ADAPT",c),
+            node(530,334,200,96,"Countdown Engine","QTimer · update_countdown","TIMER",c),
+            node(780,334,180,96,"Settings Repository","timer + window JSON","REPO",c,"store"),
+            node(1080,130,160,96,"Microsoft Windows","power management","SYSTEM",c,"external")]
+
+    out.append(txt(534,492,"Logical components only — currently co-located in shutdown_timer.py, not separately deployed.",c["soft"],12,400,family="serif",italic=True))
+    out.append(legend(c,[("focal","Core orchestration"),("muted","Internal dependency"),("external","External system")]))
     return "".join(out)
 
 def system_context_body(c):
-    out=[zone(332,76,616,492,"WINDOWS DESKTOP ENVIRONMENT",c)]
-    out += [h_arrow(244,244,416,"USE",c,"link"),
-            h_arrow(816,244,1036,"POWER",c,"accent"),
-            v_arrow(616,340,452,"SETTINGS",c)]
-    out += [node(64,196,180,96,"Desktop User","runs local utility","PERSON",c,"external"),
-            node(416,180,400,160,"Windows Shutdown Timer","standalone PySide6 application","SYSTEM",c,"focal"),
-            node(516,452,200,96,"Local File System","JSON preferences","FILE",c,"store"),
-            node(1036,196,180,96,"Microsoft Windows","power management","EXT",c,"external"),
-            node(64,436,240,96,"GitHub Release","packaged application","DIST",c,"external")]
-    out.append(elbow(304,484,416,292,"PACKAGE",c,"link",mid=360,dash=True))
-    out.append(txt(640,388,"Distribution is separate from runtime: the installed app needs no network service.",c["soft"],12,400,family="serif",italic=True))
-    out.append(legend(c,[("focal","System of interest"),("link","Distribution / interaction"),("external","External system")]))
+    # C4 System Context / Level 1: person, system of interest, external software system.
+    out=[]
+
+    out += [h_arrow(240,226,430,"CONFIGURE / CONTROL POWER",c,"link"),
+            h_arrow(430,330,240,"CONFIRMATION / STATUS",c,dash=True),
+            h_arrow(850,226,1040,"SCHEDULE / CANCEL / EXECUTE",c,"accent")]
+
+    out += [node(60,178,180,144,"Desktop User","uses the local utility","PERSON",c,"external"),
+            node(430,154,420,200,"Windows Shutdown Timer","PySide6 desktop application","SYSTEM",c,"focal"),
+            node(1040,178,180,144,"Microsoft Windows","power management services","SYSTEM",c,"external")]
+
+    out.append(txt(640,410,"C4 System Context · internal files, components, and distribution concerns are intentionally omitted.",c["soft"],12,400,family="serif",italic=True))
+    out.append(legend(c,[("focal","System of interest"),("link","User relationship"),("external","External person/system")]))
     return "".join(out)
 
 def data_flow_body(c):
+    # DFD Level 1 balanced with the Level 0 Context Diagram.
     out=[]
-    lanes=[("USER",100),("UI",220),("APP",340),("PLATFORM",460)]
-    steps=[("01","SELECT",260),("02","CAPTURE",460),("03","VALIDATE",660),("04","ROUTE",860),("05","EXECUTE",1060)]
-    for i,(name,y) in enumerate(lanes):
-        if i%2==0: out.append(f'<rect x="40" y="{y}" width="1200" height="120" fill="{c["wash"]}"/>')
-        out.append(f'<line x1="40" y1="{y}" x2="1240" y2="{y}" stroke="{c["line"]}" stroke-width=".8"/>')
-        out.append(txt(88,y+64,name,c["muted"],9,600,family="mono",tracking=".14em"))
-    out.append(f'<line x1="148" y1="100" x2="148" y2="580" stroke="{c["line"]}" stroke-width=".8"/>')
-    for num,label,x in steps:
-        focal = label=="VALIDATE"; fill=c["accent_tint"] if focal else c["surface2"]; col=c["accent"] if focal else c["muted"]
-        out.append(f'<rect x="{x-18}" y="60" width="36" height="18" rx="6" fill="{fill}"/>')
-        out.append(txt(x,73,num,col,8,600,family="mono"))
-        out.append(txt(x,92,label,col,8,600,family="mono",tracking=".12em"))
 
-    out += [elbow(340,160,380,280,"",c,mid=360),
-            elbow(540,280,580,400,"request",c,"accent",mid=560),
-            h_arrow(740,400,780,"",c),
-            v_arrow(860,440,480,"",c),
-            elbow(940,400,980,520,"",c,"link",mid=960),
-            v_arrow(1060,480,320,"result",c,"link",label_side="right")]
-    out += [node(180,120,160,80,"Action + Time","shutdown · mode · target","USR",c,"external"),
-            node(380,240,160,80,"UI Selection","combo / date picker","UI",c),
-            node(580,360,160,80,"Validate Request","future · nonzero · ≤72h","VAL",c,"focal"),
-            node(780,360,160,80,"Execution Router","scheduled vs immediate","ROUTE",c),
-            node(780,480,160,80,"Config Snapshot","atomic JSON","FILE",c,"store"),
-            node(980,480,160,80,"Windows Command","shutdown / rundll32","OS",c),
-            node(980,240,160,80,"UI Feedback","status · toast · progress","UI",c)]
-    out.append(txt(860,590,"Sleep / Hibernate follows the immediate branch; Shutdown / Restart follows the scheduled branch.",c["soft"],12,400,family="serif",italic=True))
-    out.append(legend(c,[("focal","Validated schedule request"),("link","Platform handoff"),("muted","Internal state flow")]))
+    # External input and main processing chain.
+    out += [h_arrow(180,214,260,"REQUEST",c,"link"),
+            h_arrow(420,214,520,"INPUT",c),
+            h_arrow(680,214,780,"ACTION",c,"accent"),
+            h_arrow(960,202,1080,"POWER CMD",c,"accent"),
+            h_arrow(1080,246,960,"RESULT",c,dash=True)]
+
+    # Internal status and routing flows use distinct attach points.
+    out += [v_arrow(870,250,360,"EXECUTION STATUS",c,label_side="right"),
+            elbow(680,230,780,402,"VALIDATION / ROUTE",c,mid=730,dash=True),
+            v_arrow(330,250,360,"PREFERENCE UPDATE",c,label_side="left"),
+            v_arrow(370,360,250,"RESTORED PREFS",c,dash=True,label_side="right")]
+
+    # D1/D2 sit beside P5 so read/write flows remain short, horizontal, and separate.
+    store_flows = [
+        f'<line data-role="connector" x1="260" y1="382" x2="200" y2="382" stroke="{c["muted"]}" stroke-width="1.1" marker-end="url(#arr)"/>',
+        f'<rect data-role="label-mask" x="208" y="360" width="44" height="12" rx="2" fill="{c["paper"]}"/>',
+        txt(230,369,"WRITE",c["muted"],8,500,family="mono"),
+        f'<line data-role="connector" x1="200" y1="406" x2="260" y2="406" stroke="{c["muted"]}" stroke-width="1" stroke-dasharray="5,4" marker-end="url(#arr)"/>',
+        f'<rect data-role="label-mask" x="208" y="412" width="44" height="12" rx="2" fill="{c["paper"]}"/>',
+        txt(230,421,"READ",c["muted"],8,500,family="mono"),
+        f'<line data-role="connector" x1="440" y1="382" x2="500" y2="382" stroke="{c["muted"]}" stroke-width="1.1" marker-end="url(#arr)"/>',
+        f'<rect data-role="label-mask" x="448" y="360" width="44" height="12" rx="2" fill="{c["paper"]}"/>',
+        txt(470,369,"WRITE",c["muted"],8,500,family="mono"),
+        f'<line data-role="connector" x1="500" y1="406" x2="440" y2="406" stroke="{c["muted"]}" stroke-width="1" stroke-dasharray="5,4" marker-end="url(#arr)"/>',
+        f'<rect data-role="label-mask" x="448" y="412" width="44" height="12" rx="2" fill="{c["paper"]}"/>',
+        txt(470,421,"READ",c["muted"],8,500,family="mono"),
+    ]
+    out += store_flows
+
+    # Feedback runs through the empty bottom corridor and the gap between User and P1.
+    feedback = (
+        f'<path data-role="connector" d="M 870,456 V 476 Q 870,484 862,484 H 228 Q 220,484 220,476 '
+        f'V 246 Q 220,238 212,238 H 180" fill="none" stroke="{c["link"]}" '
+        f'stroke-width="1.1" stroke-dasharray="5,4" marker-end="url(#arr-link)"/>'
+        f'<rect data-role="label-mask" x="484" y="460" width="160" height="14" rx="2" fill="{c["paper"]}"/>'
+        + txt(564,470,"CONFIRM · STATUS · ERROR",c["link"],8,500,family="mono",tracking=".04em")
+    )
+    out.append(feedback)
+
+    out += [dfd_entity(40,154,140,124,"Desktop User","external entity",c),
+            dfd_process(260,154,160,96,"1.0","Capture Request","action · mode · target",c),
+            dfd_process(520,154,160,96,"2.0","Validate & Route","rules · branch · cancel",c,True),
+            dfd_process(780,154,180,96,"3.0","Execute / Schedule","shutdown · suspend",c),
+            dfd_entity(1080,154,160,124,"Microsoft Windows","external system",c),
+            dfd_process(780,360,180,96,"4.0","Update UI State","toast · status · progress",c),
+            dfd_process(260,360,180,96,"5.0","Persist Preferences","save · restore JSON",c),
+            dfd_store(40,350,160,64,"D1","Timer Settings","timer_config.json",c),
+            dfd_store(500,350,160,64,"D2","Window Preferences","window_config.json",c)]
+
+    out.append(txt(640,500,"Shutdown / Restart uses validated scheduling; Sleep / Hibernate branches to immediate execution.",c["soft"],12,400,family="serif",italic=True))
+    out.append(legend(c,[("focal","Validation / routing"),("link","External flow"),("muted","Internal data flow")]))
     return "".join(out)
 
 def sequence_body(c):
-    xs=[120,360,640,920,1160]
+    xs=[100,330,620,920,1160]
     out=[]
-    for x in xs: out.append(f'<line x1="{x}" y1="116" x2="{x}" y2="604" stroke="{c["line"]}" stroke-width="1" stroke-dasharray="3,3"/>')
-    out += [f'<rect x="636" y="212" width="8" height="320" fill="{c["activation"]}" stroke="{c["muted"]}" stroke-width=".8"/>',
-            f'<rect x="916" y="300" width="8" height="180" fill="{c["activation"]}" stroke="{c["muted"]}" stroke-width=".8"/>',
-            f'<rect x="316" y="240" width="888" height="300" rx="6" fill="none" stroke="{c["rule"]}" stroke-width="1"/>',
-            f'<path d="M316,240 H368 V262 H316 Z" fill="{c["surface2"]}" stroke="{c["rule"]}" stroke-width="1"/>',
-            txt(342,255,"ALT",c["muted"],8,600,family="mono",tracking=".12em"),
-            txt(336,282,"[ SHUTDOWN / RESTART ]",c["soft"],9,500,"start","mono"),
-            f'<line x1="316" y1="392" x2="1204" y2="392" stroke="{c["rule"]}" stroke-width=".8"/>',
-            txt(336,418,"[ SLEEP / HIBERNATE ]",c["soft"],9,500,"start","mono")]
-    out += [h_arrow(120,160,360,"configure action/time",c,"link"),
-            h_arrow(360,212,640,"start_timer()",c),
-            h_arrow(640,312,920,"shutdown /s|/r /t",c,"accent"),
-            h_arrow(640,352,1160,"save_settings()",c),
-            h_arrow(640,376,360,"countdown active",c,dash=True),
-            h_arrow(640,456,920,"rundll32 SetSuspendState",c,"link"),
-            h_arrow(640,504,360,"executing now",c,dash=True)]
+
+    # Lifelines and activation bars. Windows is active only while a native call is executing.
+    for x in xs:
+        out.append(f'<line x1="{x}" y1="92" x2="{x}" y2="578" stroke="{c["line"]}" stroke-width="1" stroke-dasharray="3,3"/>')
+    out += [f'<rect x="326" y="110" width="8" height="468" fill="{c["activation"]}" stroke="{c["muted"]}" stroke-width=".8"/>',
+            f'<rect x="616" y="136" width="8" height="442" fill="{c["activation"]}" stroke="{c["muted"]}" stroke-width=".8"/>',
+            f'<rect x="916" y="316" width="8" height="58" fill="{c["activation"]}" stroke="{c["muted"]}" stroke-width=".8"/>',
+            f'<rect x="916" y="536" width="8" height="36" fill="{c["activation"]}" stroke="{c["muted"]}" stroke-width=".8"/>']
+
+    # One UML alt combined fragment; confirmation is branch-specific in the real code.
+    out += [f'<rect x="286" y="164" width="934" height="414" rx="6" fill="none" stroke="{c["rule"]}" stroke-width="1"/>',
+            f'<path d="M286,164 H344 V186 H286 Z" fill="{c["surface2"]}" stroke="{c["rule"]}" stroke-width="1"/>',
+            txt(315,179,"ALT",c["muted"],8,600,family="mono",tracking=".12em"),
+            txt(306,190,"[ SHUTDOWN / RESTART ]",c["soft"],9,500,"start","mono"),
+            f'<line x1="286" y1="446" x2="1220" y2="446" stroke="{c["rule"]}" stroke-width=".8"/>',
+            txt(306,456,"[ SLEEP / HIBERNATE ]",c["soft"],9,500,"start","mono")]
+
+    # Common entry.
+    out += [seq_message(100,330,110,"choose action/time + Start",c,style="link"),
+            seq_message(330,620,138,"start_timer()",c)]
+
+    # Scheduled branch: start_timer() owns confirmation, validation, scheduling, countdown, persistence.
+    out += [seq_message(620,330,218,"show schedule confirmation",c),
+            seq_message(100,330,242,"confirm Yes",c,style="link"),
+            seq_message(330,620,266,"confirmed",c,kind="return"),
+            seq_self(620,284,"validate target",c,"accent"),
+            seq_message(620,920,318,"shutdown /a",c),
+            seq_message(620,920,344,"shutdown /s|/r /t",c,style="accent"),
+            seq_message(920,620,370,"command result",c,kind="return"),
+            seq_self(620,386,"start 1s QTimer",c),
+            seq_message(620,1160,420,"save_settings()",c),
+            seq_message(620,330,438,"scheduled status",c,kind="return")]
+
+    # Immediate branch: _execute_sleep_hibernate() asks its own confirmation before the native call.
+    out += [seq_message(620,330,480,"show immediate confirmation",c),
+            seq_message(100,330,500,"confirm Yes",c,style="link"),
+            seq_message(330,620,520,"confirmed",c,kind="return"),
+            seq_message(620,920,540,"rundll32 SetSuspendState",c,style="link"),
+            seq_message(920,620,558,"command result",c,kind="return"),
+            seq_message(620,330,574,"executing status",c,kind="return")]
 
     actors=[
-        (40,"Desktop User","mouse / keyboard","EXT","external"),
-        (280,"PySide6 UI","widgets + dialogs","UI","normal"),
-        (560,"ShutdownTimerApp","controller","CORE","focal"),
-        (840,"Windows CLI","shutdown / rundll32","OS","external"),
-        (1080,"Config Store","JSON files","FILE","store"),
+        (20,"Desktop User","mouse / keyboard","PERSON","external"),
+        (250,"PySide6 UI","widgets · dialogs","UI","normal"),
+        (540,"ShutdownTimerApp","controller","CORE","focal"),
+        (840,"Windows Power API","shutdown · rundll32","SYSTEM","external"),
+        (1080,"Settings Store","timer JSON","REPO","store"),
     ]
     for x,title,sub,tag,kind in actors:
-        out.append(node(x,36,160,80,title,sub,tag,c,kind))
-    out.append(txt(640,580,"The two branches diverge at the controller: scheduled actions persist a countdown; sleep/hibernate executes immediately.",c["soft"],12,400,family="serif",italic=True))
-    out.append(legend(c,[("focal","Scheduled power command"),("link","Immediate power command"),("muted","Return / UI update")]))
+        out.append(node(x,10,160,80,title,sub,tag,c,kind))
+
+    out.append(legend(c,[("focal","Scheduled command"),("link","External / immediate call"),("muted","Return / UI update")]))
     return "".join(out)
 
 DIAGRAMS = {
-    "architecture-diagram": ("Architecture","Runtime architecture and Windows platform boundary.",architecture_body),
-    "data-flow-diagram": ("Data Flow","Scheduling request lifecycle from selection to operating-system effect.",data_flow_body),
-    "sequence-diagram": ("Sequence","Start action sequence, including scheduled and immediate branches.",sequence_body),
-    "context-diagram": ("Context","Level-0 runtime context for the local desktop utility.",context_body),
-    "component-diagram": ("Component","Logical components currently co-located in shutdown_timer.py.",component_body),
-    "system-context-diagram": ("System Context","Product context spanning distribution and the Windows runtime.",system_context_body),
+    "architecture-diagram": ("Architecture","Layered runtime architecture separating the desktop actor, application responsibilities, and Microsoft Windows.",architecture_body),
+    "data-flow-diagram": ("Data Flow","DFD Level 1 showing balanced external flows, numbered processes, and local preference data stores.",data_flow_body),
+    "sequence-diagram": ("Sequence","UML interaction for Start, including scheduled Shutdown/Restart and immediate Sleep/Hibernate branches.",sequence_body),
+    "context-diagram": ("Context","DFD Context / Level 0 showing the application as one process with only external entities and boundary flows.",context_body),
+    "component-diagram": ("Component","C4-style logical component view inside the PySide6 desktop application container.",component_body),
+    "system-context-diagram": ("System Context","C4 System Context / Level 1 showing the user, system of interest, and Microsoft Windows.",system_context_body),
 }
 
 FONT_URL="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500;600&display=swap"
@@ -255,8 +381,8 @@ def svg_doc(slug,theme,title,desc,body):
 <desc id="{sid}-desc">{E(desc)}</desc>
 {defs(c)}
 <rect width="100%" height="100%" fill="{c["paper"]}"/>
-{txt(48,40,title.upper()+" · DIAGRAM DESIGN",c["muted"],10,500,"start","mono",tracking=".18em")}
-{txt(48,76,"Windows Shutdown Timer",c["ink"],32,600,"start","sans")}
+{txt(48,40,title.upper()+" · DIAGRAM DESIGN",c["muted"],8,500,"start","mono",tracking=".18em")}
+{txt(48,76,"Windows Shutdown Timer",c["ink"],28,400,"start","serif")}
 <g transform="translate(0 100)">
 {body}
 </g>

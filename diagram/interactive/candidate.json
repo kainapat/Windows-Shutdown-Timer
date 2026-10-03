@@ -3,7 +3,7 @@
   "diagram_type": "architecture",
   "meta": {
     "title": "Windows Shutdown Timer",
-    "subtitle": "Interactive Architecture Explorer · scheduling, countdown, persistence, and Windows power",
+    "subtitle": "Interactive Runtime Architecture | UI, scheduling, countdown, persistence, and Windows power",
     "output": "diagram/interactive/index.html",
     "quality_profile": "showcase",
     "visual_preset": "editorial",
@@ -11,37 +11,63 @@
       "url": "https://github.com/kainapat/Windows-Shutdown-Timer.git",
       "provider": "github",
       "link_mode": "web",
-      "revision": "180aee29937e317e370bde62ff4f7c01222b3e4b"
+      "revision": "469bd1d9fc58b47e313ae7e1cef8935f5635f8bf"
     },
     "views": [
       {
         "id": "scheduled-power",
         "label": "Scheduled Power",
-        "focus": ["desktop-user", "ui", "controller", "countdown", "shutdown-cli"],
-        "note": "Shutdown and Restart are scheduled through shutdown.exe and tracked by a one-second QTimer."
+        "focus": [
+          "desktop-user",
+          "ui",
+          "controller",
+          "countdown",
+          "power-gateway",
+          "windows"
+        ],
+        "note": "Shutdown and Restart validate a future target, schedule through the Windows power gateway, and start the one-second countdown."
       },
       {
         "id": "immediate-power",
         "label": "Immediate Power",
-        "focus": ["desktop-user", "ui", "controller", "suspend-api"],
-        "note": "Sleep and Hibernate bypass the countdown path and execute immediately after confirmation."
-      },      {
+        "focus": [
+          "desktop-user",
+          "ui",
+          "controller",
+          "power-gateway",
+          "windows"
+        ],
+        "note": "Sleep and Hibernate branch before Timer/Clock validation and invoke the Windows suspend path immediately after confirmation."
+      },
+      {
         "id": "countdown",
         "label": "Countdown",
-        "focus": ["ui", "controller", "countdown"],
-        "note": "The controller owns target time; QTimer refreshes remaining time, status, and progress."
+        "focus": [
+          "ui",
+          "controller",
+          "countdown"
+        ],
+        "note": "The controller starts or stops QTimer; the countdown engine refreshes status and progress in the UI."
       },
       {
         "id": "persistence",
         "label": "Persistence",
-        "focus": ["controller", "settings"],
-        "note": "Timer settings are read from JSON and saved with temp-file plus atomic replace."
+        "focus": [
+          "ui",
+          "controller",
+          "settings"
+        ],
+        "note": "Startup loads timer and window settings; scheduled/cancel actions save timer selections with atomic replacement."
       },
       {
         "id": "platform",
         "label": "Windows Boundary",
-        "focus": ["controller", "shutdown-cli", "suspend-api"],
-        "note": "The app delegates the final power effect to Windows commands; no driver or background service is used."
+        "focus": [
+          "controller",
+          "power-gateway",
+          "windows"
+        ],
+        "note": "The application delegates final power operations to Microsoft Windows through shutdown.exe or rundll32/powrprof."
       }
     ]
   },
@@ -50,97 +76,214 @@
       "id": "desktop-user",
       "type": "external",
       "label": "Desktop User",
-      "sublabel": "choose action, time, start, cancel",
+      "sublabel": "choose action | time | Start / Cancel",
       "icon": "person",
-      "pos": [40, 300],
-      "size": [160, 72],      "sources": [
-        {"path": "README.md", "line": 51, "end_line": 54, "label": "User controls"}
+      "pos": [
+        40,
+        300
+      ],
+      "size": [
+        160,
+        72
+      ],
+      "sources": [
+        {
+          "path": "README.md",
+          "line": 49,
+          "end_line": 60,
+          "label": "Documented user-facing behaviors"
+        }
       ]
     },
     {
       "id": "ui",
       "type": "frontend",
       "label": "PySide6 UI",
-      "sublabel": "ShutdownTimerApp · widgets · dialogs",
+      "sublabel": "ShutdownTimerApp | widgets | dialogs",
       "icon": "frontend",
-      "pos": [330, 300],
-      "size": [180, 80],
+      "pos": [
+        330,
+        300
+      ],
+      "size": [
+        180,
+        80
+      ],
       "sources": [
-        {"path": "shutdown_timer.py", "line": 584, "end_line": 617, "label": "Main window"}
+        {
+          "path": "shutdown_timer.py",
+          "line": 584,
+          "end_line": 617,
+          "label": "Main window initialization"
+        }
       ]
     },
     {
       "id": "controller",
       "type": "backend",
       "label": "Scheduler Controller",
-      "sublabel": "start_timer() · validation · routing",
+      "sublabel": "start_timer() | cancel_timer() | routing",
       "icon": "backend",
-      "tag": "0–72h",
-      "pos": [620, 300],
-      "size": [210, 88],
+      "tag": "0-72h",
+      "pos": [
+        620,
+        300
+      ],
+      "size": [
+        210,
+        88
+      ],
       "sources": [
-        {"path": "shutdown_timer.py", "line": 1630, "end_line": 1708, "label": "Scheduling"}
+        {
+          "path": "shutdown_timer.py",
+          "line": 1630,
+          "end_line": 1715,
+          "label": "Schedule flow"
+        },
+        {
+          "path": "shutdown_timer.py",
+          "line": 1748,
+          "end_line": 1789,
+          "label": "Cancel flow"
+        }
       ]
-    },    {
+    },
+    {
       "id": "settings",
       "type": "database",
-      "label": "Settings Store",
-      "sublabel": "timer_config.json · atomic JSON",
+      "label": "Settings Repository",
+      "sublabel": "timer + window JSON | atomic replace",
       "icon": "database",
-      "pos": [620, 90],
-      "size": [210, 76],
+      "pos": [
+        620,
+        80
+      ],
+      "size": [
+        220,
+        76
+      ],
       "sources": [
-        {"path": "shutdown_timer.py", "line": 1880, "end_line": 1923, "label": "JSON persistence"}
+        {
+          "path": "shutdown_timer.py",
+          "line": 1880,
+          "end_line": 1960,
+          "label": "Timer settings persistence"
+        },
+        {
+          "path": "shutdown_timer.py",
+          "line": 1961,
+          "end_line": 1998,
+          "label": "Window settings persistence"
+        }
       ]
     },
     {
       "id": "countdown",
       "type": "backend",
       "label": "Countdown Engine",
-      "sublabel": "QTimer · update_countdown()",
+      "sublabel": "QTimer | update_countdown()",
       "icon": "clock",
-      "pos": [620, 510],
-      "size": [210, 80],
+      "pos": [
+        620,
+        520
+      ],
+      "size": [
+        210,
+        80
+      ],
       "sources": [
-        {"path": "shutdown_timer.py", "line": 599, "end_line": 600, "label": "QTimer wiring"},
-        {"path": "shutdown_timer.py", "line": 1791, "end_line": 1821, "label": "Countdown update"}
-      ]
-    },    {
-      "id": "shutdown-cli",
-      "type": "external",
-      "label": "Windows shutdown.exe",
-      "sublabel": "schedule /s or /r · cancel /a",
-      "icon": "external",
-      "pos": [1040, 220],
-      "size": [210, 80],
-      "sources": [
-        {"path": "shutdown_timer.py", "line": 1691, "end_line": 1697, "label": "Schedule command"},
-        {"path": "shutdown_timer.py", "line": 1766, "end_line": 1769, "label": "Cancel command"}
+        {
+          "path": "shutdown_timer.py",
+          "line": 599,
+          "end_line": 600,
+          "label": "QTimer wiring"
+        },
+        {
+          "path": "shutdown_timer.py",
+          "line": 1791,
+          "end_line": 1821,
+          "label": "Countdown update"
+        }
       ]
     },
     {
-      "id": "suspend-api",
-      "type": "external",
-      "label": "Windows Suspend Path",
-      "sublabel": "rundll32 · powrprof SetSuspendState",
-      "icon": "moon",
-      "pos": [1040, 410],
-      "size": [230, 80],
+      "id": "power-gateway",
+      "type": "backend",
+      "label": "Windows Power Gateway",
+      "sublabel": "shutdown.exe | rundll32 | powrprof",
+      "icon": "external",
+      "pos": [
+        940,
+        300
+      ],
+      "size": [
+        220,
+        84
+      ],
       "sources": [
-        {"path": "shutdown_timer.py", "line": 1717, "end_line": 1743, "label": "Immediate suspend"}
+        {
+          "path": "shutdown_timer.py",
+          "line": 1691,
+          "end_line": 1697,
+          "label": "Schedule command"
+        },
+        {
+          "path": "shutdown_timer.py",
+          "line": 1717,
+          "end_line": 1743,
+          "label": "Immediate suspend"
+        },
+        {
+          "path": "shutdown_timer.py",
+          "line": 1766,
+          "end_line": 1769,
+          "label": "Cancel command"
+        }
+      ]
+    },
+    {
+      "id": "windows",
+      "type": "external",
+      "label": "Microsoft Windows",
+      "sublabel": "power management platform",
+      "icon": "external",
+      "pos": [
+        1240,
+        300
+      ],
+      "size": [
+        190,
+        80
+      ],
+      "sources": [
+        {
+          "path": "shutdown_timer.py",
+          "line": 1691,
+          "end_line": 1768,
+          "label": "Windows power command calls"
+        }
       ]
     }
-  ],  "boundaries": [
+  ],
+  "boundaries": [
     {
       "kind": "region",
-      "label": "Windows Shutdown Timer process",
-      "wraps": ["ui", "controller", "countdown"],
+      "label": "Windows Shutdown Timer application",
+      "wraps": [
+        "ui",
+        "controller",
+        "countdown",
+        "settings",
+        "power-gateway"
+      ],
       "pad": 28
     },
     {
       "kind": "region",
-      "label": "Windows power services",
-      "wraps": ["shutdown-cli", "suspend-api"],
+      "label": "Microsoft Windows platform",
+      "wraps": [
+        "windows"
+      ],
       "pad": 24
     }
   ],
@@ -153,30 +296,24 @@
       "variant": "emphasis"
     },
     {
-      "id": "ui-starts",
+      "id": "ui-controller",
       "from": "ui",
       "to": "controller",
       "label": "Start / Cancel",
       "variant": "emphasis"
-    },    {
-      "id": "controller-schedules",
-      "from": "controller",
-      "to": "shutdown-cli",
-      "label": "schedule /s|/r /t · cancel /a",
-      "variant": "emphasis"
     },
     {
-      "id": "controller-suspends",
-      "from": "controller",
-      "to": "suspend-api",
-      "label": "rundll32 SetSuspendState",
-      "variant": "default"
+      "id": "ui-settings",
+      "from": "ui",
+      "to": "settings",
+      "label": "load timer + window settings",
+      "variant": "dashed"
     },
     {
       "id": "controller-countdown",
       "from": "controller",
       "to": "countdown",
-      "label": "start 1s QTimer"
+      "label": "start / stop 1s QTimer"
     },
     {
       "id": "countdown-ui",
@@ -189,15 +326,31 @@
       "id": "controller-settings",
       "from": "controller",
       "to": "settings",
-      "label": "read / atomic write"
+      "label": "save timer selections",
+      "variant": "dashed"
+    },
+    {
+      "id": "controller-power",
+      "from": "controller",
+      "to": "power-gateway",
+      "label": "power request",
+      "variant": "emphasis"
+    },
+    {
+      "id": "gateway-windows",
+      "from": "power-gateway",
+      "to": "windows",
+      "label": "native call",
+      "variant": "emphasis"
     }
-  ],  "cards": [
+  ],
+  "cards": [
     {
       "dot": "rose",
       "title": "Scheduling rules",
       "items": [
-        "Shutdown / Restart validate a future target and cap scheduling at 72 hours.",
-        "Any existing Windows shutdown task is aborted before a new one is scheduled."
+        "Shutdown / Restart require a future, non-zero target and are capped at 72 hours.",
+        "The app attempts shutdown /a before scheduling a new Windows shutdown or restart."
       ]
     },
     {
@@ -212,8 +365,8 @@
       "dot": "violet",
       "title": "Persistence",
       "items": [
-        "Timer selections are loaded from JSON on startup.",
-        "Writes use a temporary file followed by os.replace for atomic persistence."
+        "Startup loads window settings and timer selections from separate JSON files.",
+        "Writes use temporary files followed by os.replace for atomic replacement."
       ]
     }
   ]
