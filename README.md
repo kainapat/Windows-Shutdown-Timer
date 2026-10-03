@@ -138,6 +138,49 @@ Output lands at `dist/Windows Shutdown Timer.exe`.
   - [Sequence](diagram/sequence-diagram-light.html) · scheduled vs immediate power branches
   - [System Context](diagram/system-context-diagram-light.html) · local runtime plus distribution boundary
 
+### Diagram Gallery
+
+<p align="center">
+  <a href="diagram/architecture-diagram-light.html">
+    <img src="diagram/architecture-diagram-light.png" width="49%" alt="Architecture Diagram" />
+  </a>
+  <a href="diagram/component-diagram-light.html">
+    <img src="diagram/component-diagram-light.png" width="49%" alt="Component Diagram" />
+  </a>
+</p>
+
+<p align="center">
+  <strong>Architecture</strong> &nbsp;·&nbsp; <strong>Component</strong>
+</p>
+
+<p align="center">
+  <a href="diagram/context-diagram-light.html">
+    <img src="diagram/context-diagram-light.png" width="49%" alt="Context Diagram" />
+  </a>
+  <a href="diagram/data-flow-diagram-light.html">
+    <img src="diagram/data-flow-diagram-light.png" width="49%" alt="Data Flow Diagram" />
+  </a>
+</p>
+
+<p align="center">
+  <strong>Context</strong> &nbsp;·&nbsp; <strong>Data Flow</strong>
+</p>
+
+<p align="center">
+  <a href="diagram/sequence-diagram-light.html">
+    <img src="diagram/sequence-diagram-light.png" width="49%" alt="Sequence Diagram" />
+  </a>
+  <a href="diagram/system-context-diagram-light.html">
+    <img src="diagram/system-context-diagram-light.png" width="49%" alt="System Context Diagram" />
+  </a>
+</p>
+
+<p align="center">
+  <strong>Sequence</strong> &nbsp;·&nbsp; <strong>System Context</strong>
+</p>
+
+> Click any diagram image to open its full HTML view. Dark-mode variants are available beside the Light versions in [`diagram/`](diagram/).
+
 ### Regenerating static diagrams
 
 ```bash
