@@ -31,6 +31,7 @@ Desktop.ini
 
 # Scratch / Verification files
 scratch/
+.scratch/
 
 # Agent skills
 .agents/skills/diagram-design
@@ -49,3 +50,8 @@ diagram/interactive/*.finalize.json
 diagram/interactive/*.finalize-summary.json
 diagram/interactive/*.visual-check.*
 diagram/interactive/review-*/
+
+# Agent tooling & generated artifacts
+.superpowers/
+brag-output/
+hyperframes-output/
