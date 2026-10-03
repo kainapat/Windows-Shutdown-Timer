@@ -17,6 +17,18 @@
 
   <br/><br/>
 
+  <a href="#getting-started">Get Started</a>
+  &nbsp;·&nbsp;
+  <a href="#highlights">Highlights</a>
+  &nbsp;·&nbsp;
+  <a href="#architecture-at-a-glance">Architecture</a>
+  &nbsp;·&nbsp;
+  <a href="diagram/interactive/index.html">Interactive Explorer</a>
+  &nbsp;·&nbsp;
+  <a href="#building-a-standalone-exe">Build</a>
+
+  <br/><br/>
+
 </div>
 
 ---
@@ -34,40 +46,40 @@ python shutdown_timer.py
 
 ---
 
-## What it does
+## Highlights
 
-Choose one of four power actions:
-
-- **Shutdown / Restart** are schedulable. Pick a relative duration or an absolute clock time, then the app schedules the Windows action and displays a live countdown.
-- **Sleep / Hibernate** are immediate actions in the current implementation. After confirmation, the app invokes the Windows suspend path immediately; Timer / Clock values are not used for these two actions.
-
-**Scheduling Modes**
-
-| Mode | How it works |
+| Capability | Current behavior |
 |---|---|
-| **Quick Presets** | One-click `15m`, `30m`, `1h`, or `2h` schedules for **Shutdown / Restart only** |
-| **Timer (นับถอยหลัง)** | Relative schedule for **Shutdown / Restart** using Hours (`0`–`24 hr`), Minutes (`0`–`59 min`), and Seconds (`0`–`59 sec`) |
-| **Clock (ระบุเวลาจริง)** | Absolute schedule for **Shutdown / Restart** using a date picker plus hour (`00`–`23`) and minute (`00`–`59`) dropdowns |
-| **Sleep / Hibernate** | Immediate execution after confirmation; no countdown is created |
+| **Shutdown / Restart** | Schedule by relative duration or absolute clock time, with a live countdown |
+| **Sleep / Hibernate** | Execute immediately after confirmation; no countdown is created |
+| **Quick Presets** | `15m`, `30m`, `1h`, `2h` for Shutdown / Restart only |
+| **Timer Mode** | Hours, minutes, and seconds with a 72-hour scheduling limit |
+| **Clock Mode** | Calendar date + hour + minute target |
+| **Localization** | Instant English / Thai UI switching |
+| **Themes** | Eye-comfort Light and Deep Zinc Dark |
+| **Runtime** | Native PySide6 desktop app; no Electron, web backend, driver, or background service |
 
-> **Important:** use **Cancel** to abort an active Windows shutdown / restart schedule. **Reset** only clears UI fields/configuration and does not issue `shutdown /a`. Closing the app also stops the in-app countdown display but does not cancel a shutdown / restart already handed to Windows.
+> **Cancel and Reset are intentionally different.** **Cancel** aborts an active Windows shutdown / restart request. **Reset** only clears the UI/configuration. Closing the app stops the local countdown display but does not cancel a shutdown / restart already handed to Windows.
 
-**The Interface (Raycast / Linear Precision Style)**
+---
 
-1. **Precision Countdown Chronometer (Hero Card)**: High-contrast monospace digits (`00:00:00`), live LED status indicator dot (green when running), and a slim 3px micro-progress line.
-2. **Action Selector (`ACTION`)**: Sleek pill buttons for `Shutdown`, `Restart`, `Sleep`, and `Hibernate` with monochrome vector SVG icons and desaturated semantic color accents.
-3. **Duration & Mode (`DURATION`)**: Minimalist preset chips (`15m`, `30m`, `1h`, `2h`), segmented pill tab switch (`Timer` vs `Clock`) with zero native radio artifacts, and dropdown pickers with custom vector chevrons.
-4. **Ergonomic Bottom Action Bar**: Unified bottom controls featuring secondary `Cancel` and `Reset` buttons on the left, and a prominent `Start Countdown` button on the right.
-5. **Fixed Utility Footprint (520 × 560 px)**: Dedicated utility window sizing (similar to Windows Calculator / native widgets) that prevents awkward vertical stretching or detached buttons on high-resolution displays.
+## Architecture at a Glance
 
-**Themes & Eye-Comfort Palette**
+<p align="center">
+  <a href="diagram/architecture-diagram-light.html">
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset="./diagram/architecture-diagram-dark.svg">
+      <source media="(prefers-color-scheme: light)" srcset="./diagram/architecture-diagram-light.svg">
+      <img src="./diagram/architecture-diagram-light.svg" width="100%" alt="Windows Shutdown Timer architecture diagram">
+    </picture>
+  </a>
+</p>
 
-- **Eye-Comfort Light Mode**: Soft concrete grey canvas (`#D8D8D8`) with pure white layered cards (`#FFFFFF`) and subtle `#C0C0C0` borders to eliminate harsh glare and eye strain.
-- **Deep Zinc Dark Mode**: Modern GitHub/Linear-inspired dark canvas (`#0d1117`) with `#161b22` card surfaces and `#30363d` subtle 1px borders.
-- **Dedicated Dynamic Localization (`EN` | `TH`)**: Quick toggle button in the header cleanly switches the entire interface between English and Thai without messy parenthetical stacking.
-- **Zero Emoji Slop**: 100% crisp vector SVG icons rendered via `PySide6.QtSvg` at High-DPI.
-
-Everything is native PySide6. No web renderer, no Electron, no external background service.
+<p align="center">
+  <a href="diagram/interactive/index.html"><strong>Open Interactive Architecture Explorer</strong></a>
+  &nbsp;·&nbsp;
+  <a href="diagram/architecture-diagram-light.html">Full HTML view</a>
+</p>
 
 ---
 
@@ -119,67 +131,75 @@ Output lands at `dist/Windows Shutdown Timer.exe`.
 
 ---
 
-## Architecture & Documentation
+## Explore the Architecture
 
-- **Architecture Decision Records (ADRs)**: Located in [`docs/adr/`](docs/adr/):
-  - [ADR 0001: Clickable Dropdown Time Selectors](docs/adr/0001-dropdown-time-selectors.md)
-  - [ADR 0002: Raycast / Linear Modern Precision UI Redesign](docs/adr/0002-linear-precision-redesign.md)
-  - [ADR 0003: Eye-Comfort Light Palette (#D8D8D8) & Fixed Window Dimensions](docs/adr/0003-eye-comfort-light-palette-and-fixed-window.md)
-- **Interactive Architecture Explorer (Archify)**:
-  - [Open `diagram/interactive/index.html`](diagram/interactive/index.html)
-  - Click/focus nodes to inspect responsibilities and verified source references.
-  - Includes Node Finder, Semantic Lens, PATH Route Probe, Light/Dark themes, deep links, and canonical export controls.
-  - Repository evidence is pinned to the commit recorded in [`candidate.json`](diagram/interactive/candidate.json).
-- **Static architecture set** — every view has Light/Dark HTML plus matching SVG and PNG exports:
-  - [Architecture](diagram/architecture-diagram-light.html) · runtime UI → scheduler → Windows boundary
-  - [Component](diagram/component-diagram-light.html) · logical components currently co-located in `shutdown_timer.py`
-  - [Context](diagram/context-diagram-light.html) · Level-0 runtime context
-  - [Data Flow](diagram/data-flow-diagram-light.html) · selection → validation → execution → feedback
-  - [Sequence](diagram/sequence-diagram-light.html) · scheduled vs immediate power branches
-  - [System Context](diagram/system-context-diagram-light.html) · local runtime plus distribution boundary
+### Interactive Explorer
+
+The checked [Archify explorer](diagram/interactive/index.html) adds node focus, verified source links, Node Finder, Semantic Lens, PATH Route Probe, deep links, Light/Dark themes, and canonical exports.
+
+> Repository evidence for the interactive view is pinned in [`diagram/interactive/candidate.json`](diagram/interactive/candidate.json).
 
 ### Diagram Gallery
 
+These previews use the existing SVG exports and automatically select a Light or Dark variant for the viewer. Click any preview to open its full HTML diagram.
+
 <p align="center">
-  <a href="diagram/architecture-diagram-light.html">
-    <img src="diagram/architecture-diagram-light.png" width="49%" alt="Architecture Diagram" />
-  </a>
   <a href="diagram/component-diagram-light.html">
-    <img src="diagram/component-diagram-light.png" width="49%" alt="Component Diagram" />
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset="./diagram/component-diagram-dark.svg">
+      <source media="(prefers-color-scheme: light)" srcset="./diagram/component-diagram-light.svg">
+      <img src="./diagram/component-diagram-light.svg" width="49%" alt="Component diagram">
+    </picture>
   </a>
-</p>
-
-<p align="center">
-  <strong>Architecture</strong> &nbsp;·&nbsp; <strong>Component</strong>
-</p>
-
-<p align="center">
   <a href="diagram/context-diagram-light.html">
-    <img src="diagram/context-diagram-light.png" width="49%" alt="Context Diagram" />
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset="./diagram/context-diagram-dark.svg">
+      <source media="(prefers-color-scheme: light)" srcset="./diagram/context-diagram-light.svg">
+      <img src="./diagram/context-diagram-light.svg" width="49%" alt="Context diagram">
+    </picture>
   </a>
+</p>
+
+<p align="center"><strong>Component</strong> &nbsp;·&nbsp; <strong>Context</strong></p>
+
+<p align="center">
   <a href="diagram/data-flow-diagram-light.html">
-    <img src="diagram/data-flow-diagram-light.png" width="49%" alt="Data Flow Diagram" />
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset="./diagram/data-flow-diagram-dark.svg">
+      <source media="(prefers-color-scheme: light)" srcset="./diagram/data-flow-diagram-light.svg">
+      <img src="./diagram/data-flow-diagram-light.svg" width="49%" alt="Data flow diagram">
+    </picture>
   </a>
-</p>
-
-<p align="center">
-  <strong>Context</strong> &nbsp;·&nbsp; <strong>Data Flow</strong>
-</p>
-
-<p align="center">
   <a href="diagram/sequence-diagram-light.html">
-    <img src="diagram/sequence-diagram-light.png" width="49%" alt="Sequence Diagram" />
-  </a>
-  <a href="diagram/system-context-diagram-light.html">
-    <img src="diagram/system-context-diagram-light.png" width="49%" alt="System Context Diagram" />
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset="./diagram/sequence-diagram-dark.svg">
+      <source media="(prefers-color-scheme: light)" srcset="./diagram/sequence-diagram-light.svg">
+      <img src="./diagram/sequence-diagram-light.svg" width="49%" alt="Sequence diagram">
+    </picture>
   </a>
 </p>
+
+<p align="center"><strong>Data Flow</strong> &nbsp;·&nbsp; <strong>Sequence</strong></p>
 
 <p align="center">
-  <strong>Sequence</strong> &nbsp;·&nbsp; <strong>System Context</strong>
+  <a href="diagram/system-context-diagram-light.html">
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset="./diagram/system-context-diagram-dark.svg">
+      <source media="(prefers-color-scheme: light)" srcset="./diagram/system-context-diagram-light.svg">
+      <img src="./diagram/system-context-diagram-light.svg" width="72%" alt="System context diagram">
+    </picture>
+  </a>
 </p>
 
-> Click any diagram image to open its full HTML view. Dark-mode variants are available beside the Light versions in [`diagram/`](diagram/).
+<p align="center"><strong>System Context</strong></p>
+
+> The **Architecture** hero above plus these five focused views form the complete static diagram set. Each preview links to its full HTML view; matching SVG and PNG exports live in [`diagram/`](diagram/).
+
+### Architecture Decisions
+
+- [ADR 0001 — Clickable Dropdown Time Selectors](docs/adr/0001-dropdown-time-selectors.md)
+- [ADR 0002 — Raycast / Linear Modern Precision UI Redesign](docs/adr/0002-linear-precision-redesign.md)
+- [ADR 0003 — Eye-Comfort Light Palette & Fixed Window Dimensions](docs/adr/0003-eye-comfort-light-palette-and-fixed-window.md)
 
 ### Regenerating static diagrams
 
