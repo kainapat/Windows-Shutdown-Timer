@@ -1,0 +1,220 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Windows Shutdown Timer",
+    "subtitle": "Interactive Architecture Explorer · scheduling, countdown, persistence, and Windows power",
+    "output": "diagram/interactive/index.html",
+    "quality_profile": "showcase",
+    "visual_preset": "editorial",
+    "repository": {
+      "url": "https://github.com/kainapat/Windows-Shutdown-Timer.git",
+      "provider": "github",
+      "link_mode": "web",
+      "revision": "180aee29937e317e370bde62ff4f7c01222b3e4b"
+    },
+    "views": [
+      {
+        "id": "scheduled-power",
+        "label": "Scheduled Power",
+        "focus": ["desktop-user", "ui", "controller", "countdown", "shutdown-cli"],
+        "note": "Shutdown and Restart are scheduled through shutdown.exe and tracked by a one-second QTimer."
+      },
+      {
+        "id": "immediate-power",
+        "label": "Immediate Power",
+        "focus": ["desktop-user", "ui", "controller", "suspend-api"],
+        "note": "Sleep and Hibernate bypass the countdown path and execute immediately after confirmation."
+      },      {
+        "id": "countdown",
+        "label": "Countdown",
+        "focus": ["ui", "controller", "countdown"],
+        "note": "The controller owns target time; QTimer refreshes remaining time, status, and progress."
+      },
+      {
+        "id": "persistence",
+        "label": "Persistence",
+        "focus": ["controller", "settings"],
+        "note": "Timer settings are read from JSON and saved with temp-file plus atomic replace."
+      },
+      {
+        "id": "platform",
+        "label": "Windows Boundary",
+        "focus": ["controller", "shutdown-cli", "suspend-api"],
+        "note": "The app delegates the final power effect to Windows commands; no driver or background service is used."
+      }
+    ]
+  },
+  "components": [
+    {
+      "id": "desktop-user",
+      "type": "external",
+      "label": "Desktop User",
+      "sublabel": "choose action, time, start, cancel",
+      "icon": "person",
+      "pos": [40, 300],
+      "size": [160, 72],      "sources": [
+        {"path": "README.md", "line": 51, "end_line": 54, "label": "User controls"}
+      ]
+    },
+    {
+      "id": "ui",
+      "type": "frontend",
+      "label": "PySide6 UI",
+      "sublabel": "ShutdownTimerApp · widgets · dialogs",
+      "icon": "frontend",
+      "pos": [330, 300],
+      "size": [180, 80],
+      "sources": [
+        {"path": "shutdown_timer.py", "line": 584, "end_line": 617, "label": "Main window"}
+      ]
+    },
+    {
+      "id": "controller",
+      "type": "backend",
+      "label": "Scheduler Controller",
+      "sublabel": "start_timer() · validation · routing",
+      "icon": "backend",
+      "tag": "0–72h",
+      "pos": [620, 300],
+      "size": [210, 88],
+      "sources": [
+        {"path": "shutdown_timer.py", "line": 1630, "end_line": 1708, "label": "Scheduling"}
+      ]
+    },    {
+      "id": "settings",
+      "type": "database",
+      "label": "Settings Store",
+      "sublabel": "timer_config.json · atomic JSON",
+      "icon": "database",
+      "pos": [620, 90],
+      "size": [210, 76],
+      "sources": [
+        {"path": "shutdown_timer.py", "line": 1880, "end_line": 1923, "label": "JSON persistence"}
+      ]
+    },
+    {
+      "id": "countdown",
+      "type": "backend",
+      "label": "Countdown Engine",
+      "sublabel": "QTimer · update_countdown()",
+      "icon": "clock",
+      "pos": [620, 510],
+      "size": [210, 80],
+      "sources": [
+        {"path": "shutdown_timer.py", "line": 599, "end_line": 600, "label": "QTimer wiring"},
+        {"path": "shutdown_timer.py", "line": 1791, "end_line": 1821, "label": "Countdown update"}
+      ]
+    },    {
+      "id": "shutdown-cli",
+      "type": "external",
+      "label": "Windows shutdown.exe",
+      "sublabel": "schedule /s or /r · cancel /a",
+      "icon": "external",
+      "pos": [1040, 220],
+      "size": [210, 80],
+      "sources": [
+        {"path": "shutdown_timer.py", "line": 1691, "end_line": 1697, "label": "Schedule command"},
+        {"path": "shutdown_timer.py", "line": 1766, "end_line": 1769, "label": "Cancel command"}
+      ]
+    },
+    {
+      "id": "suspend-api",
+      "type": "external",
+      "label": "Windows Suspend Path",
+      "sublabel": "rundll32 · powrprof SetSuspendState",
+      "icon": "moon",
+      "pos": [1040, 410],
+      "size": [230, 80],
+      "sources": [
+        {"path": "shutdown_timer.py", "line": 1717, "end_line": 1743, "label": "Immediate suspend"}
+      ]
+    }
+  ],  "boundaries": [
+    {
+      "kind": "region",
+      "label": "Windows Shutdown Timer process",
+      "wraps": ["ui", "controller", "countdown"],
+      "pad": 28
+    },
+    {
+      "kind": "region",
+      "label": "Windows power services",
+      "wraps": ["shutdown-cli", "suspend-api"],
+      "pad": 24
+    }
+  ],
+  "connections": [
+    {
+      "id": "user-selects",
+      "from": "desktop-user",
+      "to": "ui",
+      "label": "choose action + time",
+      "variant": "emphasis"
+    },
+    {
+      "id": "ui-starts",
+      "from": "ui",
+      "to": "controller",
+      "label": "Start / Cancel",
+      "variant": "emphasis"
+    },    {
+      "id": "controller-schedules",
+      "from": "controller",
+      "to": "shutdown-cli",
+      "label": "schedule /s|/r /t · cancel /a",
+      "variant": "emphasis"
+    },
+    {
+      "id": "controller-suspends",
+      "from": "controller",
+      "to": "suspend-api",
+      "label": "rundll32 SetSuspendState",
+      "variant": "default"
+    },
+    {
+      "id": "controller-countdown",
+      "from": "controller",
+      "to": "countdown",
+      "label": "start 1s QTimer"
+    },
+    {
+      "id": "countdown-ui",
+      "from": "countdown",
+      "to": "ui",
+      "label": "status + progress",
+      "variant": "dashed"
+    },
+    {
+      "id": "controller-settings",
+      "from": "controller",
+      "to": "settings",
+      "label": "read / atomic write"
+    }
+  ],  "cards": [
+    {
+      "dot": "rose",
+      "title": "Scheduling rules",
+      "items": [
+        "Shutdown / Restart validate a future target and cap scheduling at 72 hours.",
+        "Any existing Windows shutdown task is aborted before a new one is scheduled."
+      ]
+    },
+    {
+      "dot": "cyan",
+      "title": "Immediate power path",
+      "items": [
+        "Sleep / Hibernate branch before Timer or Clock validation.",
+        "After confirmation, rundll32 invokes powrprof SetSuspendState immediately."
+      ]
+    },
+    {
+      "dot": "violet",
+      "title": "Persistence",
+      "items": [
+        "Timer selections are loaded from JSON on startup.",
+        "Writes use a temporary file followed by os.replace for atomic persistence."
+      ]
+    }
+  ]
+}

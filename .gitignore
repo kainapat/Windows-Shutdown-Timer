@@ -37,3 +37,15 @@ scratch/
 .agents/
 skills-lock.json
 
+
+
+# Local documentation / browser QA artifacts
+.playwright-cli/
+output/
+.zcodeignore
+diagram/interactive/*.browser-check.json
+diagram/interactive/*.delivery.json
+diagram/interactive/*.finalize.json
+diagram/interactive/*.finalize-summary.json
+diagram/interactive/*.visual-check.*
+diagram/interactive/review-*/

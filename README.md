@@ -5,15 +5,15 @@
 
   <h1>Windows Shutdown Timer</h1>
 
-  <p>Schedule a shutdown, restart, sleep, or hibernate on Windows.<br/>
+  <p>Schedule Windows shutdown or restart, or trigger sleep / hibernate immediately.<br/>
   Modern Raycast / Linear Precision interface. Zero emoji clutter. Bilingual (EN | TH). Fixed utility footprint. No background bloat.</p>
 
   <br/>
 
   [![Python](https://img.shields.io/badge/Python-3.10+-4f8ef7?style=flat-square&logo=python&logoColor=white)](https://www.python.org/)&nbsp;
   [![PySide6](https://img.shields.io/badge/PySide6-6.4+-43b89c?style=flat-square&logo=qt&logoColor=white)](https://doc.qt.io/qtforpython-6/)&nbsp;
-  [![Windows](https://img.shields.io/badge/Windows-7%2F8%2F10%2F11-0078D4?style=flat-square&logo=windows&logoColor=white)](https://www.microsoft.com/windows)&nbsp;
-  [![License](https://img.shields.io/badge/License-MIT-f5c518?style=flat-square)](LICENSE)
+  [![Windows](https://img.shields.io/badge/Windows-Desktop-0078D4?style=flat-square&logo=windows&logoColor=white)](https://www.microsoft.com/windows)&nbsp;
+  [![License](https://img.shields.io/badge/License-MIT-f5c518?style=flat-square)](#license)
 
   <br/><br/>
 
@@ -30,21 +30,27 @@ pip install -r requirements.txt
 python shutdown_timer.py
 ```
 
-> Requires Python 3.10+ on Windows 7, 8, 10, or 11.
+> Requires Python 3.10+ on Windows. Exact OS compatibility depends on the installed PySide6 / Qt release.
 
 ---
 
 ## What it does
 
-Pick a power action and a duration or specific clock time. The app schedules it and counts down. When the timer hits zero, Windows executes the selected action (Shutdown, Restart, Sleep, or Hibernate). Cancel anytime from inside the app or with `Ctrl+C` in the terminal.
+Choose one of four power actions:
+
+- **Shutdown / Restart** are schedulable. Pick a relative duration or an absolute clock time, then the app schedules the Windows action and displays a live countdown.
+- **Sleep / Hibernate** are immediate actions in the current implementation. After confirmation, the app invokes the Windows suspend path immediately; Timer / Clock values are not used for these two actions.
 
 **Scheduling Modes**
 
 | Mode | How it works |
 |---|---|
-| **Quick Presets** | Instant one-click chips: `15m`, `30m`, `1h`, or `2h` from now |
-| **Timer (นับถอยหลัง)** | Precision discrete dropdowns for Hours (`0`–`24 hr`), Minutes (`0`–`59 min`), and Seconds (`0`–`59 sec`) |
-| **Clock (ระบุเวลาจริง)** | Interactive date picker (calendar popup) + discrete hour (`00`–`23`) and minute (`00`–`59`) dropdowns |
+| **Quick Presets** | One-click `15m`, `30m`, `1h`, or `2h` schedules for **Shutdown / Restart only** |
+| **Timer (นับถอยหลัง)** | Relative schedule for **Shutdown / Restart** using Hours (`0`–`24 hr`), Minutes (`0`–`59 min`), and Seconds (`0`–`59 sec`) |
+| **Clock (ระบุเวลาจริง)** | Absolute schedule for **Shutdown / Restart** using a date picker plus hour (`00`–`23`) and minute (`00`–`59`) dropdowns |
+| **Sleep / Hibernate** | Immediate execution after confirmation; no countdown is created |
+
+> **Important:** use **Cancel** to abort an active Windows shutdown / restart schedule. **Reset** only clears UI fields/configuration and does not issue `shutdown /a`. Closing the app also stops the in-app countdown display but does not cancel a shutdown / restart already handed to Windows.
 
 **The Interface (Raycast / Linear Precision Style)**
 
@@ -67,21 +73,36 @@ Everything is native PySide6. No web renderer, no Electron, no external backgrou
 
 ## Under the Hood
 
-The app calls native Windows CLI tools directly — no drivers, no background services:
+The app delegates power operations to Windows directly — no driver and no background service:
 
-```
-Shutdown   →  shutdown /s /t <seconds>
-Restart    →  shutdown /r /t <seconds>
-Sleep      →  rundll32.exe powrprof.dll,SetSuspendState 0,1,0
-Hibernate  →  rundll32.exe powrprof.dll,SetSuspendState 1,1,0
-Cancel     →  shutdown /a
+| Action | Current runtime path |
+|---|---|
+| **Shutdown** | `shutdown /s /t <seconds>` |
+| **Restart** | `shutdown /r /t <seconds>` |
+| **Sleep** | `rundll32.exe powrprof.dll,SetSuspendState 0,1,0` — immediate |
+| **Hibernate** | `rundll32.exe powrprof.dll,SetSuspendState 1,1,0` — immediate |
+| **Cancel scheduled shutdown/restart** | `shutdown /a` |
+
+Runtime flow for a scheduled Shutdown / Restart:
+
+```text
+User
+  → PySide6 UI
+  → Scheduler Controller
+  → validate Timer / Clock target (future, non-zero, max 72h)
+  → abort previous Windows shutdown request
+  → shutdown.exe /s|/r /t <seconds>
+  → QTimer countdown + status/progress updates
+  → atomic JSON settings write
 ```
 
 A few reliability details:
-- Configuration is written atomically (temp file → atomic replace) to survive sudden power cut or crash mid-write.
-- Any existing Windows shutdown task is automatically cancelled before scheduling a new one.
-- `Ctrl+C` / `Ctrl+Break` aborts silently and cancels active schedules cleanly.
-- Full backward-compatibility proxies (`SpinBoxProxy`, `DateTimeProxy`, legacy aliases) ensure 100% compatibility with older configs.
+- Timer settings use temp-file + `os.replace()` atomic writes.
+- Any existing Windows shutdown request is aborted before a new Shutdown / Restart schedule is created.
+- `Ctrl+C` / `Ctrl+Break` calls `cancel_timer(confirm=False)` when the app still tracks an active schedule.
+- **Reset is not Cancel**: Reset clears fields/configuration but does not issue `shutdown /a`.
+- Closing the GUI stops the local QTimer and deletes the timer config, but a Shutdown / Restart already scheduled in Windows continues unless explicitly cancelled.
+- Backward-compatibility proxies (`SpinBoxProxy`, `DateTimeProxy`, legacy aliases) preserve older configuration access patterns.
 
 ---
 
@@ -104,36 +125,63 @@ Output lands at `dist/Windows Shutdown Timer.exe`.
   - [ADR 0001: Clickable Dropdown Time Selectors](docs/adr/0001-dropdown-time-selectors.md)
   - [ADR 0002: Raycast / Linear Modern Precision UI Redesign](docs/adr/0002-linear-precision-redesign.md)
   - [ADR 0003: Eye-Comfort Light Palette (#D8D8D8) & Fixed Window Dimensions](docs/adr/0003-eye-comfort-light-palette-and-fixed-window.md)
-- **Architecture Diagrams**: Located in [`diagram/`](diagram/):
-  - [`Component Diagram`](diagram/component-diagram.html): 3-Tier internal architecture
-  - [`Context Diagram (Level 0)`](diagram/context-diagram.html): System boundary and interactions
-  - [`Data Flow Diagram (DFD)`](diagram/data-flow-diagram.html): State lifecycle
-  - [`Sequence Diagram`](diagram/sequence-diagram.html): Chronological execution & cancellation sequence
+- **Interactive Architecture Explorer (Archify)**:
+  - [Open `diagram/interactive/index.html`](diagram/interactive/index.html)
+  - Click/focus nodes to inspect responsibilities and verified source references.
+  - Includes Node Finder, Semantic Lens, PATH Route Probe, Light/Dark themes, deep links, and canonical export controls.
+  - Repository evidence is pinned to the commit recorded in [`candidate.json`](diagram/interactive/candidate.json).
+- **Static architecture set** — every view has Light/Dark HTML plus matching SVG and PNG exports:
+  - [Architecture](diagram/architecture-diagram-light.html) · runtime UI → scheduler → Windows boundary
+  - [Component](diagram/component-diagram-light.html) · logical components currently co-located in `shutdown_timer.py`
+  - [Context](diagram/context-diagram-light.html) · Level-0 runtime context
+  - [Data Flow](diagram/data-flow-diagram-light.html) · selection → validation → execution → feedback
+  - [Sequence](diagram/sequence-diagram-light.html) · scheduled vs immediate power branches
+  - [System Context](diagram/system-context-diagram-light.html) · local runtime plus distribution boundary
+
+### Regenerating static diagrams
+
+```bash
+cd diagram
+python generate_diagrams.py
+python export_png.py
+python verify_render_match.py
+```
+
+`export_png.py` uses Playwright with an installed Chrome/Edge executable. `verify_render_match.py` checks that browser-rendered HTML, standalone SVG, and PNG exports stay visually aligned.
 
 ---
 
 ## Project Layout
 
-```
+```text
 Windows Shutdown Timer/
-├── shutdown_timer.py             # Application code
-├── requirements.txt              # PySide6 >= 6.4.0
-├── off.png / off.ico             # App icon — PNG and multi-res ICO
-├── chevron_dark.svg              # Dark theme vector caret
-├── chevron_light.svg             # Light theme vector caret
-├── Windows Shutdown Timer.spec   # PyInstaller spec
-├── timer_config.json             # Runtime config — cleared on exit
-├── window_config.json            # Window position, theme, and language
-├── docs/adr/                     # Architecture Decision Records
+├── shutdown_timer.py               # PySide6 application + scheduling logic
+├── requirements.txt                # Runtime Python dependencies
+├── Windows Shutdown Timer.spec     # PyInstaller build definition
+├── off.png / off.ico               # Application icon assets
+├── chevron_dark.svg
+├── chevron_light.svg
+├── CONTEXT.md                      # Canonical domain vocabulary
+├── docs/adr/                       # Architecture Decision Records
 │   ├── 0001-dropdown-time-selectors.md
 │   ├── 0002-linear-precision-redesign.md
 │   └── 0003-eye-comfort-light-palette-and-fixed-window.md
-└── diagram/                      # Standalone Architecture & System Diagrams (HTML)
-    ├── component-diagram.html
-    ├── context-diagram.html
-    ├── data-flow-diagram.html
-    └── sequence-diagram.html
+└── diagram/
+    ├── architecture-diagram-{light,dark}.{html,svg,png}
+    ├── component-diagram-{light,dark}.{html,svg,png}
+    ├── context-diagram-{light,dark}.{html,svg,png}
+    ├── data-flow-diagram-{light,dark}.{html,svg,png}
+    ├── sequence-diagram-{light,dark}.{html,svg,png}
+    ├── system-context-diagram-{light,dark}.{html,svg,png}
+    ├── generate_diagrams.py
+    ├── export_png.py
+    ├── verify_render_match.py
+    └── interactive/
+        ├── candidate.json           # Archify source with repository evidence
+        └── index.html               # Interactive Architecture Explorer
 ```
+
+Runtime-generated `timer_config.json` and `window_config.json` are intentionally ignored by Git.
 
 ---
 
