@@ -23,7 +23,7 @@
   &nbsp;·&nbsp;
   <a href="#architecture-at-a-glance">Architecture</a>
   &nbsp;·&nbsp;
-  <a href="diagram/interactive/index.html">Interactive Explorer</a>
+  <a href="#explore-the-architecture">Diagram Gallery</a>
   &nbsp;·&nbsp;
   <a href="#building-a-standalone-exe">Build</a>
 
@@ -66,19 +66,19 @@ python shutdown_timer.py
 ## Architecture at a Glance
 
 <p align="center">
-  <a href="diagram/architecture-diagram-light.html">
-    <picture>
-      <source media="(prefers-color-scheme: dark)" srcset="./diagram/architecture-diagram-dark.svg">
-      <source media="(prefers-color-scheme: light)" srcset="./diagram/architecture-diagram-light.svg">
-      <img src="./diagram/architecture-diagram-light.svg" width="100%" alt="Windows Shutdown Timer architecture diagram">
-    </picture>
-  </a>
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="./diagram/architecture-diagram-dark.svg">
+    <source media="(prefers-color-scheme: light)" srcset="./diagram/architecture-diagram-light.svg">
+    <img src="./diagram/architecture-diagram-light.svg" width="100%" alt="Windows Shutdown Timer architecture diagram">
+  </picture>
 </p>
 
 <p align="center">
-  <a href="diagram/interactive/index.html"><strong>Open Interactive Architecture Explorer</strong></a>
+  <a href="diagram/architecture-diagram-light.svg">Light SVG</a>
   &nbsp;·&nbsp;
-  <a href="diagram/architecture-diagram-light.html">Full HTML view</a>
+  <a href="diagram/architecture-diagram-dark.svg">Dark SVG</a>
+  &nbsp;·&nbsp;
+  <a href="diagram/architecture-diagram-light.html">HTML artifact</a>
 </p>
 
 ---
@@ -133,67 +133,97 @@ Output lands at `dist/Windows Shutdown Timer.exe`.
 
 ## Explore the Architecture
 
-### Interactive Explorer
+### Archify source artifact
 
-The checked [Archify explorer](diagram/interactive/index.html) adds node focus, verified source links, Node Finder, Semantic Lens, PATH Route Probe, deep links, Light/Dark themes, and canonical exports.
+The repository includes an Archify-generated HTML artifact with node focus, verified source links, Node Finder, Semantic Lens, PATH Route Probe, deep links, Light/Dark themes, and canonical exports.
 
-> Repository evidence for the interactive view is pinned in [`diagram/interactive/candidate.json`](diagram/interactive/candidate.json).
+> GitHub displays repository HTML files as source. The Archify artifact is available at [`diagram/interactive/index.html`](diagram/interactive/index.html), with repository evidence pinned in [`diagram/interactive/candidate.json`](diagram/interactive/candidate.json).
 
 ### Diagram Gallery
 
-These previews use the existing SVG exports and automatically select a Light or Dark variant for the viewer. Click any preview to open its full HTML diagram.
+These SVG previews render directly in the README and automatically switch between Light and Dark variants with the viewer's GitHub theme. The images themselves are intentionally not links.
 
 <p align="center">
-  <a href="diagram/component-diagram-light.html">
-    <picture>
-      <source media="(prefers-color-scheme: dark)" srcset="./diagram/component-diagram-dark.svg">
-      <source media="(prefers-color-scheme: light)" srcset="./diagram/component-diagram-light.svg">
-      <img src="./diagram/component-diagram-light.svg" width="49%" alt="Component diagram">
-    </picture>
-  </a>
-  <a href="diagram/context-diagram-light.html">
-    <picture>
-      <source media="(prefers-color-scheme: dark)" srcset="./diagram/context-diagram-dark.svg">
-      <source media="(prefers-color-scheme: light)" srcset="./diagram/context-diagram-light.svg">
-      <img src="./diagram/context-diagram-light.svg" width="49%" alt="Context diagram">
-    </picture>
-  </a>
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="./diagram/component-diagram-dark.svg">
+    <source media="(prefers-color-scheme: light)" srcset="./diagram/component-diagram-light.svg">
+    <img src="./diagram/component-diagram-light.svg" width="49%" alt="Component diagram">
+  </picture>
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="./diagram/context-diagram-dark.svg">
+    <source media="(prefers-color-scheme: light)" srcset="./diagram/context-diagram-light.svg">
+    <img src="./diagram/context-diagram-light.svg" width="49%" alt="Context diagram">
+  </picture>
 </p>
-
-<p align="center"><strong>Component</strong> &nbsp;·&nbsp; <strong>Context</strong></p>
 
 <p align="center">
-  <a href="diagram/data-flow-diagram-light.html">
-    <picture>
-      <source media="(prefers-color-scheme: dark)" srcset="./diagram/data-flow-diagram-dark.svg">
-      <source media="(prefers-color-scheme: light)" srcset="./diagram/data-flow-diagram-light.svg">
-      <img src="./diagram/data-flow-diagram-light.svg" width="49%" alt="Data flow diagram">
-    </picture>
-  </a>
-  <a href="diagram/sequence-diagram-light.html">
-    <picture>
-      <source media="(prefers-color-scheme: dark)" srcset="./diagram/sequence-diagram-dark.svg">
-      <source media="(prefers-color-scheme: light)" srcset="./diagram/sequence-diagram-light.svg">
-      <img src="./diagram/sequence-diagram-light.svg" width="49%" alt="Sequence diagram">
-    </picture>
-  </a>
+  <strong>Component</strong>
+  ·
+  <a href="diagram/component-diagram-light.svg">Light SVG</a>
+  ·
+  <a href="diagram/component-diagram-dark.svg">Dark SVG</a>
+  ·
+  <a href="diagram/component-diagram-light.html">HTML artifact</a>
+  &nbsp;&nbsp;|&nbsp;&nbsp;
+  <strong>Context</strong>
+  ·
+  <a href="diagram/context-diagram-light.svg">Light SVG</a>
+  ·
+  <a href="diagram/context-diagram-dark.svg">Dark SVG</a>
+  ·
+  <a href="diagram/context-diagram-light.html">HTML artifact</a>
 </p>
-
-<p align="center"><strong>Data Flow</strong> &nbsp;·&nbsp; <strong>Sequence</strong></p>
 
 <p align="center">
-  <a href="diagram/system-context-diagram-light.html">
-    <picture>
-      <source media="(prefers-color-scheme: dark)" srcset="./diagram/system-context-diagram-dark.svg">
-      <source media="(prefers-color-scheme: light)" srcset="./diagram/system-context-diagram-light.svg">
-      <img src="./diagram/system-context-diagram-light.svg" width="72%" alt="System context diagram">
-    </picture>
-  </a>
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="./diagram/data-flow-diagram-dark.svg">
+    <source media="(prefers-color-scheme: light)" srcset="./diagram/data-flow-diagram-light.svg">
+    <img src="./diagram/data-flow-diagram-light.svg" width="49%" alt="Data flow diagram">
+  </picture>
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="./diagram/sequence-diagram-dark.svg">
+    <source media="(prefers-color-scheme: light)" srcset="./diagram/sequence-diagram-light.svg">
+    <img src="./diagram/sequence-diagram-light.svg" width="49%" alt="Sequence diagram">
+  </picture>
 </p>
 
-<p align="center"><strong>System Context</strong></p>
+<p align="center">
+  <strong>Data Flow</strong>
+  ·
+  <a href="diagram/data-flow-diagram-light.svg">Light SVG</a>
+  ·
+  <a href="diagram/data-flow-diagram-dark.svg">Dark SVG</a>
+  ·
+  <a href="diagram/data-flow-diagram-light.html">HTML artifact</a>
+  &nbsp;&nbsp;|&nbsp;&nbsp;
+  <strong>Sequence</strong>
+  ·
+  <a href="diagram/sequence-diagram-light.svg">Light SVG</a>
+  ·
+  <a href="diagram/sequence-diagram-dark.svg">Dark SVG</a>
+  ·
+  <a href="diagram/sequence-diagram-light.html">HTML artifact</a>
+</p>
 
-> The **Architecture** hero above plus these five focused views form the complete static diagram set. Each preview links to its full HTML view; matching SVG and PNG exports live in [`diagram/`](diagram/).
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="./diagram/system-context-diagram-dark.svg">
+    <source media="(prefers-color-scheme: light)" srcset="./diagram/system-context-diagram-light.svg">
+    <img src="./diagram/system-context-diagram-light.svg" width="72%" alt="System context diagram">
+  </picture>
+</p>
+
+<p align="center">
+  <strong>System Context</strong>
+  ·
+  <a href="diagram/system-context-diagram-light.svg">Light SVG</a>
+  ·
+  <a href="diagram/system-context-diagram-dark.svg">Dark SVG</a>
+  ·
+  <a href="diagram/system-context-diagram-light.html">HTML artifact</a>
+</p>
+
+> The **Architecture** hero above plus these five focused views form the complete static diagram set. Matching SVG, PNG, and HTML artifacts live in [`diagram/`](diagram/).
 
 ### Architecture Decisions
 
